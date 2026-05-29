@@ -303,9 +303,13 @@
 .frg-preview__content p,
 .frg-preview__content ul,
 .frg-preview__content ol,
+.frg-preview__content .frg-address-block,
+.frg-preview__content .frg-required-facts,
 .frg-document p,
 .frg-document ul,
-.frg-document ol {
+.frg-document ol,
+.frg-document .frg-address-block,
+.frg-document .frg-required-facts {
 	margin-top: 0;
 	margin-bottom: 20px;
 	line-height: 1.8;
@@ -356,6 +360,37 @@
 
 .frg-document p strong {
 	font-weight: 700;
+}
+
+.frg-preview__content .frg-address-block strong,
+.frg-document .frg-address-block strong {
+	display: block;
+	margin-bottom: 8px;
+}
+
+.frg-preview__content .frg-address,
+.frg-document .frg-address {
+	display: inline-flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.frg-preview__content .frg-address__line,
+.frg-document .frg-address__line {
+	display: block;
+}
+
+.frg-preview__content .frg-required-facts,
+.frg-document .frg-required-facts {
+	padding: 16px 18px;
+	border: 1px solid #dde5ee;
+	border-radius: 16px;
+	background: #f8fbff;
+}
+
+.frg-preview__content .frg-required-facts__title,
+.frg-document .frg-required-facts__title {
+	margin-bottom: 10px;
 }
 
 .frg-html-export {

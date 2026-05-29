@@ -94,6 +94,9 @@ Aktueller Release: `1.2.0`
 - Schulungsportal-Details nur noch sichtbar, wenn der Hauptbereich aktiv ist
 - Datenschutzbereich um Hosting-Anschrift sowie Telefon und Anschrift des Datenschutzbeauftragten erweitert
 - Wizard in Schritt 2 bis 4 übersichtlicher aufgebaut und optionale Felder konditional eingeblendet
+- Adressen im Ergebnis als eigene Adressblöcke formatiert
+- Pflichtangaben werden bei KI- oder Live-Overrides systemseitig ergänzt, wenn sie im Blocktext fehlen
+- Hosting-Block ergänzt Hosting-Anbieter, Serverstandort, Hoster-Anschrift und AV-Hinweis zuverlässig aus den Formulardaten
 
 ### 1.1.0
 

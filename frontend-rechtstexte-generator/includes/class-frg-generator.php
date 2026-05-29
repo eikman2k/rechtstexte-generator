@@ -19,7 +19,7 @@ class FRG_Generator {
 	}
 
 	public function build_exportable_document_html( string $content ): string {
-		$style = '<style>.frg-document{max-width:960px;color:#243447;font-size:18px}.frg-document>*:first-child{margin-top:0}.frg-document h2,.frg-document h3,.frg-document h4{margin-top:0}.frg-document h2{margin-bottom:20px;font-size:clamp(2rem,3vw,2.45rem);line-height:1.18}.frg-document h3{margin-top:52px;margin-bottom:14px;font-size:clamp(1.65rem,2.2vw,2rem);line-height:1.24;letter-spacing:-.02em}.frg-document h4{margin-top:52px;margin-bottom:14px;font-size:clamp(1.3rem,1.8vw,1.55rem);line-height:1.3}.frg-document p,.frg-document ul,.frg-document ol{margin-top:0;margin-bottom:20px;line-height:1.8}.frg-document ul,.frg-document ol{padding-left:22px}.frg-document li+li{margin-top:8px}.frg-document h3+p,.frg-document h4+p{margin-top:4px}.frg-document p strong{font-weight:700}</style>';
+		$style = '<style>.frg-document{max-width:960px;color:#243447;font-size:18px}.frg-document>*:first-child{margin-top:0}.frg-document h2,.frg-document h3,.frg-document h4{margin-top:0}.frg-document h2{margin-bottom:20px;font-size:clamp(2rem,3vw,2.45rem);line-height:1.18}.frg-document h3{margin-top:52px;margin-bottom:14px;font-size:clamp(1.65rem,2.2vw,2rem);line-height:1.24;letter-spacing:-.02em}.frg-document h4{margin-top:52px;margin-bottom:14px;font-size:clamp(1.3rem,1.8vw,1.55rem);line-height:1.3}.frg-document p,.frg-document ul,.frg-document ol,.frg-document .frg-address-block,.frg-document .frg-required-facts{margin-top:0;margin-bottom:20px;line-height:1.8}.frg-document ul,.frg-document ol{padding-left:22px}.frg-document li+li{margin-top:8px}.frg-document h3+p,.frg-document h4+p{margin-top:4px}.frg-document p strong{font-weight:700}.frg-document .frg-address-block strong{display:block;margin-bottom:8px}.frg-document .frg-address{display:inline-flex;flex-direction:column;gap:4px}.frg-document .frg-address__line{display:block}.frg-document .frg-required-facts{padding:16px 18px;border:1px solid #dde5ee;border-radius:16px;background:#f8fbff}.frg-document .frg-required-facts__title{margin-bottom:10px}</style>';
 
 		return $style . $content;
 	}
@@ -77,7 +77,15 @@ class FRG_Generator {
 		$parts   = array();
 		$parts[] = $this->modules->render_block( 'privacy_intro', $privacy_data );
 		$parts[] = $this->modules->render_block( 'controller', $privacy_data );
-		if ( ! empty( $data['has_data_protection_officer'] ) && ( ! empty( $data['data_protection_officer_name'] ) || ! empty( $data['data_protection_officer_email'] ) ) ) {
+		if (
+			! empty( $data['has_data_protection_officer'] ) &&
+			(
+				! empty( $data['data_protection_officer_name'] ) ||
+				! empty( $data['data_protection_officer_email'] ) ||
+				! empty( $data['data_protection_officer_phone'] ) ||
+				! empty( $data['data_protection_officer_address'] )
+			)
+		) {
 			$parts[] = $this->modules->render_block( 'data_protection_officer', $privacy_data );
 		}
 		$parts[] = $this->modules->render_block( 'general_processing', $privacy_data );
@@ -194,6 +202,13 @@ class FRG_Generator {
 			'zip'                => esc_html( $data['zip'] ?? '' ),
 			'city'               => esc_html( $data['city'] ?? '' ),
 			'country'            => esc_html( $data['country'] ?? '' ),
+			'postal_address'     => $this->format_address_lines(
+				array(
+					(string) ( $data['street'] ?? '' ),
+					trim( (string) ( $data['zip'] ?? '' ) . ' ' . (string) ( $data['city'] ?? '' ) ),
+					(string) ( $data['country'] ?? '' ),
+				)
+			),
 			'email'              => esc_html( $data['email'] ?? '' ),
 			'phone_line'         => ! empty( $data['phone'] ) ? esc_html__( 'Telefon', 'frontend-rechtstexte-generator' ) . ': ' . esc_html( $data['phone'] ) . '<br>' : '',
 			'website_line'       => ! empty( $data['website_url'] ) ? esc_html__( 'Website', 'frontend-rechtstexte-generator' ) . ': ' . esc_html( $data['website_url'] ) : '',
@@ -202,14 +217,14 @@ class FRG_Generator {
 			'vat_id'             => esc_html( $data['vat_id'] ?? '' ),
 			'business_id_line'   => ! empty( $data['business_id'] ) ? '<br>' . esc_html__( 'Wirtschafts-ID', 'frontend-rechtstexte-generator' ) . ': ' . esc_html( $data['business_id'] ) : '',
 			'name'               => esc_html( $data['responsible_name'] ?? '' ),
-			'address'            => nl2br( esc_html( $data['responsible_address'] ?? '' ) ),
+			'address'            => $this->format_multiline_address( (string) ( $data['responsible_address'] ?? '' ) ),
 			'chamber'            => esc_html( $data['professional_chamber'] ?? '' ),
 			'title'              => esc_html( $data['professional_title'] ?? '' ),
 			'awarded_in'         => esc_html( $data['professional_awarded_in'] ?? '' ),
 			'rules'              => esc_html( $data['professional_rules'] ?? '' ),
 			'authority'          => esc_html( $data['supervisory_authority'] ?? '' ),
 			'insurer'            => esc_html( $data['liability_insurer'] ?? '' ),
-			'insurer_address'    => nl2br( esc_html( $data['liability_insurer_address'] ?? '' ) ),
+			'insurer_address'    => $this->format_multiline_address( (string) ( $data['liability_insurer_address'] ?? '' ) ),
 			'scope'              => esc_html( $data['liability_scope'] ?? '' ),
 		);
 	}
@@ -321,19 +336,26 @@ class FRG_Generator {
 			'zip'                        => esc_html( $data['zip'] ?? '' ),
 			'city'                       => esc_html( $data['city'] ?? '' ),
 			'country'                    => esc_html( $data['country'] ?? '' ),
+			'controller_address'         => $this->format_address_lines(
+				array(
+					(string) ( $data['street'] ?? '' ),
+					trim( (string) ( $data['zip'] ?? '' ) . ' ' . (string) ( $data['city'] ?? '' ) ),
+					(string) ( $data['country'] ?? '' ),
+				)
+			),
 			'email'                      => esc_html( $data['email'] ?? '' ),
 			'website_url'                => esc_html( $data['website_url'] ?? '' ),
 			'name'                       => esc_html( $data['data_protection_officer_name'] ?? '' ),
 			'dpo_email'                  => esc_html( $data['data_protection_officer_email'] ?? '' ),
 			'dpo_phone'                  => esc_html( $data['data_protection_officer_phone'] ?? '' ),
-			'dpo_address'                => nl2br( esc_html( $data['data_protection_officer_address'] ?? '' ) ),
+			'dpo_address'                => $this->format_multiline_address( (string) ( $data['data_protection_officer_address'] ?? '' ) ),
 			'purposes'                   => esc_html( $data['privacy_processing_purposes'] ?? __( 'Bereitstellung der Website, Kommunikation, Vertragsdurchfuehrung und Sicherheit', 'frontend-rechtstexte-generator' ) ),
 			'legal_basis'                => esc_html( $data['privacy_legal_basis'] ?? __( 'Art. 6 Abs. 1 DSGVO nach konkreter Verarbeitung', 'frontend-rechtstexte-generator' ) ),
 			'recipients'                 => esc_html( $data['privacy_recipient_categories'] ?? __( 'Hosting, IT-Dienstleister, eingesetzte Fachanbieter', 'frontend-rechtstexte-generator' ) ),
 			'storage'                    => esc_html( $data['privacy_storage_general'] ?? __( 'Speicherung nur so lange, wie dies fuer den jeweiligen Zweck oder gesetzliche Pflichten erforderlich ist', 'frontend-rechtstexte-generator' ) ),
 			'third_country'              => esc_html( $data['privacy_third_country_transfer'] ?? __( 'Ein Drittlandtransfer erfolgt nur, wenn dies bei einzelnen Diensten angegeben ist oder technisch erforderlich wird', 'frontend-rechtstexte-generator' ) ),
 			'host'                       => esc_html( $data['hosting_provider'] ?? '' ),
-			'host_address'               => nl2br( esc_html( $data['hosting_provider_address'] ?? '' ) ),
+			'host_address'               => $this->format_multiline_address( (string) ( $data['hosting_provider_address'] ?? '' ) ),
 			'location'                   => esc_html( $data['server_location'] ?? '' ),
 			'av'                         => esc_html( $data['hosting_av_contract'] ?? '' ),
 			'av_sentence'                => $this->get_hosting_av_sentence( (string) ( $data['hosting_av_contract'] ?? '' ) ),
@@ -392,6 +414,34 @@ class FRG_Generator {
 		}
 
 		return $labels;
+	}
+
+	private function format_multiline_address( string $value ): string {
+		$lines = preg_split( '/\r\n|\r|\n/', $value );
+		if ( ! is_array( $lines ) ) {
+			return '';
+		}
+
+		return $this->format_address_lines( $lines );
+	}
+
+	private function format_address_lines( array $lines ): string {
+		$formatted_lines = array();
+
+		foreach ( $lines as $line ) {
+			$line = trim( wp_strip_all_tags( (string) $line ) );
+			if ( '' === $line ) {
+				continue;
+			}
+
+			$formatted_lines[] = '<span class="frg-address__line">' . esc_html( $line ) . '</span>';
+		}
+
+		if ( empty( $formatted_lines ) ) {
+			return '';
+		}
+
+		return '<span class="frg-address">' . implode( '', $formatted_lines ) . '</span>';
 	}
 
 	private function normalize_document_section_headings( string $html ): string {

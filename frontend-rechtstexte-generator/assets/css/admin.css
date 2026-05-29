@@ -34,7 +34,9 @@
 
 .frg-admin-output p,
 .frg-admin-output ul,
-.frg-admin-output ol {
+.frg-admin-output ol,
+.frg-admin-output .frg-address-block,
+.frg-admin-output .frg-required-facts {
 	margin-top: 0;
 	margin-bottom: 20px;
 	line-height: 1.8;
@@ -52,6 +54,32 @@
 .frg-admin-output h3 + p,
 .frg-admin-output h4 + p {
 	margin-top: 4px;
+}
+
+.frg-admin-output .frg-address-block strong {
+	display: block;
+	margin-bottom: 8px;
+}
+
+.frg-admin-output .frg-address {
+	display: inline-flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.frg-admin-output .frg-address__line {
+	display: block;
+}
+
+.frg-admin-output .frg-required-facts {
+	padding: 16px 18px;
+	border: 1px solid #dde5ee;
+	border-radius: 12px;
+	background: #f8fbff;
+}
+
+.frg-admin-output .frg-required-facts__title {
+	margin-bottom: 10px;
 }
 
 .frg-block-table textarea,
