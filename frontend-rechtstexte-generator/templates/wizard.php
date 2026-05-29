@@ -156,47 +156,77 @@ $privacy_defaults        = array(
 
 		<section class="frg-step" data-step="5">
 			<h3><?php esc_html_e( 'Schritt 5: Website-Funktionen', 'frontend-rechtstexte-generator' ); ?></h3>
-			<div class="frg-checkbox-grid">
-				<?php
-				$feature_labels = array(
-					'contact_form' => 'Kontaktformular',
-					'email_contact' => 'E-Mail-Kontakt',
-					'phone_contact' => 'Telefonkontakt',
-					'comments' => 'Kommentare',
-					'user_registration' => 'Benutzerregistrierung',
-					'login_area' => 'Login-Bereich',
-					'newsletter' => 'Newsletter',
-					'job_application_form' => 'Bewerbungsformular',
-					'appointment_booking' => 'Terminbuchung',
-					'shop' => 'WooCommerce / Online-Shop',
-					'payment_provider' => 'Zahlungsanbieter',
-					'shipping_provider' => 'Versanddienstleister',
-					'customer_account' => 'Kundenkonto',
-					'download_area' => 'Downloadbereich',
-					'members_area' => 'Mitgliederbereich',
-					'training_portal' => 'Schulungsportal / Lernplattform',
-					'social_media_profiles' => 'Social-Media-Profile / Verlinkungen',
-				);
-				foreach ( $feature_labels as $key => $label ) :
-					?>
-					<label class="frg-check"><input type="checkbox" name="features[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( ! empty( $features[ $key ] ) ); ?>><span><?php echo esc_html( $label ); ?></span></label>
-				<?php endforeach; ?>
-			</div>
+			<?php
+			$feature_groups = array(
+				array(
+					'title'       => __( 'Kommunikation und Interaktion', 'frontend-rechtstexte-generator' ),
+					'description' => __( 'Diese Funktionen betreffen Anfragen, Kommunikation und nutzerseitige Interaktionen auf der Website.', 'frontend-rechtstexte-generator' ),
+					'items'       => array(
+						'contact_form'          => 'Kontaktformular',
+						'email_contact'         => 'E-Mail-Kontakt',
+						'phone_contact'         => 'Telefonkontakt',
+						'comments'              => 'Kommentare',
+						'newsletter'            => 'Newsletter',
+						'job_application_form'  => 'Bewerbungsformular',
+						'appointment_booking'   => 'Terminbuchung',
+						'social_media_profiles' => 'Social-Media-Profile / Verlinkungen',
+					),
+				),
+				array(
+					'title'       => __( 'Benutzerkonten und geschützte Bereiche', 'frontend-rechtstexte-generator' ),
+					'description' => __( 'Wählen Sie hier Funktionen aus, bei denen Nutzerkonten, Logins oder interne Bereiche verarbeitet werden.', 'frontend-rechtstexte-generator' ),
+					'items'       => array(
+						'user_registration' => 'Benutzerregistrierung',
+						'login_area'        => 'Login-Bereich',
+						'customer_account'  => 'Kundenkonto',
+						'download_area'     => 'Downloadbereich',
+						'members_area'      => 'Mitgliederbereich',
+					),
+				),
+				array(
+					'title'       => __( 'Shop und Vertragsabwicklung', 'frontend-rechtstexte-generator' ),
+					'description' => __( 'Dieser Bereich ist relevant, wenn Bestellungen, Zahlungen oder Versandprozesse über die Website laufen.', 'frontend-rechtstexte-generator' ),
+					'items'       => array(
+						'shop'              => 'WooCommerce / Online-Shop',
+						'payment_provider'  => 'Zahlungsanbieter',
+						'shipping_provider' => 'Versanddienstleister',
+					),
+				),
+			);
+			foreach ( $feature_groups as $feature_group ) :
+				?>
+				<div class="frg-feature-group frg-feature-group--section">
+					<div class="frg-feature-group__header">
+						<h4><?php echo esc_html( $feature_group['title'] ); ?></h4>
+						<p><?php echo esc_html( $feature_group['description'] ); ?></p>
+					</div>
+					<div class="frg-checkbox-grid">
+						<?php foreach ( $feature_group['items'] as $key => $label ) : ?>
+							<label class="frg-check"><input type="checkbox" name="features[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( ! empty( $features[ $key ] ) ); ?>><span><?php echo esc_html( $label ); ?></span></label>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endforeach; ?>
 			<div class="frg-feature-group frg-feature-group--training">
 				<div class="frg-feature-group__header">
 					<h4><?php esc_html_e( 'Bereich Schulungsportal / Lernplattform', 'frontend-rechtstexte-generator' ); ?></h4>
 					<p><?php esc_html_e( 'Nutzen Sie diese Auswahl, wenn Ihre Website Kurse, Lernstände, Prüfungen, Zertifikate oder rollenbasierte Portalzugriffe verarbeitet.', 'frontend-rechtstexte-generator' ); ?></p>
 				</div>
 				<div class="frg-grid frg-grid--2">
-					<label class="frg-check"><input type="checkbox" name="features[training_progress]" value="1" <?php checked( ! empty( $features['training_progress'] ) ); ?>><span><?php esc_html_e( 'Lernfortschritt wird gespeichert', 'frontend-rechtstexte-generator' ); ?></span></label>
-					<label class="frg-check"><input type="checkbox" name="features[training_tests]" value="1" <?php checked( ! empty( $features['training_tests'] ) ); ?>><span><?php esc_html_e( 'Tests / Quiz / Prüfungen', 'frontend-rechtstexte-generator' ); ?></span></label>
-					<label class="frg-check"><input type="checkbox" name="features[training_certificates]" value="1" <?php checked( ! empty( $features['training_certificates'] ) ); ?>><span><?php esc_html_e( 'Zertifikate / Teilnahmebescheinigungen', 'frontend-rechtstexte-generator' ); ?></span></label>
-					<label class="frg-check"><input type="checkbox" name="features[employee_training]" value="1" <?php checked( ! empty( $features['employee_training'] ) ); ?>><span><?php esc_html_e( 'Mitarbeiterschulungen / Pflichtschulungen', 'frontend-rechtstexte-generator' ); ?></span></label>
-					<label class="frg-check"><input type="checkbox" name="features[scorm_tracking]" value="1" <?php checked( ! empty( $features['scorm_tracking'] ) ); ?>><span><?php esc_html_e( 'SCORM / Lernpaket-Tracking', 'frontend-rechtstexte-generator' ); ?></span></label>
-					<label class="frg-check"><input type="checkbox" name="features[certificate_download]" value="1" <?php checked( ! empty( $features['certificate_download'] ) ); ?>><span><?php esc_html_e( 'Zertifikats-Download', 'frontend-rechtstexte-generator' ); ?></span></label>
-					<label class="frg-check"><input type="checkbox" name="features[mandatory_training_proof]" value="1" <?php checked( ! empty( $features['mandatory_training_proof'] ) ); ?>><span><?php esc_html_e( 'Nachweis absolvierte Pflichtunterweisungen', 'frontend-rechtstexte-generator' ); ?></span></label>
-					<label class="frg-check"><input type="checkbox" name="features[trainer_manager_access]" value="1" <?php checked( ! empty( $features['trainer_manager_access'] ) ); ?>><span><?php esc_html_e( 'Dozenten- / Manager- / Admin-Zugriffe', 'frontend-rechtstexte-generator' ); ?></span></label>
-					<label class="frg-check"><input type="checkbox" name="features[tenant_access]" value="1" <?php checked( ! empty( $features['tenant_access'] ) ); ?>><span><?php esc_html_e( 'Mandanten- / Firmenzugriffe', 'frontend-rechtstexte-generator' ); ?></span></label>
+					<label class="frg-check frg-grid__full"><input type="checkbox" name="features[training_portal]" value="1" <?php checked( ! empty( $features['training_portal'] ) ); ?>><span><?php esc_html_e( 'Schulungsportal / Lernplattform aktiv', 'frontend-rechtstexte-generator' ); ?></span></label>
+				</div>
+				<div class="frg-conditional-fields" data-frg-conditional="features[training_portal]">
+					<div class="frg-grid frg-grid--2">
+						<label class="frg-check"><input type="checkbox" name="features[training_progress]" value="1" <?php checked( ! empty( $features['training_progress'] ) ); ?>><span><?php esc_html_e( 'Lernfortschritt wird gespeichert', 'frontend-rechtstexte-generator' ); ?></span></label>
+						<label class="frg-check"><input type="checkbox" name="features[training_tests]" value="1" <?php checked( ! empty( $features['training_tests'] ) ); ?>><span><?php esc_html_e( 'Tests / Quiz / Prüfungen', 'frontend-rechtstexte-generator' ); ?></span></label>
+						<label class="frg-check"><input type="checkbox" name="features[training_certificates]" value="1" <?php checked( ! empty( $features['training_certificates'] ) ); ?>><span><?php esc_html_e( 'Zertifikate / Teilnahmebescheinigungen', 'frontend-rechtstexte-generator' ); ?></span></label>
+						<label class="frg-check"><input type="checkbox" name="features[employee_training]" value="1" <?php checked( ! empty( $features['employee_training'] ) ); ?>><span><?php esc_html_e( 'Mitarbeiterschulungen / Pflichtschulungen', 'frontend-rechtstexte-generator' ); ?></span></label>
+						<label class="frg-check"><input type="checkbox" name="features[scorm_tracking]" value="1" <?php checked( ! empty( $features['scorm_tracking'] ) ); ?>><span><?php esc_html_e( 'SCORM / Lernpaket-Tracking', 'frontend-rechtstexte-generator' ); ?></span></label>
+						<label class="frg-check"><input type="checkbox" name="features[certificate_download]" value="1" <?php checked( ! empty( $features['certificate_download'] ) ); ?>><span><?php esc_html_e( 'Zertifikats-Download', 'frontend-rechtstexte-generator' ); ?></span></label>
+						<label class="frg-check"><input type="checkbox" name="features[mandatory_training_proof]" value="1" <?php checked( ! empty( $features['mandatory_training_proof'] ) ); ?>><span><?php esc_html_e( 'Nachweis absolvierte Pflichtunterweisungen', 'frontend-rechtstexte-generator' ); ?></span></label>
+						<label class="frg-check"><input type="checkbox" name="features[trainer_manager_access]" value="1" <?php checked( ! empty( $features['trainer_manager_access'] ) ); ?>><span><?php esc_html_e( 'Dozenten- / Manager- / Admin-Zugriffe', 'frontend-rechtstexte-generator' ); ?></span></label>
+						<label class="frg-check"><input type="checkbox" name="features[tenant_access]" value="1" <?php checked( ! empty( $features['tenant_access'] ) ); ?>><span><?php esc_html_e( 'Mandanten- / Firmenzugriffe', 'frontend-rechtstexte-generator' ); ?></span></label>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -242,54 +272,86 @@ $privacy_defaults        = array(
 					</div>
 				<?php endif; ?>
 			</div>
-			<div class="frg-checkbox-grid">
-				<?php
-				$service_labels = array(
-					'google_fonts_external' => 'Google Fonts extern',
-					'google_fonts_local' => 'Google Fonts lokal',
-					'google_maps' => 'Google Maps',
-					'youtube' => 'YouTube',
-					'vimeo' => 'Vimeo',
-					'google_analytics' => 'Google Analytics',
-					'google_tag_manager' => 'Google Tag Manager',
-					'google_ads_conversion_tracking' => 'Google Ads Conversion Tracking',
-					'meta_pixel' => 'Meta Pixel',
-					'matomo' => 'Matomo',
-					'cloudflare' => 'Cloudflare',
-					'recaptcha' => 'reCAPTCHA',
-					'hcaptcha' => 'hCaptcha',
-					'borlabs_cookie' => 'Borlabs Cookie',
-					'real_cookie_banner' => 'Real Cookie Banner',
-					'complianz' => 'Complianz',
-					'cookieyes' => 'CookieYes',
-					'elementor' => 'Elementor',
-					'gravity_forms' => 'Gravity Forms',
-					'contact_form_7' => 'Contact Form 7',
-					'wpforms' => 'WPForms',
-					'wordfence' => 'Wordfence',
-					'ithemes_security' => 'iThemes Security / Solid Security',
-					'updraftplus' => 'UpdraftPlus',
-					'wpvivid' => 'WPvivid',
-					'mailchimp' => 'Mailchimp',
-					'brevo' => 'Brevo',
-					'sendinblue' => 'Sendinblue',
-					'cleverreach' => 'CleverReach',
-					'microsoft_clarity' => 'Microsoft Clarity',
-					'calendly' => 'Calendly / Terminbuchung',
-					'jotform' => 'Jotform / externer Formularanbieter',
-					'trustpilot' => 'Trustpilot / Bewertungsdienst',
-					'smtp_service' => 'SMTP / E-Mail-Versanddienst',
-					'facebook' => 'Facebook',
-					'instagram' => 'Instagram',
-					'linkedin' => 'LinkedIn',
-					'xing' => 'Xing',
-					'tiktok' => 'TikTok',
-				);
-				foreach ( $service_labels as $key => $label ) :
-					?>
-					<label class="frg-check"><input type="checkbox" name="services[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( ! empty( $services[ $key ] ) ); ?>><span><?php echo esc_html( $label ); ?></span></label>
-				<?php endforeach; ?>
-			</div>
+			<?php
+			$service_groups = array(
+				array(
+					'title'       => __( 'Google, Tracking und Werbung', 'frontend-rechtstexte-generator' ),
+					'description' => __( 'Diese Dienste sind vor allem für Analyse, Marketing, Conversion-Messung und externe Ressourcen relevant.', 'frontend-rechtstexte-generator' ),
+					'items'       => array(
+						'google_fonts_external'         => 'Google Fonts extern',
+						'google_fonts_local'            => 'Google Fonts lokal',
+						'google_maps'                   => 'Google Maps',
+						'google_analytics'             => 'Google Analytics',
+						'google_tag_manager'           => 'Google Tag Manager',
+						'google_ads_conversion_tracking'=> 'Google Ads Conversion Tracking',
+						'meta_pixel'                   => 'Meta Pixel',
+						'matomo'                       => 'Matomo',
+						'microsoft_clarity'            => 'Microsoft Clarity',
+					),
+				),
+				array(
+					'title'       => __( 'Medien, Einbindungen und Formulare', 'frontend-rechtstexte-generator' ),
+					'description' => __( 'Hierzu gehören eingebettete Inhalte, Social-Media-Dienste und Formular- oder Termin-Tools.', 'frontend-rechtstexte-generator' ),
+					'items'       => array(
+						'youtube'        => 'YouTube',
+						'vimeo'          => 'Vimeo',
+						'elementor'      => 'Elementor',
+						'gravity_forms'  => 'Gravity Forms',
+						'contact_form_7' => 'Contact Form 7',
+						'wpforms'        => 'WPForms',
+						'calendly'       => 'Calendly / Terminbuchung',
+						'jotform'        => 'Jotform / externer Formularanbieter',
+						'facebook'       => 'Facebook',
+						'instagram'      => 'Instagram',
+						'linkedin'       => 'LinkedIn',
+						'xing'           => 'Xing',
+						'tiktok'         => 'TikTok',
+					),
+				),
+				array(
+					'title'       => __( 'Consent, Sicherheit und Infrastruktur', 'frontend-rechtstexte-generator' ),
+					'description' => __( 'Diese Auswahl betrifft Consent-Management, Schutzmechanismen, CDN- und Infrastruktur-Dienste.', 'frontend-rechtstexte-generator' ),
+					'items'       => array(
+						'cloudflare'         => 'Cloudflare',
+						'recaptcha'          => 'reCAPTCHA',
+						'hcaptcha'           => 'hCaptcha',
+						'borlabs_cookie'     => 'Borlabs Cookie',
+						'real_cookie_banner' => 'Real Cookie Banner',
+						'complianz'          => 'Complianz',
+						'cookieyes'          => 'CookieYes',
+						'wordfence'          => 'Wordfence',
+						'ithemes_security'   => 'iThemes Security / Solid Security',
+					),
+				),
+				array(
+					'title'       => __( 'Backup, Versand und Marketing-Tools', 'frontend-rechtstexte-generator' ),
+					'description' => __( 'Hier bündeln Sie technische Backup-Dienste sowie Newsletter-, E-Mail- und Bewertungsdienste.', 'frontend-rechtstexte-generator' ),
+					'items'       => array(
+						'updraftplus'  => 'UpdraftPlus',
+						'wpvivid'      => 'WPvivid',
+						'mailchimp'    => 'Mailchimp',
+						'brevo'        => 'Brevo',
+						'sendinblue'   => 'Sendinblue',
+						'cleverreach'  => 'CleverReach',
+						'trustpilot'   => 'Trustpilot / Bewertungsdienst',
+						'smtp_service' => 'SMTP / E-Mail-Versanddienst',
+					),
+				),
+			);
+			foreach ( $service_groups as $service_group ) :
+				?>
+				<div class="frg-feature-group frg-feature-group--section">
+					<div class="frg-feature-group__header">
+						<h4><?php echo esc_html( $service_group['title'] ); ?></h4>
+						<p><?php echo esc_html( $service_group['description'] ); ?></p>
+					</div>
+					<div class="frg-checkbox-grid">
+						<?php foreach ( $service_group['items'] as $key => $label ) : ?>
+							<label class="frg-check"><input type="checkbox" name="services[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( ! empty( $services[ $key ] ) ); ?>><span><?php echo esc_html( $label ); ?></span></label>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endforeach; ?>
 		</section>
 
 		<section class="frg-step" data-step="7">
