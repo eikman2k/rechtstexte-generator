@@ -37,6 +37,17 @@ class FRG_Storage {
 		return $this->hydrate_profile( $row );
 	}
 
+	public function get_latest_profile(): ?array {
+		global $wpdb;
+
+		$row = $wpdb->get_row(
+			"SELECT * FROM {$this->get_table_name()} ORDER BY updated_at DESC LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			ARRAY_A
+		);
+
+		return $this->hydrate_profile( $row );
+	}
+
 	public function get_all_profiles(): array {
 		global $wpdb;
 

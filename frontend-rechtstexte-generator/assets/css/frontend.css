@@ -80,6 +80,18 @@
 	gap: 12px 16px;
 }
 
+.frg-conditional-fields[hidden] {
+	display: none !important;
+}
+
+.frg-conditional-fields > .frg-grid {
+	margin-top: 4px;
+	padding: 18px;
+	border: 1px dashed #d8e1ea;
+	border-radius: 16px;
+	background: #fbfdff;
+}
+
 .frg-check,
 .frg-toggle {
 	flex-direction: row;
@@ -122,6 +134,33 @@
 	background:
 		radial-gradient(circle at top right, rgba(39, 128, 176, 0.1), transparent 34%),
 		linear-gradient(180deg, #f7fbff 0%, #edf5fb 100%);
+}
+
+.frg-feature-group--section {
+	padding: 22px 24px;
+	border-color: #d6e0ea;
+	background:
+		linear-gradient(180deg, rgba(15, 118, 110, 0.04) 0, rgba(15, 118, 110, 0.04) 4px, #ffffff 4px, #f9fcff 100%);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.92),
+		0 8px 18px rgba(15, 23, 42, 0.04);
+}
+
+.frg-feature-group--section + .frg-feature-group--section {
+	margin-top: 18px;
+}
+
+.frg-feature-group--section .frg-feature-group__header {
+	padding-bottom: 14px;
+	border-bottom: 1px solid #e3ebf3;
+}
+
+.frg-feature-group--section .frg-grid {
+	margin-top: 18px;
+}
+
+.frg-feature-group--section .frg-toggle {
+	background: #f6fafc;
 }
 
 .frg-notice {
@@ -354,10 +393,22 @@
 }
 
 @media (max-width: 767px) {
-	.frg-wizard,
 	.frg-checkbox-grid,
 	.frg-grid--2 {
 		grid-template-columns: 1fr;
+	}
+
+	.frg-wizard {
+		padding: 18px;
+	}
+
+	.frg-feature-group,
+	.frg-feature-group--section {
+		padding: 18px;
+	}
+
+	.frg-conditional-fields > .frg-grid {
+		padding: 16px;
 	}
 
 	.frg-scanner__item {

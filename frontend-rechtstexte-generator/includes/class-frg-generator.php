@@ -65,6 +65,10 @@ class FRG_Generator {
 			$parts[] = $this->modules->render_block( 'professional_information', $impressum_data );
 		}
 
+		if ( ! empty( $data['has_liability_insurance'] ) ) {
+			$parts[] = $this->modules->render_block( 'liability_insurance', $impressum_data );
+		}
+
 		return '<div class="frg-document frg-document--impressum">' . implode( '', $parts ) . '</div>';
 	}
 
@@ -77,7 +81,7 @@ class FRG_Generator {
 			$parts[] = $this->modules->render_block( 'data_protection_officer', $privacy_data );
 		}
 		$parts[] = $this->modules->render_block( 'general_processing', $privacy_data );
-		$parts[] = $this->modules->render_block( 'hosting', $privacy_data );
+		$parts[] = $this->ensure_hosting_av_notice( $this->modules->render_block( 'hosting', $privacy_data ), $privacy_data );
 		$parts[] = $this->modules->render_block( 'server_logs' );
 		$parts[] = $this->modules->render_block( 'ssl_tls' );
 
@@ -178,7 +182,7 @@ class FRG_Generator {
 		$parts[] = $this->modules->render_block( 'data_subject_rights' );
 		$parts[] = $this->modules->render_block( 'complaint_authority' );
 
-		return '<div class="frg-document frg-document--privacy">' . implode( '', $parts ) . '</div>';
+		return '<div class="frg-document frg-document--privacy">' . $this->normalize_document_section_headings( implode( '', $parts ) ) . '</div>';
 	}
 
 	public function get_impressum_template_data( array $data ): array {
@@ -204,6 +208,9 @@ class FRG_Generator {
 			'awarded_in'         => esc_html( $data['professional_awarded_in'] ?? '' ),
 			'rules'              => esc_html( $data['professional_rules'] ?? '' ),
 			'authority'          => esc_html( $data['supervisory_authority'] ?? '' ),
+			'insurer'            => esc_html( $data['liability_insurer'] ?? '' ),
+			'insurer_address'    => nl2br( esc_html( $data['liability_insurer_address'] ?? '' ) ),
+			'scope'              => esc_html( $data['liability_scope'] ?? '' ),
 		);
 	}
 
@@ -317,12 +324,16 @@ class FRG_Generator {
 			'email'                      => esc_html( $data['email'] ?? '' ),
 			'website_url'                => esc_html( $data['website_url'] ?? '' ),
 			'name'                       => esc_html( $data['data_protection_officer_name'] ?? '' ),
+			'dpo_email'                  => esc_html( $data['data_protection_officer_email'] ?? '' ),
+			'dpo_phone'                  => esc_html( $data['data_protection_officer_phone'] ?? '' ),
+			'dpo_address'                => nl2br( esc_html( $data['data_protection_officer_address'] ?? '' ) ),
 			'purposes'                   => esc_html( $data['privacy_processing_purposes'] ?? __( 'Bereitstellung der Website, Kommunikation, Vertragsdurchfuehrung und Sicherheit', 'frontend-rechtstexte-generator' ) ),
 			'legal_basis'                => esc_html( $data['privacy_legal_basis'] ?? __( 'Art. 6 Abs. 1 DSGVO nach konkreter Verarbeitung', 'frontend-rechtstexte-generator' ) ),
 			'recipients'                 => esc_html( $data['privacy_recipient_categories'] ?? __( 'Hosting, IT-Dienstleister, eingesetzte Fachanbieter', 'frontend-rechtstexte-generator' ) ),
 			'storage'                    => esc_html( $data['privacy_storage_general'] ?? __( 'Speicherung nur so lange, wie dies fuer den jeweiligen Zweck oder gesetzliche Pflichten erforderlich ist', 'frontend-rechtstexte-generator' ) ),
 			'third_country'              => esc_html( $data['privacy_third_country_transfer'] ?? __( 'Ein Drittlandtransfer erfolgt nur, wenn dies bei einzelnen Diensten angegeben ist oder technisch erforderlich wird', 'frontend-rechtstexte-generator' ) ),
 			'host'                       => esc_html( $data['hosting_provider'] ?? '' ),
+			'host_address'               => nl2br( esc_html( $data['hosting_provider_address'] ?? '' ) ),
 			'location'                   => esc_html( $data['server_location'] ?? '' ),
 			'av'                         => esc_html( $data['hosting_av_contract'] ?? '' ),
 			'av_sentence'                => $this->get_hosting_av_sentence( (string) ( $data['hosting_av_contract'] ?? '' ) ),
@@ -381,5 +392,73 @@ class FRG_Generator {
 		}
 
 		return $labels;
+	}
+
+	private function normalize_document_section_headings( string $html ): string {
+		$html = (string) preg_replace_callback(
+			'/<p>\s*([^<]{1,90})\s*(?:<br\s*\/?>|\R)+\s*(.+?)<\/p>/uis',
+			function ( array $matches ): string {
+				$text = trim( wp_strip_all_tags( $matches[1] ) );
+				if ( '' === $text || preg_match( '/[.!?:;]$/u', $text ) ) {
+					return $matches[0];
+				}
+
+				$words = preg_split( '/\s+/u', $text );
+				$word_count = is_array( $words ) ? count( array_filter( $words ) ) : 0;
+				if ( $word_count < 1 || $word_count > 6 ) {
+					return $matches[0];
+				}
+
+				$body = trim( $matches[2] );
+				if ( '' === wp_strip_all_tags( $body ) ) {
+					return $matches[0];
+				}
+
+				return '<h3>' . esc_html( $text ) . '</h3><p>' . $body . '</p>';
+			},
+			$html
+		);
+
+		return (string) preg_replace_callback(
+			'/<p>\s*([^<]{1,90})\s*<\/p>\s*(?=<p>)/u',
+			function ( array $matches ): string {
+				$text = trim( wp_strip_all_tags( $matches[1] ) );
+				if ( '' === $text ) {
+					return $matches[0];
+				}
+
+				if ( preg_match( '/[.!?:;]$/u', $text ) ) {
+					return $matches[0];
+				}
+
+				$words = preg_split( '/\s+/u', $text );
+				$word_count = is_array( $words ) ? count( array_filter( $words ) ) : 0;
+
+				if ( $word_count >= 1 && $word_count <= 6 ) {
+					return '<h3>' . esc_html( $text ) . '</h3>';
+				}
+
+				return $matches[0];
+			},
+			$html
+		);
+	}
+
+	private function ensure_hosting_av_notice( string $html, array $privacy_data ): string {
+		$normalized = wp_strip_all_tags( $html );
+		if ( '' === trim( $normalized ) ) {
+			return $html;
+		}
+
+		if ( false !== stripos( $normalized, 'Auftragsverarbeitung' ) || false !== stripos( $normalized, 'Art. 28' ) ) {
+			return $html;
+		}
+
+		$av_sentence = trim( (string) ( $privacy_data['av_sentence'] ?? '' ) );
+		if ( '' === $av_sentence ) {
+			return $html;
+		}
+
+		return $html . '<p><strong>' . esc_html__( 'Auftragsverarbeitung', 'frontend-rechtstexte-generator' ) . ':</strong> ' . esc_html( $av_sentence ) . '</p>';
 	}
 }

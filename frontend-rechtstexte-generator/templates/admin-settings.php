@@ -126,6 +126,9 @@ $module_meta         = $this->generator->get_module_meta();
 							<span class="frg-inline-feedback" data-frg-inline-feedback></span>
 						</div>
 						<p class="description"><?php esc_html_e( 'Hinweis: Der Live-Override ist der Text, der spaeter im Frontend und in generierten Dokumenten verwendet wird. Das Entwurfsfeld allein ist noch nicht live.', 'frontend-rechtstexte-generator' ); ?></p>
+						<?php if ( 'hosting' === $block['key'] ) : ?>
+							<p class="description"><?php esc_html_e( 'System-Hinweis: Falls der AV-Hinweis im Hosting-Override fehlt, wird der Abschnitt zur Auftragsverarbeitung automatisch ergänzt.', 'frontend-rechtstexte-generator' ); ?></p>
+						<?php endif; ?>
 						<p class="description" data-frg-live-state><?php echo ! empty( $block['override_text'] ) ? esc_html__( 'Status: Live-Override gespeichert.', 'frontend-rechtstexte-generator' ) : esc_html__( 'Status: Noch kein Live-Override gespeichert.', 'frontend-rechtstexte-generator' ); ?></p>
 						<div class="frg-block-preview-grid">
 							<div>

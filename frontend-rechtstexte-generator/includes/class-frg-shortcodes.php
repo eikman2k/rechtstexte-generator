@@ -26,37 +26,38 @@ class FRG_Shortcodes {
 	}
 
 	public function render_impressum(): string {
-		$profile = $this->wizard->get_current_profile();
+		$profile = $this->get_display_profile();
 		if ( empty( $profile['data'] ) ) {
 			return '';
-		}
-
-		if ( ! $this->wizard->should_regenerate_generated_documents( $profile['data'] ) && ! empty( $profile['data']['generated_impressum_html'] ) ) {
-			return wp_kses_post( $profile['data']['generated_impressum_html'] );
 		}
 
 		return wp_kses_post( $this->generator->generate_impressum( $profile['data'] ) );
 	}
 
 	public function render_privacy(): string {
-		$profile = $this->wizard->get_current_profile();
+		$profile = $this->get_display_profile();
 		if ( empty( $profile['data'] ) ) {
 			return '';
-		}
-
-		if ( ! $this->wizard->should_regenerate_generated_documents( $profile['data'] ) && ! empty( $profile['data']['generated_privacy_html'] ) ) {
-			return wp_kses_post( $profile['data']['generated_privacy_html'] );
 		}
 
 		return wp_kses_post( $this->generator->generate_privacy_policy( $profile['data'] ) );
 	}
 
 	public function render_last_updated(): string {
-		$profile = $this->wizard->get_current_profile();
+		$profile = $this->get_display_profile();
 		if ( empty( $profile['updated_at'] ) ) {
 			return '';
 		}
 
 		return esc_html( mysql2date( get_option( 'date_format' ), $profile['updated_at'] ) );
+	}
+
+	private function get_display_profile(): ?array {
+		$profile = $this->wizard->get_current_profile();
+		if ( ! empty( $profile['data'] ) ) {
+			return $profile;
+		}
+
+		return $this->storage->get_latest_profile();
 	}
 }

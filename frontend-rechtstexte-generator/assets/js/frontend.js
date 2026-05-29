@@ -15,6 +15,18 @@
 	const privacyOutput = wizard.querySelector('[data-frg-html-output="privacy"]');
 	let currentStep = 0;
 
+	const syncConditionalFields = () => {
+		wizard.querySelectorAll('[data-frg-conditional]').forEach((container) => {
+			const fieldName = container.getAttribute('data-frg-conditional');
+			const toggle = form.querySelector(`[name="${fieldName}"]`);
+			const isActive = !!toggle && !!toggle.checked;
+			container.hidden = !isActive;
+			container
+				.querySelectorAll('input, select, textarea')
+				.forEach((field) => field.setAttribute('aria-hidden', isActive ? 'false' : 'true'));
+		});
+	};
+
 	const setFeedback = (message, success) => {
 		feedback.textContent = message || '';
 		feedback.classList.toggle('is-success', !!success);
@@ -160,5 +172,10 @@
 		});
 	});
 
+	form.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+		checkbox.addEventListener('change', syncConditionalFields);
+	});
+
+	syncConditionalFields();
 	showStep(0);
 })();

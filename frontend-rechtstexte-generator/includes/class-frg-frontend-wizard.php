@@ -42,6 +42,10 @@ class FRG_Frontend_Wizard {
 	}
 
 	public function render(): string {
+		if ( ! is_user_logged_in() ) {
+			return '<div class="frg-notice frg-notice--warning">' . esc_html__( 'Der Rechtstexte-Generator steht nur eingeloggten Benutzern zur Verfügung.', 'frontend-rechtstexte-generator' ) . '</div>';
+		}
+
 		wp_enqueue_style( 'frg-frontend' );
 		wp_enqueue_script( 'frg-frontend' );
 
@@ -217,6 +221,14 @@ class FRG_Frontend_Wizard {
 	}
 
 	public function should_regenerate_generated_documents( array $data ): bool {
+		$module_meta = $this->generator->get_module_meta();
+		$current_module_version = sanitize_text_field( $module_meta['module_version'] ?? '' );
+		$generated_module_version = sanitize_text_field( $data['generated_module_version'] ?? '' );
+
+		if ( '' === $generated_module_version || $generated_module_version !== $current_module_version ) {
+			return true;
+		}
+
 		$current_registry_updated_at = $this->generator->get_registry_updated_at();
 		$generated_registry_updated_at = sanitize_text_field( $data['generated_registry_updated_at'] ?? '' );
 
@@ -239,13 +251,14 @@ class FRG_Frontend_Wizard {
 			'company_name', 'legal_form', 'first_name', 'last_name', 'street', 'zip', 'city', 'country', 'email', 'phone',
 			'website_url', 'register_court', 'register_number', 'vat_id', 'business_id', 'responsible_name',
 			'responsible_address', 'professional_chamber', 'professional_title', 'professional_awarded_in',
-			'professional_rules', 'supervisory_authority', 'hosting_provider', 'server_location', 'hosting_av_contract',
-			'data_protection_officer_name', 'data_protection_officer_email', 'privacy_processing_purposes',
+			'professional_rules', 'supervisory_authority', 'liability_insurer', 'liability_scope', 'liability_insurer_address',
+			'hosting_provider', 'hosting_provider_address', 'server_location', 'hosting_av_contract',
+			'data_protection_officer_name', 'data_protection_officer_email', 'data_protection_officer_phone', 'data_protection_officer_address', 'privacy_processing_purposes',
 			'privacy_legal_basis', 'privacy_storage_general', 'privacy_recipient_categories', 'privacy_third_country_transfer',
 		);
 		$bool_fields = array(
 			'has_trade_register', 'has_vat_id', 'has_responsible_content', 'has_professional_info',
-			'controller_same_as_operator', 'has_data_protection_officer',
+			'has_liability_insurance', 'controller_same_as_operator', 'has_data_protection_officer',
 		);
 		$data = array();
 
@@ -255,7 +268,7 @@ class FRG_Frontend_Wizard {
 				$data[ $field ] = sanitize_email( $value );
 			} elseif ( 'website_url' === $field ) {
 				$data[ $field ] = esc_url_raw( $value );
-			} elseif ( 'responsible_address' === $field || 'professional_rules' === $field ) {
+			} elseif ( 'responsible_address' === $field || 'professional_rules' === $field || 'liability_insurer_address' === $field || 'hosting_provider_address' === $field || 'data_protection_officer_address' === $field ) {
 				$data[ $field ] = sanitize_textarea_field( $value );
 			} else {
 				$data[ $field ] = sanitize_text_field( $value );
@@ -335,6 +348,14 @@ class FRG_Frontend_Wizard {
 
 		if ( ! empty( $data['has_vat_id'] ) && empty( $data['vat_id'] ) ) {
 			$errors[] = __( 'Bitte Umsatzsteuer-ID angeben.', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( ! empty( $data['has_liability_insurance'] ) && ( empty( $data['liability_insurer'] ) || empty( $data['liability_scope'] ) ) ) {
+			$errors[] = __( 'Bitte mindestens Versicherer und räumlichen Geltungsbereich der Berufshaftpflichtversicherung angeben.', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( ! empty( $data['has_data_protection_officer'] ) && empty( $data['data_protection_officer_email'] ) ) {
+			$errors[] = __( 'Bitte mindestens eine E-Mail-Adresse für den Datenschutzbeauftragten angeben.', 'frontend-rechtstexte-generator' );
 		}
 
 		return $errors;

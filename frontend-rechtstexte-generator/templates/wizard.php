@@ -52,13 +52,19 @@ $privacy_defaults        = array(
 			<h3><?php esc_html_e( 'Schritt 2: Register und Steuerdaten', 'frontend-rechtstexte-generator' ); ?></h3>
 			<div class="frg-grid frg-grid--2">
 				<label class="frg-toggle"><input type="checkbox" name="has_trade_register" value="1" <?php checked( ! empty( $data['has_trade_register'] ) ); ?>><span><?php esc_html_e( 'Handelsregister vorhanden', 'frontend-rechtstexte-generator' ); ?></span></label>
-				<div></div>
-				<label><span><?php esc_html_e( 'Registergericht', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="register_court" value="<?php echo esc_attr( $data['register_court'] ?? '' ); ?>"></label>
-				<label><span><?php esc_html_e( 'Registernummer', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="register_number" value="<?php echo esc_attr( $data['register_number'] ?? '' ); ?>"></label>
+				<div class="frg-grid__full frg-conditional-fields" data-frg-conditional="has_trade_register">
+					<div class="frg-grid frg-grid--2">
+						<label><span><?php esc_html_e( 'Registergericht', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="register_court" value="<?php echo esc_attr( $data['register_court'] ?? '' ); ?>"></label>
+						<label><span><?php esc_html_e( 'Registernummer', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="register_number" value="<?php echo esc_attr( $data['register_number'] ?? '' ); ?>"></label>
+					</div>
+				</div>
 				<label class="frg-toggle"><input type="checkbox" name="has_vat_id" value="1" <?php checked( ! empty( $data['has_vat_id'] ) ); ?>><span><?php esc_html_e( 'Umsatzsteuer-ID vorhanden', 'frontend-rechtstexte-generator' ); ?></span></label>
-				<div></div>
-				<label><span><?php esc_html_e( 'Umsatzsteuer-ID', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="vat_id" value="<?php echo esc_attr( $data['vat_id'] ?? '' ); ?>"></label>
-				<label><span><?php esc_html_e( 'Wirtschafts-ID', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="business_id" value="<?php echo esc_attr( $data['business_id'] ?? '' ); ?>"></label>
+				<div class="frg-grid__full frg-conditional-fields" data-frg-conditional="has_vat_id">
+					<div class="frg-grid frg-grid--2">
+						<label><span><?php esc_html_e( 'Umsatzsteuer-ID', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="vat_id" value="<?php echo esc_attr( $data['vat_id'] ?? '' ); ?>"></label>
+						<label><span><?php esc_html_e( 'Wirtschafts-ID', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="business_id" value="<?php echo esc_attr( $data['business_id'] ?? '' ); ?>"></label>
+					</div>
+				</div>
 			</div>
 		</section>
 
@@ -66,34 +72,85 @@ $privacy_defaults        = array(
 			<h3><?php esc_html_e( 'Schritt 3: Besondere Angaben', 'frontend-rechtstexte-generator' ); ?></h3>
 			<div class="frg-grid frg-grid--2">
 				<label class="frg-toggle"><input type="checkbox" name="has_responsible_content" value="1" <?php checked( ! empty( $data['has_responsible_content'] ) ); ?>><span><?php esc_html_e( 'Inhaltlich verantwortlich nach § 18 Abs. 2 MStV', 'frontend-rechtstexte-generator' ); ?></span></label>
-				<div></div>
-				<label><span><?php esc_html_e( 'Name der verantwortlichen Person', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="responsible_name" value="<?php echo esc_attr( $data['responsible_name'] ?? '' ); ?>"></label>
-				<label><span><?php esc_html_e( 'Anschrift der verantwortlichen Person', 'frontend-rechtstexte-generator' ); ?></span><textarea name="responsible_address" rows="4"><?php echo esc_textarea( $data['responsible_address'] ?? '' ); ?></textarea></label>
+				<div class="frg-grid__full frg-conditional-fields" data-frg-conditional="has_responsible_content">
+					<div class="frg-grid frg-grid--2">
+						<label><span><?php esc_html_e( 'Name der verantwortlichen Person', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="responsible_name" value="<?php echo esc_attr( $data['responsible_name'] ?? '' ); ?>"></label>
+						<label><span><?php esc_html_e( 'Anschrift der verantwortlichen Person', 'frontend-rechtstexte-generator' ); ?></span><textarea name="responsible_address" rows="4"><?php echo esc_textarea( $data['responsible_address'] ?? '' ); ?></textarea></label>
+					</div>
+				</div>
 				<label class="frg-toggle"><input type="checkbox" name="has_professional_info" value="1" <?php checked( ! empty( $data['has_professional_info'] ) ); ?>><span><?php esc_html_e( 'Berufsspezifische Angaben erforderlich', 'frontend-rechtstexte-generator' ); ?></span></label>
-				<div></div>
-				<label><span><?php esc_html_e( 'Kammer', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="professional_chamber" value="<?php echo esc_attr( $data['professional_chamber'] ?? '' ); ?>"></label>
-				<label><span><?php esc_html_e( 'Berufsbezeichnung', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="professional_title" value="<?php echo esc_attr( $data['professional_title'] ?? '' ); ?>"></label>
-				<label><span><?php esc_html_e( 'Staat der Verleihung', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="professional_awarded_in" value="<?php echo esc_attr( $data['professional_awarded_in'] ?? '' ); ?>"></label>
-				<label><span><?php esc_html_e( 'Aufsichtsbehörde', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="supervisory_authority" value="<?php echo esc_attr( $data['supervisory_authority'] ?? '' ); ?>"></label>
-				<label class="frg-grid__full"><span><?php esc_html_e( 'Berufsrechtliche Regelungen', 'frontend-rechtstexte-generator' ); ?></span><textarea name="professional_rules" rows="4"><?php echo esc_textarea( $data['professional_rules'] ?? '' ); ?></textarea></label>
+				<div class="frg-grid__full frg-conditional-fields" data-frg-conditional="has_professional_info">
+					<div class="frg-grid frg-grid--2">
+						<label><span><?php esc_html_e( 'Kammer', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="professional_chamber" value="<?php echo esc_attr( $data['professional_chamber'] ?? '' ); ?>"></label>
+						<label><span><?php esc_html_e( 'Berufsbezeichnung', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="professional_title" value="<?php echo esc_attr( $data['professional_title'] ?? '' ); ?>"></label>
+						<label><span><?php esc_html_e( 'Staat der Verleihung', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="professional_awarded_in" value="<?php echo esc_attr( $data['professional_awarded_in'] ?? '' ); ?>"></label>
+						<label><span><?php esc_html_e( 'Aufsichtsbehörde', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="supervisory_authority" value="<?php echo esc_attr( $data['supervisory_authority'] ?? '' ); ?>"></label>
+						<label class="frg-grid__full"><span><?php esc_html_e( 'Berufsrechtliche Regelungen', 'frontend-rechtstexte-generator' ); ?></span><textarea name="professional_rules" rows="4"><?php echo esc_textarea( $data['professional_rules'] ?? '' ); ?></textarea></label>
+					</div>
+				</div>
+				<label class="frg-toggle"><input type="checkbox" name="has_liability_insurance" value="1" <?php checked( ! empty( $data['has_liability_insurance'] ) ); ?>><span><?php esc_html_e( 'Angaben zur Berufshaftpflichtversicherung ausgeben', 'frontend-rechtstexte-generator' ); ?></span></label>
+				<div class="frg-grid__full frg-conditional-fields" data-frg-conditional="has_liability_insurance">
+					<div class="frg-grid frg-grid--2">
+						<label><span><?php esc_html_e( 'Versicherer', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="liability_insurer" value="<?php echo esc_attr( $data['liability_insurer'] ?? '' ); ?>"></label>
+						<label><span><?php esc_html_e( 'Räumlicher Geltungsbereich', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="liability_scope" value="<?php echo esc_attr( $data['liability_scope'] ?? '' ); ?>"></label>
+						<label class="frg-grid__full"><span><?php esc_html_e( 'Anschrift des Versicherers', 'frontend-rechtstexte-generator' ); ?></span><textarea name="liability_insurer_address" rows="4"><?php echo esc_textarea( $data['liability_insurer_address'] ?? '' ); ?></textarea></label>
+					</div>
+				</div>
 			</div>
 		</section>
 
 		<section class="frg-step" data-step="4">
 			<h3><?php esc_html_e( 'Schritt 4: Datenschutz-Grunddaten', 'frontend-rechtstexte-generator' ); ?></h3>
-			<div class="frg-grid frg-grid--2">
-				<label class="frg-toggle"><input type="checkbox" name="controller_same_as_operator" value="1" <?php checked( ! array_key_exists( 'controller_same_as_operator', $data ) ? ! empty( $privacy_defaults['controller_same_as_operator'] ) : ! empty( $data['controller_same_as_operator'] ) ); ?>><span><?php esc_html_e( 'Verantwortlicher identisch mit Websitebetreiber', 'frontend-rechtstexte-generator' ); ?></span></label>
-				<label class="frg-toggle"><input type="checkbox" name="has_data_protection_officer" value="1" <?php checked( ! empty( $data['has_data_protection_officer'] ) ); ?>><span><?php esc_html_e( 'Datenschutzbeauftragter vorhanden', 'frontend-rechtstexte-generator' ); ?></span></label>
-				<label><span><?php esc_html_e( 'Name Datenschutzbeauftragter', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="data_protection_officer_name" value="<?php echo esc_attr( $data['data_protection_officer_name'] ?? '' ); ?>"></label>
-				<label><span><?php esc_html_e( 'E-Mail Datenschutzbeauftragter', 'frontend-rechtstexte-generator' ); ?></span><input type="email" name="data_protection_officer_email" value="<?php echo esc_attr( $data['data_protection_officer_email'] ?? '' ); ?>"></label>
-				<label><span><?php esc_html_e( 'Hosting-Anbieter *', 'frontend-rechtstexte-generator' ); ?></span><input required type="text" name="hosting_provider" value="<?php echo esc_attr( $data['hosting_provider'] ?? $privacy_defaults['hosting_provider'] ); ?>"></label>
-				<label><span><?php esc_html_e( 'Serverstandort *', 'frontend-rechtstexte-generator' ); ?></span><select required name="server_location"><?php foreach ( array( '' => __( 'Bitte wählen', 'frontend-rechtstexte-generator' ), 'Deutschland' => 'Deutschland', 'EU' => 'EU', 'Drittland' => 'Drittland', 'unbekannt' => 'unbekannt' ) as $value => $label ) : ?><option value="<?php echo esc_attr( $value ); ?>" <?php selected( $data['server_location'] ?? $privacy_defaults['server_location'], $value ); ?>><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></label>
-				<label><span><?php esc_html_e( 'AV-Vertrag mit Hosting-Anbieter *', 'frontend-rechtstexte-generator' ); ?></span><select required name="hosting_av_contract"><?php foreach ( array( '' => __( 'Bitte wählen', 'frontend-rechtstexte-generator' ), 'Ja' => 'Ja', 'Nein' => 'Nein', 'Unbekannt' => 'Unbekannt' ) as $value => $label ) : ?><option value="<?php echo esc_attr( $value ); ?>" <?php selected( $data['hosting_av_contract'] ?? $privacy_defaults['hosting_av_contract'], $value ); ?>><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></label>
-				<label class="frg-grid__full"><span><?php esc_html_e( 'Zwecke der Datenverarbeitung', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_processing_purposes" rows="3"><?php echo esc_textarea( $data['privacy_processing_purposes'] ?? $privacy_defaults['privacy_processing_purposes'] ); ?></textarea></label>
-				<label class="frg-grid__full"><span><?php esc_html_e( 'Allgemeine Rechtsgrundlagen der Verarbeitung', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_legal_basis" rows="3"><?php echo esc_textarea( $data['privacy_legal_basis'] ?? $privacy_defaults['privacy_legal_basis'] ); ?></textarea></label>
-				<label class="frg-grid__full"><span><?php esc_html_e( 'Kategorien von Empfängern', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_recipient_categories" rows="3"><?php echo esc_textarea( $data['privacy_recipient_categories'] ?? $privacy_defaults['privacy_recipient_categories'] ); ?></textarea></label>
-				<label class="frg-grid__full"><span><?php esc_html_e( 'Allgemeine Angaben zur Speicherdauer', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_storage_general" rows="3"><?php echo esc_textarea( $data['privacy_storage_general'] ?? $privacy_defaults['privacy_storage_general'] ); ?></textarea></label>
-				<label class="frg-grid__full"><span><?php esc_html_e( 'Hinweise zu Drittlandtransfer', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_third_country_transfer" rows="3"><?php echo esc_textarea( $data['privacy_third_country_transfer'] ?? $privacy_defaults['privacy_third_country_transfer'] ); ?></textarea></label>
+			<div class="frg-feature-group frg-feature-group--section">
+				<div class="frg-feature-group__header">
+					<h4><?php esc_html_e( 'Verantwortlicher', 'frontend-rechtstexte-generator' ); ?></h4>
+					<p><?php esc_html_e( 'Hier legen Sie fest, ob der Verantwortliche für die Datenverarbeitung mit dem Websitebetreiber identisch ist.', 'frontend-rechtstexte-generator' ); ?></p>
+				</div>
+				<div class="frg-grid frg-grid--2">
+					<label class="frg-toggle"><input type="checkbox" name="controller_same_as_operator" value="1" <?php checked( ! array_key_exists( 'controller_same_as_operator', $data ) ? ! empty( $privacy_defaults['controller_same_as_operator'] ) : ! empty( $data['controller_same_as_operator'] ) ); ?>><span><?php esc_html_e( 'Verantwortlicher identisch mit Websitebetreiber', 'frontend-rechtstexte-generator' ); ?></span></label>
+				</div>
+			</div>
+			<div class="frg-feature-group frg-feature-group--section">
+				<div class="frg-feature-group__header">
+					<h4><?php esc_html_e( 'Datenschutzbeauftragter', 'frontend-rechtstexte-generator' ); ?></h4>
+					<p><?php esc_html_e( 'Wenn ein Datenschutzbeauftragter benannt wurde, sollten die Kontaktangaben möglichst vollständig gepflegt werden.', 'frontend-rechtstexte-generator' ); ?></p>
+				</div>
+				<div class="frg-grid frg-grid--2">
+					<label class="frg-toggle"><input type="checkbox" name="has_data_protection_officer" value="1" <?php checked( ! empty( $data['has_data_protection_officer'] ) ); ?>><span><?php esc_html_e( 'Datenschutzbeauftragter vorhanden', 'frontend-rechtstexte-generator' ); ?></span></label>
+					<div class="frg-grid__full frg-conditional-fields" data-frg-conditional="has_data_protection_officer">
+						<div class="frg-grid frg-grid--2">
+							<label><span><?php esc_html_e( 'Name Datenschutzbeauftragter', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="data_protection_officer_name" value="<?php echo esc_attr( $data['data_protection_officer_name'] ?? '' ); ?>"></label>
+							<label><span><?php esc_html_e( 'E-Mail Datenschutzbeauftragter', 'frontend-rechtstexte-generator' ); ?></span><input type="email" name="data_protection_officer_email" value="<?php echo esc_attr( $data['data_protection_officer_email'] ?? '' ); ?>"></label>
+							<label><span><?php esc_html_e( 'Telefon Datenschutzbeauftragter', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="data_protection_officer_phone" value="<?php echo esc_attr( $data['data_protection_officer_phone'] ?? '' ); ?>"></label>
+							<label class="frg-grid__full"><span><?php esc_html_e( 'Anschrift Datenschutzbeauftragter', 'frontend-rechtstexte-generator' ); ?></span><textarea name="data_protection_officer_address" rows="4"><?php echo esc_textarea( $data['data_protection_officer_address'] ?? '' ); ?></textarea></label>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="frg-feature-group frg-feature-group--section">
+				<div class="frg-feature-group__header">
+					<h4><?php esc_html_e( 'Hosting', 'frontend-rechtstexte-generator' ); ?></h4>
+					<p><?php esc_html_e( 'Diese Angaben werden für Hosting, Serverstandort und Auftragsverarbeitungsvertrag verwendet.', 'frontend-rechtstexte-generator' ); ?></p>
+				</div>
+				<div class="frg-grid frg-grid--2">
+					<label><span><?php esc_html_e( 'Hosting-Anbieter *', 'frontend-rechtstexte-generator' ); ?></span><input required type="text" name="hosting_provider" value="<?php echo esc_attr( $data['hosting_provider'] ?? $privacy_defaults['hosting_provider'] ); ?>"></label>
+					<label><span><?php esc_html_e( 'Serverstandort *', 'frontend-rechtstexte-generator' ); ?></span><select required name="server_location"><?php foreach ( array( '' => __( 'Bitte wählen', 'frontend-rechtstexte-generator' ), 'Deutschland' => 'Deutschland', 'EU' => 'EU', 'Drittland' => 'Drittland', 'unbekannt' => 'unbekannt' ) as $value => $label ) : ?><option value="<?php echo esc_attr( $value ); ?>" <?php selected( $data['server_location'] ?? $privacy_defaults['server_location'], $value ); ?>><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></label>
+					<label><span><?php esc_html_e( 'AV-Vertrag mit Hosting-Anbieter *', 'frontend-rechtstexte-generator' ); ?></span><select required name="hosting_av_contract"><?php foreach ( array( '' => __( 'Bitte wählen', 'frontend-rechtstexte-generator' ), 'Ja' => 'Ja', 'Nein' => 'Nein', 'Unbekannt' => 'Unbekannt' ) as $value => $label ) : ?><option value="<?php echo esc_attr( $value ); ?>" <?php selected( $data['hosting_av_contract'] ?? $privacy_defaults['hosting_av_contract'], $value ); ?>><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></label>
+					<label class="frg-grid__full"><span><?php esc_html_e( 'Anschrift Hosting-Anbieter', 'frontend-rechtstexte-generator' ); ?></span><textarea name="hosting_provider_address" rows="4"><?php echo esc_textarea( $data['hosting_provider_address'] ?? '' ); ?></textarea></label>
+				</div>
+			</div>
+			<div class="frg-feature-group frg-feature-group--section">
+				<div class="frg-feature-group__header">
+					<h4><?php esc_html_e( 'Allgemeine Datenschutzangaben', 'frontend-rechtstexte-generator' ); ?></h4>
+					<p><?php esc_html_e( 'Diese Angaben bilden die allgemeine Grundlage für die Datenschutzerklärung.', 'frontend-rechtstexte-generator' ); ?></p>
+				</div>
+				<div class="frg-grid frg-grid--2">
+					<label class="frg-grid__full"><span><?php esc_html_e( 'Zwecke der Datenverarbeitung', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_processing_purposes" rows="3"><?php echo esc_textarea( $data['privacy_processing_purposes'] ?? $privacy_defaults['privacy_processing_purposes'] ); ?></textarea></label>
+					<label class="frg-grid__full"><span><?php esc_html_e( 'Allgemeine Rechtsgrundlagen der Verarbeitung', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_legal_basis" rows="3"><?php echo esc_textarea( $data['privacy_legal_basis'] ?? $privacy_defaults['privacy_legal_basis'] ); ?></textarea></label>
+					<label class="frg-grid__full"><span><?php esc_html_e( 'Kategorien von Empfängern', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_recipient_categories" rows="3"><?php echo esc_textarea( $data['privacy_recipient_categories'] ?? $privacy_defaults['privacy_recipient_categories'] ); ?></textarea></label>
+					<label class="frg-grid__full"><span><?php esc_html_e( 'Allgemeine Angaben zur Speicherdauer', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_storage_general" rows="3"><?php echo esc_textarea( $data['privacy_storage_general'] ?? $privacy_defaults['privacy_storage_general'] ); ?></textarea></label>
+					<label class="frg-grid__full"><span><?php esc_html_e( 'Hinweise zu Drittlandtransfer', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_third_country_transfer" rows="3"><?php echo esc_textarea( $data['privacy_third_country_transfer'] ?? $privacy_defaults['privacy_third_country_transfer'] ); ?></textarea></label>
+				</div>
 			</div>
 		</section>
 
