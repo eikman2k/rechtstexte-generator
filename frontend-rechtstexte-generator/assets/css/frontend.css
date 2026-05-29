@@ -1,0 +1,372 @@
+.frg-wizard {
+	max-width: 980px;
+	margin: 0 auto;
+	padding: 24px;
+	background: #fff;
+	border: 1px solid #d9dde3;
+	border-radius: 18px;
+	box-shadow: 0 12px 28px rgba(13, 28, 45, 0.08);
+}
+
+.frg-progress {
+	margin-bottom: 20px;
+}
+
+.frg-progress__bar {
+	height: 10px;
+	background: #ebeff3;
+	border-radius: 999px;
+	overflow: hidden;
+}
+
+.frg-progress__fill {
+	display: block;
+	height: 100%;
+	width: 12.5%;
+	background: linear-gradient(90deg, #0f766e, #0891b2);
+	transition: width 0.25s ease;
+}
+
+.frg-progress__label {
+	margin-top: 10px;
+	color: #415164;
+	font-size: 14px;
+}
+
+.frg-step {
+	display: none;
+}
+
+.frg-step.is-active {
+	display: block;
+}
+
+.frg-grid {
+	display: grid;
+	gap: 16px;
+}
+
+.frg-grid--2 {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.frg-grid label,
+.frg-check,
+.frg-toggle {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	color: #17324d;
+	font-weight: 600;
+}
+
+.frg-grid input,
+.frg-grid select,
+.frg-grid textarea {
+	width: 100%;
+	padding: 12px 14px;
+	border: 1px solid #c9d3de;
+	border-radius: 10px;
+	font: inherit;
+}
+
+.frg-grid__full {
+	grid-column: 1 / -1;
+}
+
+.frg-checkbox-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px 16px;
+}
+
+.frg-check,
+.frg-toggle {
+	flex-direction: row;
+	align-items: flex-start;
+	padding: 12px 14px;
+	border: 1px solid #d9dde3;
+	border-radius: 12px;
+	background: #f9fbfc;
+	font-weight: 500;
+}
+
+.frg-feature-group {
+	margin-top: 28px;
+	padding: 24px;
+	border: 1px solid #d7e2ec;
+	border-radius: 20px;
+	background: linear-gradient(180deg, #f8fbff 0%, #f1f7fc 100%);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.frg-feature-group__header {
+	margin-bottom: 18px;
+}
+
+.frg-feature-group__header h4 {
+	margin: 0 0 8px;
+	color: #163956;
+	font-size: clamp(1.08rem, 1.4vw, 1.24rem);
+	line-height: 1.3;
+}
+
+.frg-feature-group__header p {
+	margin: 0;
+	color: #536b81;
+	line-height: 1.7;
+}
+
+.frg-feature-group--training {
+	border-color: #bfd5e8;
+	background:
+		radial-gradient(circle at top right, rgba(39, 128, 176, 0.1), transparent 34%),
+		linear-gradient(180deg, #f7fbff 0%, #edf5fb 100%);
+}
+
+.frg-notice {
+	margin: 16px 0;
+	padding: 14px 16px;
+	border-radius: 12px;
+	background: #eef6ff;
+	color: #14395a;
+}
+
+.frg-notice--warning {
+	background: #fff3db;
+	color: #734800;
+}
+
+.frg-nav,
+.frg-step__actions {
+	display: flex;
+	gap: 12px;
+	margin-top: 20px;
+	flex-wrap: wrap;
+}
+
+.frg-step__actions--stack {
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.frg-button {
+	padding: 12px 18px;
+	border: 0;
+	border-radius: 10px;
+	background: #0f766e;
+	color: #fff;
+	font: inherit;
+	cursor: pointer;
+}
+
+.frg-button--secondary {
+	background: #0f4c81;
+}
+
+.frg-button--ghost {
+	background: #edf2f7;
+	color: #17324d;
+}
+
+.frg-feedback {
+	margin-top: 16px;
+	font-weight: 600;
+	color: #b42318;
+}
+
+.frg-save-status {
+	margin: 14px 0 4px;
+	padding: 12px 14px;
+	border: 1px solid #cfe3d7;
+	border-radius: 12px;
+	background: #f4fbf6;
+	color: #1e5e3c;
+	font-weight: 600;
+}
+
+.frg-feedback.is-success {
+	color: #0f766e;
+}
+
+.frg-preview__section {
+	margin-top: 18px;
+	padding: 18px;
+	border: 1px solid #d9dde3;
+	border-radius: 14px;
+	background: #fcfdff;
+}
+
+.frg-scanner {
+	margin-bottom: 20px;
+	padding: 18px;
+	border: 1px solid #d9dde3;
+	border-radius: 14px;
+	background: #f8fbfd;
+}
+
+.frg-scanner__list {
+	display: grid;
+	gap: 12px;
+}
+
+.frg-scanner__item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 16px;
+	padding: 12px 14px;
+	border-radius: 12px;
+	background: #fff;
+	border: 1px solid #e0e6ed;
+}
+
+.frg-scanner__meta {
+	display: block;
+	margin-top: 4px;
+	font-size: 13px;
+	color: #5b6b7c;
+}
+
+.frg-scanner__hint {
+	display: inline-block;
+	padding: 8px 12px;
+	border-radius: 999px;
+	background: #edf2f7;
+	color: #415164;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.frg-preview__content h2,
+.frg-preview__content h3,
+.frg-preview__content h4,
+.frg-document h2,
+.frg-document h3,
+.frg-document h4 {
+	margin-top: 0;
+}
+
+.frg-preview__content h2,
+.frg-document h2 {
+	margin-bottom: 20px;
+}
+
+.frg-preview__content h3,
+.frg-preview__content h4,
+.frg-document h3,
+.frg-document h4 {
+	margin-top: 52px;
+	margin-bottom: 14px;
+	line-height: 1.35;
+}
+
+.frg-preview__content p,
+.frg-preview__content ul,
+.frg-preview__content ol,
+.frg-document p,
+.frg-document ul,
+.frg-document ol {
+	margin-top: 0;
+	margin-bottom: 20px;
+	line-height: 1.8;
+}
+
+.frg-preview__content ul,
+.frg-preview__content ol,
+.frg-document ul,
+.frg-document ol {
+	padding-left: 22px;
+}
+
+.frg-preview__content li + li,
+.frg-document li + li {
+	margin-top: 8px;
+}
+
+.frg-document {
+	max-width: 960px;
+	color: #243447;
+	font-size: 18px;
+}
+
+.frg-document > *:first-child {
+	margin-top: 0;
+}
+
+.frg-document h2 {
+	font-size: clamp(2rem, 3vw, 2.45rem);
+	line-height: 1.18;
+}
+
+.frg-document h3 {
+	font-size: clamp(1.65rem, 2.2vw, 2rem);
+	line-height: 1.24;
+	letter-spacing: -0.02em;
+}
+
+.frg-document h4 {
+	font-size: clamp(1.3rem, 1.8vw, 1.55rem);
+	line-height: 1.3;
+}
+
+.frg-document h3 + p,
+.frg-document h4 + p {
+	margin-top: 4px;
+}
+
+.frg-document p strong {
+	font-weight: 700;
+}
+
+.frg-html-export {
+	margin-top: 24px;
+}
+
+.frg-html-export__card {
+	padding: 18px;
+	border: 1px solid #d9dde3;
+	border-radius: 14px;
+	background: #fcfdff;
+}
+
+.frg-html-export__header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.frg-html-export__header h4 {
+	margin: 0;
+	color: #17324d;
+}
+
+.frg-html-export__textarea {
+	width: 100%;
+	padding: 12px 14px;
+	border: 1px solid #c9d3de;
+	border-radius: 10px;
+	background: #f8fbfd;
+	font: 13px/1.5 Monaco, Consolas, "Liberation Mono", monospace;
+	resize: vertical;
+}
+
+@media (max-width: 767px) {
+	.frg-wizard,
+	.frg-checkbox-grid,
+	.frg-grid--2 {
+		grid-template-columns: 1fr;
+	}
+
+	.frg-scanner__item {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.frg-html-export__header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
