@@ -11,6 +11,32 @@ $module_meta         = $this->generator->get_module_meta();
 ?>
 <div class="wrap frg-admin">
 	<h1><?php esc_html_e( 'Rechtstexte Generator', 'frontend-rechtstexte-generator' ); ?></h1>
+	<div class="frg-admin-card frg-admin-card--status">
+		<h2><?php esc_html_e( 'Plugin-Status', 'frontend-rechtstexte-generator' ); ?></h2>
+		<p><strong><?php esc_html_e( 'Plugin-Version', 'frontend-rechtstexte-generator' ); ?>:</strong> <?php echo esc_html( FRG_VERSION ); ?></p>
+		<p><strong><?php esc_html_e( 'Modulversion', 'frontend-rechtstexte-generator' ); ?>:</strong> <?php echo esc_html( $module_meta['module_version'] ?? '' ); ?></p>
+		<?php if ( is_multisite() ) : ?>
+			<p><strong><?php esc_html_e( 'Multisite-Modus', 'frontend-rechtstexte-generator' ); ?>:</strong> <?php echo FRG_Multisite::is_central_output_enabled() ? esc_html__( 'Zentrale Ausgabe aktiv', 'frontend-rechtstexte-generator' ) : esc_html__( 'Lokale Ausgabe je Site', 'frontend-rechtstexte-generator' ); ?></p>
+			<?php if ( FRG_Multisite::is_central_output_enabled() ) : ?>
+				<p><strong><?php esc_html_e( 'Master-Site', 'frontend-rechtstexte-generator' ); ?>:</strong> #<?php echo esc_html( (string) FRG_Multisite::get_source_blog_id() ); ?></p>
+			<?php endif; ?>
+		<?php endif; ?>
+	</div>
+	<?php if ( FRG_Multisite::is_central_output_enabled() && ! FRG_Multisite::is_source_blog() ) : ?>
+		<div class="notice notice-info">
+			<p>
+				<?php
+				echo esc_html(
+					sprintf(
+						/* translators: %d: source blog id */
+						__( 'Die Multisite-Zentralausgabe ist aktiv. Die Shortcodes dieser Site verwenden die Inhalte der Master-Site #%d.', 'frontend-rechtstexte-generator' ),
+						FRG_Multisite::get_source_blog_id()
+					)
+				);
+				?>
+			</p>
+		</div>
+	<?php endif; ?>
 
 	<form method="post" class="frg-admin-card">
 		<?php wp_nonce_field( 'frg_save_settings_action', 'frg_save_settings_nonce' ); ?>

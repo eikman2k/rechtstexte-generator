@@ -4,9 +4,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class FRG_Activator {
-	public static function activate(): void {
+	public static function activate( bool $network_wide = false ): void {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
+		if ( is_multisite() && $network_wide ) {
+			$sites = get_sites( array( 'number' => 0 ) );
+			foreach ( $sites as $site ) {
+				switch_to_blog( (int) $site->blog_id );
+				self::create_table_and_defaults();
+				restore_current_blog();
+			}
+
+			return;
+		}
+
+		self::create_table_and_defaults();
+	}
+
+	public static function activate_new_site( WP_Site $site ): void {
+		switch_to_blog( (int) $site->blog_id );
+		self::create_table_and_defaults();
+		restore_current_blog();
+	}
+
+	private static function create_table_and_defaults(): void {
 		global $wpdb;
 
 		$table_name      = $wpdb->prefix . 'frg_profiles';

@@ -26,6 +26,10 @@ class FRG_Shortcodes {
 	}
 
 	public function render_impressum(): string {
+		if ( FRG_Multisite::is_central_output_enabled() ) {
+			return $this->render_central_document( 'impressum' );
+		}
+
 		$profile = $this->get_display_profile();
 		if ( empty( $profile['data'] ) ) {
 			return '';
@@ -35,6 +39,10 @@ class FRG_Shortcodes {
 	}
 
 	public function render_privacy(): string {
+		if ( FRG_Multisite::is_central_output_enabled() ) {
+			return $this->render_central_document( 'privacy' );
+		}
+
 		$profile = $this->get_display_profile();
 		if ( empty( $profile['data'] ) ) {
 			return '';
@@ -44,6 +52,24 @@ class FRG_Shortcodes {
 	}
 
 	public function render_last_updated(): string {
+		if ( FRG_Multisite::is_central_output_enabled() ) {
+			$profile = null;
+			$source_blog_id = FRG_Multisite::get_source_blog_id();
+
+			switch_to_blog( $source_blog_id );
+			try {
+				$profile = $this->get_central_profile_in_source_context();
+			} finally {
+				restore_current_blog();
+			}
+
+			if ( empty( $profile['updated_at'] ) ) {
+				return '';
+			}
+
+			return esc_html( mysql2date( get_option( 'date_format' ), $profile['updated_at'] ) );
+		}
+
 		$profile = $this->get_display_profile();
 		if ( empty( $profile['updated_at'] ) ) {
 			return '';
@@ -59,5 +85,31 @@ class FRG_Shortcodes {
 		}
 
 		return $this->storage->get_latest_profile();
+	}
+
+	private function render_central_document( string $type ): string {
+		$output = '';
+		$source_blog_id = FRG_Multisite::get_source_blog_id();
+
+		switch_to_blog( $source_blog_id );
+		try {
+			$profile = $this->get_central_profile_in_source_context();
+			if ( empty( $profile['data'] ) ) {
+				return '';
+			}
+
+			$output = 'impressum' === $type
+				? $this->generator->generate_impressum( $profile['data'] )
+				: $this->generator->generate_privacy_policy( $profile['data'] );
+		} finally {
+			restore_current_blog();
+		}
+
+		return wp_kses_post( $output );
+	}
+
+	private function get_central_profile_in_source_context(): ?array {
+		$source_profile_id = FRG_Multisite::get_source_profile_id();
+		return $source_profile_id > 0 ? $this->storage->get_profile_by_id( $source_profile_id ) : $this->storage->get_latest_profile();
 	}
 }

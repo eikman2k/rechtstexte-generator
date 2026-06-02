@@ -34,6 +34,7 @@ class FRG_Plugin {
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-generator.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-page-sync.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-scanner.php';
+		require_once FRG_PLUGIN_DIR . 'includes/class-frg-multisite.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-frontend-wizard.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-shortcodes.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-admin.php';
@@ -56,6 +57,10 @@ class FRG_Plugin {
 		add_action( 'wp_enqueue_scripts', array( $this->frontend_wizard, 'register_assets' ) );
 		add_action( 'admin_enqueue_scripts', array( $this->admin, 'enqueue_assets' ) );
 		add_action( 'admin_menu', array( $this->admin, 'register_menu' ) );
+		add_action( 'network_admin_menu', array( 'FRG_Multisite', 'register_menu' ) );
+		if ( is_multisite() ) {
+			add_action( 'wp_initialize_site', array( 'FRG_Activator', 'activate_new_site' ) );
+		}
 		add_action( 'wp_ajax_frg_admin_generate_block_draft', array( $this->admin, 'ajax_generate_block_draft' ) );
 		add_action( 'wp_ajax_frg_admin_adopt_block_draft', array( $this->admin, 'ajax_adopt_block_draft' ) );
 		add_action( 'wp_ajax_frg_generate_preview', array( $this->frontend_wizard, 'ajax_generate_preview' ) );

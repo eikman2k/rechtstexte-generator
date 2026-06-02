@@ -17,6 +17,7 @@ Die erzeugten Texte ersetzen keine anwaltliche Prüfung. Das Plugin arbeitet mit
 - Backend-Block-Registry mit Live-Overrides und KI-Entwürfen
 - Export und Import von Profilen und Block-Registry
 - Schulungsportal-/Lernplattform-Erweiterungen inklusive SCORM-, Zertifikats- und Rollenlogik
+- optionale Multisite-Zentralausgabe für Impressum und Datenschutzerklärung
 
 ## Shortcodes
 
@@ -48,6 +49,17 @@ Dort verfügbar:
 - HTML-Kopierbereiche
 - OpenAI-Einstellungen für Block-Entwürfe
 - Export / Import
+
+## Multisite
+
+In WordPress Multisite kann ein Superadmin die Ausgabe zentral steuern:
+
+- Netzwerkadmin: `Einstellungen > Rechtstexte Generator`
+- Master-Site auswählen
+- optional ein zentrales Profil auswählen
+- auf Unterseiten `[frg_impressum]`, `[frg_datenschutz]` und `[frg_last_updated]` verwenden
+
+Wenn der zentrale Modus aktiv ist, werden die Ausgabe-Shortcodes auf Unterseiten aus der Master-Site gerendert. Dadurch greifen auch die zentrale Block-Registry und Live-Overrides der Master-Site.
 
 ## Frontend-Ablauf
 
@@ -84,9 +96,18 @@ Das Plugin enthält einen eigenen Datenschutzbereich für Schulungsportale mit O
 
 ## Version
 
-Aktueller Release: `1.2.0`
+Aktueller Release: `1.3.0`
 
 ## Changelog
+
+### 1.3.0
+
+- Multisite-Zentralausgabe fuer Impressum und Datenschutzerklaerung ergaenzt
+- Netzwerk-Einstellungen fuer Master-Site und zentrales Profil hinzugefuegt
+- Shortcodes auf Unterseiten koennen Inhalte aus der zentralen Master-Site ausgeben
+- Wizard auf Unterseiten zeigt bei aktivem Zentralmodus einen Verwaltungshinweis
+- Netzwerk-Aktivierung legt Profiltabellen fuer bestehende Sites an
+- Neue Sites erhalten die Profiltabelle automatisch
 
 ### 1.2.0
 

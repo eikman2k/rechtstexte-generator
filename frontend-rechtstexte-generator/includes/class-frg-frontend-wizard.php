@@ -46,6 +46,11 @@ class FRG_Frontend_Wizard {
 			return '<div class="frg-notice frg-notice--warning">' . esc_html__( 'Der Rechtstexte-Generator steht nur eingeloggten Benutzern zur Verfügung.', 'frontend-rechtstexte-generator' ) . '</div>';
 		}
 
+		if ( FRG_Multisite::is_central_output_enabled() && ! FRG_Multisite::is_source_blog() ) {
+			$message = __( 'Der Rechtstexte-Generator wird in diesem Netzwerk zentral auf der Master-Site verwaltet. Auf Unterseiten verwenden Sie bitte die Ausgabe-Shortcodes.', 'frontend-rechtstexte-generator' );
+			return '<div class="frg-notice frg-notice--warning">' . esc_html( $message ) . '</div>';
+		}
+
 		wp_enqueue_style( 'frg-frontend' );
 		wp_enqueue_script( 'frg-frontend' );
 

@@ -23,7 +23,7 @@ class FRG_Admin {
 	}
 
 	public function enqueue_assets( string $hook ): void {
-		if ( 'settings_page_frg-settings' !== $hook ) {
+		if ( 'settings_page_frg-settings' !== $hook && 'settings_page_frg-network-settings' !== $hook ) {
 			return;
 		}
 
