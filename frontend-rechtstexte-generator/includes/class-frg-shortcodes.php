@@ -26,6 +26,8 @@ class FRG_Shortcodes {
 	}
 
 	public function render_impressum(): string {
+		$this->enqueue_output_assets();
+
 		if ( FRG_Multisite::is_central_output_enabled() ) {
 			return $this->render_central_document( 'impressum' );
 		}
@@ -39,6 +41,8 @@ class FRG_Shortcodes {
 	}
 
 	public function render_privacy(): string {
+		$this->enqueue_output_assets();
+
 		if ( FRG_Multisite::is_central_output_enabled() ) {
 			return $this->render_central_document( 'privacy' );
 		}
@@ -76,6 +80,10 @@ class FRG_Shortcodes {
 		}
 
 		return esc_html( mysql2date( get_option( 'date_format' ), $profile['updated_at'] ) );
+	}
+
+	private function enqueue_output_assets(): void {
+		wp_enqueue_style( 'frg-frontend' );
 	}
 
 	private function get_display_profile(): ?array {

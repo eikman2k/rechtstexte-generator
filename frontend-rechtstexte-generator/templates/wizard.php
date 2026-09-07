@@ -9,7 +9,9 @@ $scanner_recommendations = $scanner_recommendations ?? array();
 $scanner_errors          = $scanner_errors ?? array();
 $privacy_defaults        = array(
 	'controller_same_as_operator'  => true,
-	'hosting_provider'             => 'Host Europe',
+	'controller_country'           => 'Deutschland',
+	'hosting_provider'             => 'Völkel EDV Systeme',
+	'hosting_provider_address'     => "Völkel EDV Systeme\nInhaber: Eike Völkel\nGöttinger Str. 22\n31061 Alfeld (Leine)\nDeutschland",
 	'server_location'              => 'EU',
 	'hosting_av_contract'          => 'Ja',
 	'privacy_processing_purposes'  => 'Bereitstellung dieser Website, Sicherstellung des technischen Betriebs, Bearbeitung von Kontaktanfragen, Kommunikation mit Interessenten und Kunden, Vertragsanbahnung und Vertragsdurchführung, IT-Sicherheit sowie Missbrauchs- und Fehlerprävention.',
@@ -33,9 +35,10 @@ $privacy_defaults        = array(
 		<section class="frg-step is-active" data-step="1">
 			<h3><?php esc_html_e( 'Schritt 1: Allgemeine Kundendaten', 'frontend-rechtstexte-generator' ); ?></h3>
 			<div class="frg-grid frg-grid--2">
-				<?php $legal_forms = array( 'Einzelunternehmen', 'GbR', 'GmbH', 'UG', 'e.K.', 'Verein', 'sonstige' ); ?>
+				<?php $legal_forms = array( 'Einzelunternehmen', 'Freiberufler', 'GbR', 'GmbH', 'UG', 'e.K.', 'OHG', 'KG', 'GmbH & Co. KG', 'AG', 'eG', 'PartG', 'Verein', 'Stiftung', 'Körperschaft des öffentlichen Rechts', 'sonstige' ); ?>
 				<label><span><?php esc_html_e( 'Firmenname / Websitebetreiber *', 'frontend-rechtstexte-generator' ); ?></span><input required type="text" name="company_name" value="<?php echo esc_attr( $data['company_name'] ?? '' ); ?>"></label>
 				<label><span><?php esc_html_e( 'Rechtsform *', 'frontend-rechtstexte-generator' ); ?></span><select required name="legal_form"><option value=""><?php esc_html_e( 'Bitte wählen', 'frontend-rechtstexte-generator' ); ?></option><?php foreach ( $legal_forms as $form ) : ?><option value="<?php echo esc_attr( $form ); ?>" <?php selected( $data['legal_form'] ?? '', $form ); ?>><?php echo esc_html( $form ); ?></option><?php endforeach; ?></select></label>
+				<label><span><?php esc_html_e( 'Eigene Bezeichnung bei „sonstige“', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="legal_form_other" value="<?php echo esc_attr( $data['legal_form_other'] ?? '' ); ?>"></label>
 				<label><span><?php esc_html_e( 'Vorname *', 'frontend-rechtstexte-generator' ); ?></span><input required type="text" name="first_name" value="<?php echo esc_attr( $data['first_name'] ?? '' ); ?>"></label>
 				<label><span><?php esc_html_e( 'Nachname *', 'frontend-rechtstexte-generator' ); ?></span><input required type="text" name="last_name" value="<?php echo esc_attr( $data['last_name'] ?? '' ); ?>"></label>
 				<label><span><?php esc_html_e( 'Straße und Hausnummer *', 'frontend-rechtstexte-generator' ); ?></span><input required type="text" name="street" value="<?php echo esc_attr( $data['street'] ?? '' ); ?>"></label>
@@ -71,7 +74,7 @@ $privacy_defaults        = array(
 		<section class="frg-step" data-step="3">
 			<h3><?php esc_html_e( 'Schritt 3: Besondere Angaben', 'frontend-rechtstexte-generator' ); ?></h3>
 			<div class="frg-grid frg-grid--2">
-				<label class="frg-toggle"><input type="checkbox" name="has_responsible_content" value="1" <?php checked( ! empty( $data['has_responsible_content'] ) ); ?>><span><?php esc_html_e( 'Inhaltlich verantwortlich nach § 18 Abs. 2 MStV', 'frontend-rechtstexte-generator' ); ?></span></label>
+				<label class="frg-toggle"><input type="checkbox" name="has_responsible_content" value="1" <?php checked( ! empty( $data['has_responsible_content'] ) ); ?>><span><?php esc_html_e( 'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV', 'frontend-rechtstexte-generator' ); ?></span></label>
 				<div class="frg-grid__full frg-conditional-fields" data-frg-conditional="has_responsible_content">
 					<div class="frg-grid frg-grid--2">
 						<label><span><?php esc_html_e( 'Name der verantwortlichen Person', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="responsible_name" value="<?php echo esc_attr( $data['responsible_name'] ?? '' ); ?>"></label>
@@ -108,6 +111,18 @@ $privacy_defaults        = array(
 				</div>
 				<div class="frg-grid frg-grid--2">
 					<label class="frg-toggle"><input type="checkbox" name="controller_same_as_operator" value="1" <?php checked( ! array_key_exists( 'controller_same_as_operator', $data ) ? ! empty( $privacy_defaults['controller_same_as_operator'] ) : ! empty( $data['controller_same_as_operator'] ) ); ?>><span><?php esc_html_e( 'Verantwortlicher identisch mit Websitebetreiber', 'frontend-rechtstexte-generator' ); ?></span></label>
+					<div class="frg-grid__full frg-conditional-fields" data-frg-conditional="controller_same_as_operator" data-frg-conditional-inverse>
+						<div class="frg-grid frg-grid--2">
+							<label><span><?php esc_html_e( 'Name / Unternehmen des Verantwortlichen *', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="controller_name" value="<?php echo esc_attr( $data['controller_name'] ?? '' ); ?>" data-frg-conditional-required></label>
+							<label><span><?php esc_html_e( 'Vertretungsberechtigte Person', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="controller_representative" value="<?php echo esc_attr( $data['controller_representative'] ?? '' ); ?>"></label>
+							<label><span><?php esc_html_e( 'Straße und Hausnummer *', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="controller_street" value="<?php echo esc_attr( $data['controller_street'] ?? '' ); ?>" data-frg-conditional-required></label>
+							<label><span><?php esc_html_e( 'PLZ *', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="controller_zip" value="<?php echo esc_attr( $data['controller_zip'] ?? '' ); ?>" data-frg-conditional-required></label>
+							<label><span><?php esc_html_e( 'Ort *', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="controller_city" value="<?php echo esc_attr( $data['controller_city'] ?? '' ); ?>" data-frg-conditional-required></label>
+							<label><span><?php esc_html_e( 'Land *', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="controller_country" value="<?php echo esc_attr( $data['controller_country'] ?? $privacy_defaults['controller_country'] ); ?>" data-frg-conditional-required></label>
+							<label><span><?php esc_html_e( 'E-Mail-Adresse *', 'frontend-rechtstexte-generator' ); ?></span><input type="email" name="controller_email" value="<?php echo esc_attr( $data['controller_email'] ?? '' ); ?>" data-frg-conditional-required></label>
+							<label><span><?php esc_html_e( 'Telefon optional', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="controller_phone" value="<?php echo esc_attr( $data['controller_phone'] ?? '' ); ?>"></label>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="frg-feature-group frg-feature-group--section">
@@ -130,13 +145,16 @@ $privacy_defaults        = array(
 			<div class="frg-feature-group frg-feature-group--section">
 				<div class="frg-feature-group__header">
 					<h4><?php esc_html_e( 'Hosting', 'frontend-rechtstexte-generator' ); ?></h4>
-					<p><?php esc_html_e( 'Diese Angaben werden für Hosting, Serverstandort und Auftragsverarbeitungsvertrag verwendet.', 'frontend-rechtstexte-generator' ); ?></p>
+					<p><?php esc_html_e( 'Diese Angaben werden für Hosting, Serverstandort, eingesetzte Server-Infrastruktur und Auftragsverarbeitung verwendet.', 'frontend-rechtstexte-generator' ); ?></p>
 				</div>
 				<div class="frg-grid frg-grid--2">
 					<label><span><?php esc_html_e( 'Hosting-Anbieter *', 'frontend-rechtstexte-generator' ); ?></span><input required type="text" name="hosting_provider" value="<?php echo esc_attr( $data['hosting_provider'] ?? $privacy_defaults['hosting_provider'] ); ?>"></label>
 					<label><span><?php esc_html_e( 'Serverstandort *', 'frontend-rechtstexte-generator' ); ?></span><select required name="server_location"><?php foreach ( array( '' => __( 'Bitte wählen', 'frontend-rechtstexte-generator' ), 'Deutschland' => 'Deutschland', 'EU' => 'EU', 'Drittland' => 'Drittland', 'unbekannt' => 'unbekannt' ) as $value => $label ) : ?><option value="<?php echo esc_attr( $value ); ?>" <?php selected( $data['server_location'] ?? $privacy_defaults['server_location'], $value ); ?>><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></label>
 					<label><span><?php esc_html_e( 'AV-Vertrag mit Hosting-Anbieter *', 'frontend-rechtstexte-generator' ); ?></span><select required name="hosting_av_contract"><?php foreach ( array( '' => __( 'Bitte wählen', 'frontend-rechtstexte-generator' ), 'Ja' => 'Ja', 'Nein' => 'Nein', 'Unbekannt' => 'Unbekannt' ) as $value => $label ) : ?><option value="<?php echo esc_attr( $value ); ?>" <?php selected( $data['hosting_av_contract'] ?? $privacy_defaults['hosting_av_contract'], $value ); ?>><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></label>
-					<label class="frg-grid__full"><span><?php esc_html_e( 'Anschrift Hosting-Anbieter', 'frontend-rechtstexte-generator' ); ?></span><textarea name="hosting_provider_address" rows="4"><?php echo esc_textarea( $data['hosting_provider_address'] ?? '' ); ?></textarea></label>
+					<label class="frg-grid__full"><span><?php esc_html_e( 'Anschrift Hosting-Anbieter', 'frontend-rechtstexte-generator' ); ?></span><textarea name="hosting_provider_address" rows="5"><?php echo esc_textarea( $data['hosting_provider_address'] ?? $privacy_defaults['hosting_provider_address'] ); ?></textarea></label>
+					<label><span><?php esc_html_e( 'Server-Infrastruktur-Anbieter', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="server_infrastructure_provider" value="<?php echo esc_attr( $data['server_infrastructure_provider'] ?? '' ); ?>" placeholder="<?php echo esc_attr__( 'z. B. netcup GmbH', 'frontend-rechtstexte-generator' ); ?>"></label>
+					<label><span><?php esc_html_e( 'Art der Server-Infrastruktur', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="server_infrastructure_type" value="<?php echo esc_attr( $data['server_infrastructure_type'] ?? '' ); ?>" placeholder="<?php echo esc_attr__( 'z. B. virtueller Server (vServer)', 'frontend-rechtstexte-generator' ); ?>"></label>
+					<label class="frg-grid__full"><span><?php esc_html_e( 'Anschrift Server-Infrastruktur-Anbieter', 'frontend-rechtstexte-generator' ); ?></span><textarea name="server_infrastructure_address" rows="4" placeholder="<?php echo esc_attr__( "netcup GmbH\nDaimlerstraße 25\n76185 Karlsruhe\nDeutschland", 'frontend-rechtstexte-generator' ); ?>"><?php echo esc_textarea( $data['server_infrastructure_address'] ?? '' ); ?></textarea></label>
 				</div>
 			</div>
 			<div class="frg-feature-group frg-feature-group--section">
@@ -275,6 +293,7 @@ $privacy_defaults        = array(
 			<?php
 			$service_groups = array(
 				array(
+					'key'         => 'google_tracking',
 					'title'       => __( 'Google, Tracking und Werbung', 'frontend-rechtstexte-generator' ),
 					'description' => __( 'Diese Dienste sind vor allem für Analyse, Marketing, Conversion-Messung und externe Ressourcen relevant.', 'frontend-rechtstexte-generator' ),
 					'items'       => array(
@@ -290,6 +309,7 @@ $privacy_defaults        = array(
 					),
 				),
 				array(
+					'key'         => 'media_forms',
 					'title'       => __( 'Medien, Einbindungen und Formulare', 'frontend-rechtstexte-generator' ),
 					'description' => __( 'Hierzu gehören eingebettete Inhalte, Social-Media-Dienste und Formular- oder Termin-Tools.', 'frontend-rechtstexte-generator' ),
 					'items'       => array(
@@ -309,6 +329,7 @@ $privacy_defaults        = array(
 					),
 				),
 				array(
+					'key'         => 'consent_security',
 					'title'       => __( 'Consent, Sicherheit und Infrastruktur', 'frontend-rechtstexte-generator' ),
 					'description' => __( 'Diese Auswahl betrifft Consent-Management, Schutzmechanismen, CDN- und Infrastruktur-Dienste.', 'frontend-rechtstexte-generator' ),
 					'items'       => array(
@@ -324,6 +345,18 @@ $privacy_defaults        = array(
 					),
 				),
 				array(
+					'key'         => 'ai_chatbot',
+					'title'       => __( 'KI-Bot und KI-Dienste', 'frontend-rechtstexte-generator' ),
+					'description' => __( 'Aktivieren Sie diesen Bereich, wenn auf der Website ein KI-Chatbot oder KI-Assistent eingebunden ist.', 'frontend-rechtstexte-generator' ),
+					'items'       => array(
+						'ai_chatbot' => 'Website-KI-Bot / KI-Assistent',
+						'openai'     => 'OpenAI',
+						'anthropic'  => 'Anthropic',
+						'ai_transparency_notice' => __( 'Besucher werden im Bot klar auf die KI-Interaktion hingewiesen', 'frontend-rechtstexte-generator' ),
+					),
+				),
+				array(
+					'key'         => 'backup_marketing',
 					'title'       => __( 'Backup, Versand und Marketing-Tools', 'frontend-rechtstexte-generator' ),
 					'description' => __( 'Hier bündeln Sie technische Backup-Dienste sowie Newsletter-, E-Mail- und Bewertungsdienste.', 'frontend-rechtstexte-generator' ),
 					'items'       => array(
@@ -350,8 +383,67 @@ $privacy_defaults        = array(
 							<label class="frg-check"><input type="checkbox" name="services[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( ! empty( $services[ $key ] ) ); ?>><span><?php echo esc_html( $label ); ?></span></label>
 						<?php endforeach; ?>
 					</div>
+					<?php if ( 'ai_chatbot' === $service_group['key'] ) : ?>
+						<div class="frg-conditional-fields" data-frg-conditional="services[ai_chatbot]">
+							<div class="frg-grid frg-grid--2">
+								<label class="frg-grid__full"><span><?php esc_html_e( 'Link zur Datenschutzseite des KI-Bot-Plugins', 'frontend-rechtstexte-generator' ); ?></span><input type="url" name="ai_chatbot_privacy_url" value="<?php echo esc_attr( $data['ai_chatbot_privacy_url'] ?? '' ); ?>" placeholder="https://example.com/datenschutz-ki-bot/"></label>
+							</div>
+							<div class="frg-notice">
+								<p><?php esc_html_e( 'Hinweis: Der Datenschutztext verweist auf den ausgewählten KI-Anbieter und den optionalen Plugin-Datenschutzlink. Bitte prüfen Sie zusätzlich, ob Nutzer vor der Eingabe personenbezogener Daten informiert werden und ob eine Einwilligung oder sonstige Rechtsgrundlage erforderlich ist.', 'frontend-rechtstexte-generator' ); ?></p>
+							</div>
+						</div>
+					<?php endif; ?>
 				</div>
 			<?php endforeach; ?>
+			<?php
+			$service_detail_labels = array(
+				'google_maps'                    => 'Google Maps',
+				'youtube'                        => 'YouTube',
+				'vimeo'                          => 'Vimeo',
+				'google_analytics'               => 'Google Analytics',
+				'google_tag_manager'             => 'Google Tag Manager',
+				'google_ads_conversion_tracking' => 'Google Ads Conversion Tracking',
+				'meta_pixel'                     => 'Meta Pixel',
+				'matomo'                         => 'Matomo',
+				'microsoft_clarity'              => 'Microsoft Clarity',
+				'cloudflare'                     => 'Cloudflare',
+				'recaptcha'                      => 'reCAPTCHA',
+				'hcaptcha'                       => 'hCaptcha',
+				'calendly'                       => 'Calendly',
+				'jotform'                        => 'Jotform',
+				'trustpilot'                     => 'Trustpilot',
+				'smtp_service'                   => __( 'SMTP / E-Mail-Versanddienst', 'frontend-rechtstexte-generator' ),
+				'ai_chatbot'                     => __( 'Website-KI-Bot / KI-Assistent', 'frontend-rechtstexte-generator' ),
+			);
+			?>
+			<div class="frg-feature-group frg-feature-group--section">
+				<div class="frg-feature-group__header">
+					<h4><?php esc_html_e( 'Konkrete Angaben zu ausgewählten Diensten', 'frontend-rechtstexte-generator' ); ?></h4>
+					<p><?php esc_html_e( 'Diese Angaben machen die Textblöcke konkreter und werden auch bei einem KI-Live-Override systemseitig ergänzt. Bitte übernehmen Sie die Informationen aus Vertrag, AV-Vertrag und Datenschutzhinweisen des jeweiligen Anbieters.', 'frontend-rechtstexte-generator' ); ?></p>
+				</div>
+				<?php foreach ( $service_detail_labels as $service_key => $service_label ) : ?>
+					<?php $service_detail = $data['service_details'][ $service_key ] ?? array(); ?>
+					<div class="frg-conditional-fields" data-frg-conditional="services[<?php echo esc_attr( $service_key ); ?>]">
+						<details class="frg-service-details">
+							<summary><?php echo esc_html( $service_label ); ?>: <?php esc_html_e( 'konkrete Angaben ergänzen', 'frontend-rechtstexte-generator' ); ?></summary>
+							<div class="frg-grid frg-grid--2">
+								<label><span><?php esc_html_e( 'Anbieter / Vertragspartner', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="service_details[<?php echo esc_attr( $service_key ); ?>][provider]" value="<?php echo esc_attr( $service_detail['provider'] ?? '' ); ?>"></label>
+								<label><span><?php esc_html_e( 'Datenschutzhinweise des Anbieters', 'frontend-rechtstexte-generator' ); ?></span><input type="url" name="service_details[<?php echo esc_attr( $service_key ); ?>][privacy_url]" value="<?php echo esc_attr( $service_detail['privacy_url'] ?? '' ); ?>"></label>
+								<label class="frg-grid__full"><span><?php esc_html_e( 'Anschrift des Anbieters', 'frontend-rechtstexte-generator' ); ?></span><textarea rows="3" name="service_details[<?php echo esc_attr( $service_key ); ?>][address]"><?php echo esc_textarea( $service_detail['address'] ?? '' ); ?></textarea></label>
+								<label><span><?php esc_html_e( 'Zweck der Verarbeitung', 'frontend-rechtstexte-generator' ); ?></span><textarea rows="3" name="service_details[<?php echo esc_attr( $service_key ); ?>][purpose]"><?php echo esc_textarea( $service_detail['purpose'] ?? '' ); ?></textarea></label>
+								<label><span><?php esc_html_e( 'Verarbeitete Daten / Datenkategorien', 'frontend-rechtstexte-generator' ); ?></span><textarea rows="3" name="service_details[<?php echo esc_attr( $service_key ); ?>][data_categories]"><?php echo esc_textarea( $service_detail['data_categories'] ?? '' ); ?></textarea></label>
+								<label><span><?php esc_html_e( 'Rechtsgrundlage und ggf. berechtigtes Interesse', 'frontend-rechtstexte-generator' ); ?></span><textarea rows="3" name="service_details[<?php echo esc_attr( $service_key ); ?>][legal_basis]"><?php echo esc_textarea( $service_detail['legal_basis'] ?? '' ); ?></textarea></label>
+								<label><span><?php esc_html_e( 'Empfänger / Kategorien von Empfängern', 'frontend-rechtstexte-generator' ); ?></span><textarea rows="3" name="service_details[<?php echo esc_attr( $service_key ); ?>][recipients]"><?php echo esc_textarea( $service_detail['recipients'] ?? '' ); ?></textarea></label>
+								<label><span><?php esc_html_e( 'Speicherdauer oder Löschkriterien', 'frontend-rechtstexte-generator' ); ?></span><textarea rows="3" name="service_details[<?php echo esc_attr( $service_key ); ?>][retention]"><?php echo esc_textarea( $service_detail['retention'] ?? '' ); ?></textarea></label>
+								<label><span><?php esc_html_e( 'Drittlandbezug', 'frontend-rechtstexte-generator' ); ?></span><textarea rows="3" name="service_details[<?php echo esc_attr( $service_key ); ?>][third_country]"><?php echo esc_textarea( $service_detail['third_country'] ?? '' ); ?></textarea></label>
+								<label><span><?php esc_html_e( 'Garantie für Drittlandtransfer', 'frontend-rechtstexte-generator' ); ?></span><textarea rows="3" name="service_details[<?php echo esc_attr( $service_key ); ?>][transfer_basis]"><?php echo esc_textarea( $service_detail['transfer_basis'] ?? '' ); ?></textarea></label>
+								<label><span><?php esc_html_e( 'AV-Vertrag', 'frontend-rechtstexte-generator' ); ?></span><select name="service_details[<?php echo esc_attr( $service_key ); ?>][av_contract]"><?php foreach ( array( '' => __( 'Nicht angegeben', 'frontend-rechtstexte-generator' ), 'Ja' => 'Ja', 'Nein' => 'Nein', 'Nicht erforderlich' => __( 'Nicht erforderlich', 'frontend-rechtstexte-generator' ) ) as $detail_value => $detail_label ) : ?><option value="<?php echo esc_attr( $detail_value ); ?>" <?php selected( $service_detail['av_contract'] ?? '', $detail_value ); ?>><?php echo esc_html( $detail_label ); ?></option><?php endforeach; ?></select></label>
+								<label><span><?php esc_html_e( 'Einwilligungssteuerung', 'frontend-rechtstexte-generator' ); ?></span><select name="service_details[<?php echo esc_attr( $service_key ); ?>][consent]"><?php foreach ( array( '' => __( 'Nicht angegeben', 'frontend-rechtstexte-generator' ), 'Vor Einwilligung blockiert' => __( 'Vor Einwilligung blockiert', 'frontend-rechtstexte-generator' ), 'Technisch erforderlich' => __( 'Technisch erforderlich', 'frontend-rechtstexte-generator' ), 'Nicht geklärt' => __( 'Nicht geklärt', 'frontend-rechtstexte-generator' ) ) as $detail_value => $detail_label ) : ?><option value="<?php echo esc_attr( $detail_value ); ?>" <?php selected( $service_detail['consent'] ?? '', $detail_value ); ?>><?php echo esc_html( $detail_label ); ?></option><?php endforeach; ?></select></label>
+							</div>
+						</details>
+					</div>
+				<?php endforeach; ?>
+			</div>
 		</section>
 
 		<section class="frg-step" data-step="7">

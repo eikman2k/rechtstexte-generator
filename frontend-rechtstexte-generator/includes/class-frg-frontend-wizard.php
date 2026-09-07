@@ -41,6 +41,16 @@ class FRG_Frontend_Wizard {
 		);
 	}
 
+	public function enqueue_admin_assets( string $hook ): void {
+		if ( 'settings_page_frg-wizard' !== $hook ) {
+			return;
+		}
+
+		$this->register_assets();
+		wp_enqueue_style( 'frg-frontend' );
+		wp_enqueue_script( 'frg-frontend' );
+	}
+
 	public function render(): string {
 		if ( ! is_user_logged_in() ) {
 			return '<div class="frg-notice frg-notice--warning">' . esc_html__( 'Der Rechtstexte-Generator steht nur eingeloggten Benutzern zur Verfügung.', 'frontend-rechtstexte-generator' ) . '</div>';
@@ -88,6 +98,7 @@ class FRG_Frontend_Wizard {
 		$impressum_html = (string) ob_get_clean();
 
 		ob_start();
+		$compliance_warnings = $this->get_completeness_warnings( $data );
 		include FRG_PLUGIN_DIR . 'templates/preview-datenschutz.php';
 		$privacy_html = (string) ob_get_clean();
 
@@ -253,13 +264,16 @@ class FRG_Frontend_Wizard {
 
 	public function sanitize_profile_data( array $raw ): array {
 		$text_fields = array(
-			'company_name', 'legal_form', 'first_name', 'last_name', 'street', 'zip', 'city', 'country', 'email', 'phone',
+				'company_name', 'legal_form', 'legal_form_other', 'first_name', 'last_name', 'street', 'zip', 'city', 'country', 'email', 'phone',
 			'website_url', 'register_court', 'register_number', 'vat_id', 'business_id', 'responsible_name',
 			'responsible_address', 'professional_chamber', 'professional_title', 'professional_awarded_in',
 			'professional_rules', 'supervisory_authority', 'liability_insurer', 'liability_scope', 'liability_insurer_address',
-			'hosting_provider', 'hosting_provider_address', 'server_location', 'hosting_av_contract',
-			'data_protection_officer_name', 'data_protection_officer_email', 'data_protection_officer_phone', 'data_protection_officer_address', 'privacy_processing_purposes',
+				'hosting_provider', 'hosting_provider_address', 'server_location', 'hosting_av_contract',
+				'server_infrastructure_provider', 'server_infrastructure_type', 'server_infrastructure_address',
+				'controller_name', 'controller_representative', 'controller_street', 'controller_zip', 'controller_city', 'controller_country', 'controller_email', 'controller_phone',
+				'data_protection_officer_name', 'data_protection_officer_email', 'data_protection_officer_phone', 'data_protection_officer_address', 'privacy_processing_purposes',
 			'privacy_legal_basis', 'privacy_storage_general', 'privacy_recipient_categories', 'privacy_third_country_transfer',
+			'ai_chatbot_privacy_url',
 		);
 		$bool_fields = array(
 			'has_trade_register', 'has_vat_id', 'has_responsible_content', 'has_professional_info',
@@ -269,11 +283,11 @@ class FRG_Frontend_Wizard {
 
 		foreach ( $text_fields as $field ) {
 			$value = isset( $raw[ $field ] ) ? wp_unslash( $raw[ $field ] ) : '';
-			if ( 'email' === $field || 'data_protection_officer_email' === $field ) {
+			if ( 'email' === $field || 'data_protection_officer_email' === $field || 'controller_email' === $field ) {
 				$data[ $field ] = sanitize_email( $value );
-			} elseif ( 'website_url' === $field ) {
+			} elseif ( 'website_url' === $field || 'ai_chatbot_privacy_url' === $field ) {
 				$data[ $field ] = esc_url_raw( $value );
-			} elseif ( 'responsible_address' === $field || 'professional_rules' === $field || 'liability_insurer_address' === $field || 'hosting_provider_address' === $field || 'data_protection_officer_address' === $field ) {
+			} elseif ( 'responsible_address' === $field || 'professional_rules' === $field || 'liability_insurer_address' === $field || 'hosting_provider_address' === $field || 'server_infrastructure_address' === $field || 'data_protection_officer_address' === $field ) {
 				$data[ $field ] = sanitize_textarea_field( $value );
 			} else {
 				$data[ $field ] = sanitize_text_field( $value );
@@ -305,12 +319,50 @@ class FRG_Frontend_Wizard {
 				'cookieyes', 'elementor', 'gravity_forms', 'contact_form_7', 'wpforms', 'wordfence',
 				'ithemes_security', 'updraftplus', 'wpvivid', 'mailchimp', 'brevo', 'sendinblue', 'cleverreach',
 				'facebook', 'instagram', 'linkedin', 'xing', 'tiktok', 'microsoft_clarity', 'calendly',
-				'jotform', 'trustpilot', 'smtp_service',
+					'jotform', 'trustpilot', 'smtp_service', 'ai_chatbot', 'openai', 'anthropic', 'ai_transparency_notice',
 			),
 			'services'
 		);
+		$data['service_details'] = $this->sanitize_service_details( $raw['service_details'] ?? array() );
 
 		return $data;
+	}
+
+	private function sanitize_service_details( $raw_details ): array {
+		if ( ! is_array( $raw_details ) ) {
+			return array();
+		}
+
+		$allowed_services = array(
+			'google_maps', 'youtube', 'vimeo', 'google_analytics', 'google_tag_manager',
+			'google_ads_conversion_tracking', 'meta_pixel', 'matomo', 'microsoft_clarity',
+			'cloudflare', 'recaptcha', 'hcaptcha', 'calendly', 'jotform', 'trustpilot',
+			'smtp_service', 'ai_chatbot', 'newsletter_provider',
+		);
+		$textarea_fields = array( 'address', 'purpose', 'data_categories', 'legal_basis', 'recipients', 'retention', 'third_country', 'transfer_basis' );
+		$text_fields = array( 'provider', 'av_contract', 'consent' );
+		$details = array();
+
+		foreach ( $allowed_services as $service_key ) {
+			if ( empty( $raw_details[ $service_key ] ) || ! is_array( $raw_details[ $service_key ] ) ) {
+				continue;
+			}
+
+			$item = array();
+			foreach ( $text_fields as $field ) {
+				$item[ $field ] = sanitize_text_field( wp_unslash( $raw_details[ $service_key ][ $field ] ?? '' ) );
+			}
+			foreach ( $textarea_fields as $field ) {
+				$item[ $field ] = sanitize_textarea_field( wp_unslash( $raw_details[ $service_key ][ $field ] ?? '' ) );
+			}
+			$item['privacy_url'] = esc_url_raw( wp_unslash( $raw_details[ $service_key ]['privacy_url'] ?? '' ) );
+
+			if ( array_filter( $item, static fn( $value ): bool => '' !== trim( (string) $value ) ) ) {
+				$details[ $service_key ] = $item;
+			}
+		}
+
+		return $details;
 	}
 
 	private function sanitize_checkbox_group( array $raw, array $keys, string $group_key ): array {
@@ -351,6 +403,15 @@ class FRG_Frontend_Wizard {
 			$errors[] = __( 'Bitte Registergericht und Registernummer angeben.', 'frontend-rechtstexte-generator' );
 		}
 
+		$register_forms = array( 'GmbH', 'UG', 'e.K.', 'OHG', 'KG', 'GmbH & Co. KG', 'AG', 'eG', 'PartG' );
+		if ( in_array( $data['legal_form'] ?? '', $register_forms, true ) && ( empty( $data['register_court'] ) || empty( $data['register_number'] ) ) ) {
+			$errors[] = __( 'Für diese Rechtsform sind Registergericht bzw. Registerstelle und Registernummer erforderlich.', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( 'sonstige' === ( $data['legal_form'] ?? '' ) && empty( $data['legal_form_other'] ) ) {
+			$errors[] = __( 'Bitte die konkrete sonstige Rechtsform angeben.', 'frontend-rechtstexte-generator' );
+		}
+
 		if ( ! empty( $data['has_vat_id'] ) && empty( $data['vat_id'] ) ) {
 			$errors[] = __( 'Bitte Umsatzsteuer-ID angeben.', 'frontend-rechtstexte-generator' );
 		}
@@ -363,6 +424,77 @@ class FRG_Frontend_Wizard {
 			$errors[] = __( 'Bitte mindestens eine E-Mail-Adresse für den Datenschutzbeauftragten angeben.', 'frontend-rechtstexte-generator' );
 		}
 
+		if ( empty( $data['controller_same_as_operator'] ) ) {
+			$controller_required = array(
+				'controller_name'    => __( 'Bitte den abweichenden Verantwortlichen angeben.', 'frontend-rechtstexte-generator' ),
+				'controller_street'  => __( 'Bitte die Straße des abweichenden Verantwortlichen angeben.', 'frontend-rechtstexte-generator' ),
+				'controller_zip'     => __( 'Bitte die PLZ des abweichenden Verantwortlichen angeben.', 'frontend-rechtstexte-generator' ),
+				'controller_city'    => __( 'Bitte den Ort des abweichenden Verantwortlichen angeben.', 'frontend-rechtstexte-generator' ),
+				'controller_country' => __( 'Bitte das Land des abweichenden Verantwortlichen angeben.', 'frontend-rechtstexte-generator' ),
+				'controller_email'   => __( 'Bitte die E-Mail-Adresse des abweichenden Verantwortlichen angeben.', 'frontend-rechtstexte-generator' ),
+			);
+
+			foreach ( $controller_required as $key => $message ) {
+				if ( empty( $data[ $key ] ) ) {
+					$errors[] = $message;
+				}
+			}
+		}
+
 		return $errors;
+	}
+
+	private function get_completeness_warnings( array $data ): array {
+		$labels = array(
+			'google_maps'                    => 'Google Maps',
+			'youtube'                        => 'YouTube',
+			'vimeo'                          => 'Vimeo',
+			'google_analytics'               => 'Google Analytics',
+			'google_tag_manager'             => 'Google Tag Manager',
+			'google_ads_conversion_tracking' => 'Google Ads Conversion Tracking',
+			'meta_pixel'                     => 'Meta Pixel',
+			'matomo'                         => 'Matomo',
+			'microsoft_clarity'              => 'Microsoft Clarity',
+			'cloudflare'                     => 'Cloudflare',
+			'recaptcha'                      => 'reCAPTCHA',
+			'hcaptcha'                       => 'hCaptcha',
+			'calendly'                       => 'Calendly',
+			'jotform'                        => 'Jotform',
+			'trustpilot'                     => 'Trustpilot',
+			'smtp_service'                   => __( 'SMTP / E-Mail-Versanddienst', 'frontend-rechtstexte-generator' ),
+			'ai_chatbot'                     => __( 'Website-KI-Bot / KI-Assistent', 'frontend-rechtstexte-generator' ),
+		);
+		$details = is_array( $data['service_details'] ?? null ) ? $data['service_details'] : array();
+		$warnings = array();
+
+		foreach ( $labels as $key => $label ) {
+			$is_selected = ! empty( $data['services'][ $key ] );
+			if ( 'ai_chatbot' === $key ) {
+				$is_selected = $is_selected || ! empty( $data['services']['openai'] ) || ! empty( $data['services']['anthropic'] );
+			}
+			if ( ! $is_selected ) {
+				continue;
+			}
+
+			foreach ( array( 'provider', 'purpose', 'legal_basis', 'retention' ) as $field ) {
+				if ( empty( $details[ $key ][ $field ] ) ) {
+					$warnings[] = sprintf(
+						/* translators: %s: service name */
+						__( 'Für %s fehlen noch konkrete Angaben zu Anbieter, Zweck, Rechtsgrundlage oder Speicherdauer.', 'frontend-rechtstexte-generator' ),
+						$label
+					);
+					break;
+				}
+			}
+		}
+
+		if (
+			( ! empty( $data['services']['ai_chatbot'] ) || ! empty( $data['services']['openai'] ) || ! empty( $data['services']['anthropic'] ) ) &&
+			empty( $data['services']['ai_transparency_notice'] )
+		) {
+			$warnings[] = __( 'Für den KI-Bot ist noch nicht bestätigt, dass Besucher klar auf die Interaktion mit einem KI-System hingewiesen werden.', 'frontend-rechtstexte-generator' );
+		}
+
+		return $warnings;
 	}
 }

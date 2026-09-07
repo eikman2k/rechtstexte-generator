@@ -9,15 +9,21 @@ Die erzeugten Texte ersetzen keine anwaltliche Prüfung. Das Plugin arbeitet mit
 ## Funktionsumfang
 
 - Frontend-Wizard per Shortcode
+- identischer Wizard im geschützten WordPress-Backend
 - Generierung von Impressum und Datenschutzerklärung
 - Speicherung von Profilen in eigener Datenbanktabelle
 - HTML-Ausgabe zum direkten Kopieren
 - Seitensynchronisierung als WordPress-Seiten
 - Scanner für aktive Plugins und typische externe Dienste
 - Backend-Block-Registry mit Live-Overrides und KI-Entwürfen
+- geführter Vier-Schritt-Workflow zum Ändern, Prüfen und Veröffentlichen einzelner Textbausteine
+- Suche sowie Bereichs- und Statusfilter für Textbausteine
+- getrennte Status für redaktionelle Freigabe und dokumentierte juristische Prüfung
+- strukturierte Detailangaben zu eingebundenen externen Diensten
 - Export und Import von Profilen und Block-Registry
 - Schulungsportal-/Lernplattform-Erweiterungen inklusive SCORM-, Zertifikats- und Rollenlogik
 - optionale Multisite-Zentralausgabe für Impressum und Datenschutzerklärung
+- optionaler Textbaustein-Feed für voneinander getrennte WordPress-Installationen
 
 ## Shortcodes
 
@@ -38,9 +44,11 @@ Die erzeugten Texte ersetzen keine anwaltliche Prüfung. Das Plugin arbeitet mit
 Zu finden unter:
 
 - `Einstellungen > Rechtstexte Generator`
+- `Einstellungen > Rechtstexte erfassen`
 
 Dort verfügbar:
 
+- Kundendaten direkt im Backend erfassen, speichern und als Seiten synchronisieren
 - Grundeinstellungen
 - rechtlicher Hinweistext
 - Seitennamen für Impressum und Datenschutzerklärung
@@ -48,6 +56,7 @@ Dort verfügbar:
 - Block-Registry
 - HTML-Kopierbereiche
 - OpenAI-Einstellungen für Block-Entwürfe
+- Prüfstatus, Prüfer und Prüfquelle je Textblock
 - Export / Import
 
 ## Multisite
@@ -60,6 +69,38 @@ In WordPress Multisite kann ein Superadmin die Ausgabe zentral steuern:
 - auf Unterseiten `[frg_impressum]`, `[frg_datenschutz]` und `[frg_last_updated]` verwenden
 
 Wenn der zentrale Modus aktiv ist, werden die Ausgabe-Shortcodes auf Unterseiten aus der Master-Site gerendert. Dadurch greifen auch die zentrale Block-Registry und Live-Overrides der Master-Site.
+
+## Textbaustein-Feed
+
+Für voneinander getrennte WordPress-Installationen können veröffentlichte Textbausteine zentral verteilt werden. Kundendaten und Profile bleiben dabei auf der jeweiligen Kundenseite.
+
+Auf der Hauptseite:
+
+1. Unter `Einstellungen > Rechtstexte Generator > Textverteilung` die Rolle `Zentrale` auswählen.
+2. Einstellungen speichern, damit ein Verbindungsschlüssel erzeugt wird.
+3. Feed-URL und Verbindungsschlüssel kopieren.
+4. Neue Textbausteine wie gewohnt prüfen und ausdrücklich veröffentlichen.
+
+Auf einer Kundenseite:
+
+1. Die Rolle `Kundenseite` auswählen.
+2. Feed-URL und Verbindungsschlüssel eintragen.
+3. `Speichern und Verbindung testen` ausführen.
+4. Die tägliche automatische Synchronisierung aktiviert lassen.
+
+Übertragen werden ausschließlich die aktiven Blocktexte und zugehörigen Rechtsgrundlagen. Das ist je Baustein entweder der ausdrücklich veröffentlichte eigene Text oder der aktuelle mitgelieferte Standardtext. Platzhalter bleiben erhalten und werden erst auf der Kundenseite mit deren lokalen Wizard-Daten ausgefüllt. KI-Entwürfe, interne Notizen, Profile und Kundendaten werden nicht übertragen. Bei einem Abruffehler bleibt die zuletzt erfolgreich gespeicherte lokale Version aktiv. Für eine vollständige Kompatibilität sollten Zentrale und Kundenseiten möglichst dieselbe Plugin-Version verwenden.
+
+## Seitensynchronisierung
+
+Standardmäßig werden neu synchronisierte Impressums- und Datenschutzseiten mit den Shortcodes `[frg_impressum]` beziehungsweise `[frg_datenschutz]` angelegt. Änderungen am Profil oder an live geschalteten Textblöcken erscheinen dadurch ohne erneutes Überschreiben der Seite.
+
+Bereits früher als statisches HTML angelegte Seiten müssen einmal über den Wizard erneut synchronisiert werden. Die dynamische Ausgabe kann in den Plugin-Einstellungen deaktiviert werden.
+
+## Prüfworkflow
+
+KI-generierte Blocktexte werden ausschließlich als Entwurf gespeichert. Eine Übernahme in die Live-Ausgabe gilt als redaktionelle Freigabe, nicht als juristische Prüfung. Der Status `Juristisch geprüft` setzt zusätzlich ein Prüfdatum und die Angabe der prüfenden Person oder Stelle voraus.
+
+Die mitgelieferten Module sind technische Ausgangstexte. Vor dem Einsatz als Ersatz für einen spezialisierten Rechtstexte-Dienst sollten insbesondere Rechtsgrundlagen, Anbieterangaben, Drittlandtransfers, Einwilligungssteuerung, Speicherfristen und branchenspezifische Pflichtangaben fachlich geprüft werden.
 
 ## Frontend-Ablauf
 
@@ -96,9 +137,20 @@ Das Plugin enthält einen eigenen Datenschutzbereich für Schulungsportale mit O
 
 ## Version
 
-Aktueller Release: `1.3.0`
+Aktueller Release: `1.4.0`
 
 ## Changelog
+
+### 1.4.0
+
+- Rechtstexte-Wizard zusätzlich direkt im geschützten WordPress-Backend verfügbar
+- Backend-Workflow für Prüfung, KI-Entwürfe und kontrollierte Veröffentlichung überarbeitet
+- geschützten zentralen Textbaustein-Feed für getrennte Kunden-Websites ergänzt
+- automatische tägliche Synchronisierung mit lokalem Fallback und manuellem Verbindungstest ergänzt
+- zentrale Texte behalten Platzhalter und werden erst lokal mit Kundendaten ausgefüllt
+- Datenschutz- und Impressumslogik um weitere Pflichtangaben, Dienste und Unternehmensformen erweitert
+- dynamische Shortcode-Seiten übernehmen synchronisierte Textänderungen automatisch
+- Generator-Regressionstests für wichtige Ausgabe- und Verteilungsregeln ergänzt
 
 ### 1.3.0
 

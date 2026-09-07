@@ -32,6 +32,130 @@
 		target.classList.toggle('is-error', !success && !!message);
 	};
 
+	const renderStatus = (card, statusKey) => {
+		const badge = card.querySelector('[data-frg-block-status]');
+		const statusSelect = card.querySelector('[data-frg-status-select]');
+		if (badge) {
+			badge.textContent = frgAdmin.statusLabels?.[statusKey] || statusKey;
+			badge.className = `frg-badge frg-badge--${statusKey}`;
+		}
+		if (statusSelect) {
+			statusSelect.value = statusKey;
+		}
+		card.dataset.frgStatus = statusKey;
+	};
+
+	const syncReviewRequirements = (card) => {
+		const isLegallyReviewed = card.querySelector('[data-frg-status-select]')?.value === 'legal_reviewed';
+		const reviewedAt = card.querySelector('[data-frg-last-reviewed]');
+		const reviewedBy = card.querySelector('[data-frg-reviewed-by]');
+		if (reviewedAt) {
+			reviewedAt.required = isLegallyReviewed;
+		}
+		if (reviewedBy) {
+			reviewedBy.required = isLegallyReviewed;
+		}
+	};
+
+	const blockCards = Array.from(root.querySelectorAll('[data-frg-block]'));
+	const openBlocksStorageKey = 'frg-admin-open-blocks';
+	const searchInput = root.querySelector('[data-frg-block-search]');
+	const areaFilter = root.querySelector('[data-frg-block-area]');
+	const statusFilter = root.querySelector('[data-frg-block-status-filter]');
+	const filterCount = root.querySelector('[data-frg-filter-count]');
+	const feedMode = root.querySelector('[data-frg-feed-mode]');
+
+	const updateFeedPanels = () => {
+		const mode = feedMode?.value || 'off';
+		root.querySelectorAll('[data-frg-feed-panel]').forEach((panel) => {
+			panel.hidden = panel.dataset.frgFeedPanel !== mode;
+		});
+		root.querySelectorAll('[data-frg-feed-shared]').forEach((panel) => {
+			panel.hidden = mode === 'off';
+		});
+		const syncButton = root.querySelector('[data-frg-client-sync]');
+		if (syncButton) {
+			syncButton.hidden = mode !== 'client';
+		}
+	};
+	feedMode?.addEventListener('change', updateFeedPanels);
+	updateFeedPanels();
+
+	const filterBlocks = () => {
+		const query = (searchInput?.value || '').trim().toLocaleLowerCase('de');
+		const area = areaFilter?.value || '';
+		const status = statusFilter?.value || '';
+		let visible = 0;
+
+		blockCards.forEach((card) => {
+			const matchesStatus = !status ||
+				(status === 'overdue' ? card.dataset.frgOverdue === '1' : card.dataset.frgStatus === status);
+			const matches =
+				(!query || (card.dataset.frgTitle || '').toLocaleLowerCase('de').includes(query)) &&
+				(!area || card.dataset.frgArea === area) &&
+				matchesStatus;
+			card.hidden = !matches;
+			if (matches) {
+				visible += 1;
+			}
+		});
+
+		if (filterCount) {
+			filterCount.textContent = (frgAdmin.filterCount || '%d Bausteine').replace('%d', String(visible));
+		}
+	};
+
+	[searchInput, areaFilter, statusFilter].forEach((control) => {
+		control?.addEventListener(control === searchInput ? 'input' : 'change', filterBlocks);
+	});
+	root.querySelector('[data-frg-expand-visible]')?.addEventListener('click', () => {
+		blockCards.forEach((card) => {
+			if (!card.hidden) {
+				card.open = true;
+			}
+		});
+	});
+	root.querySelectorAll('[data-frg-status-jump]').forEach((cardLink) => {
+		cardLink.addEventListener('click', () => {
+			if (statusFilter) {
+				statusFilter.value = cardLink.dataset.frgStatusJump || '';
+			}
+			if (searchInput) {
+				searchInput.value = '';
+			}
+			if (areaFilter) {
+				areaFilter.value = '';
+			}
+			filterBlocks();
+		});
+	});
+	let savedOpenBlocks = [];
+	try {
+		savedOpenBlocks = JSON.parse(window.sessionStorage.getItem(openBlocksStorageKey) || '[]');
+	} catch (error) {
+		savedOpenBlocks = [];
+	}
+	blockCards.forEach((card) => {
+		if (savedOpenBlocks.includes(card.dataset.frgBlock)) {
+			card.open = true;
+		}
+		card.addEventListener('toggle', () => {
+			try {
+				const openBlockKeys = blockCards.filter((item) => item.open).map((item) => item.dataset.frgBlock);
+				window.sessionStorage.setItem(openBlocksStorageKey, JSON.stringify(openBlockKeys));
+			} catch (error) {
+				// The workflow remains usable when browser storage is unavailable.
+			}
+		});
+		card.querySelector('[data-frg-status-select]')?.addEventListener('change', (event) => {
+			renderStatus(card, event.target.value);
+			syncReviewRequirements(card);
+			filterBlocks();
+		});
+		syncReviewRequirements(card);
+	});
+	filterBlocks();
+
 	root.querySelectorAll('[data-frg-generate-draft]').forEach((button) => {
 		button.addEventListener('click', async () => {
 			const blockKey = button.getAttribute('data-frg-generate-draft');
@@ -44,7 +168,12 @@
 			button.disabled = true;
 
 			try {
-				const result = await postAction('frg_admin_generate_block_draft', blockKey);
+				const changeRequest = card.querySelector('[data-frg-change-request]')?.value || '';
+				const legalBasis = card.querySelector('[data-frg-legal-basis]')?.value || '';
+				const result = await postAction('frg_admin_generate_block_draft', blockKey, {
+					change_request: changeRequest,
+					legal_basis: legalBasis,
+				});
 				if (!result.success) {
 					setInlineFeedback(card, result.data?.message || frgAdmin.generateError, false);
 					return;
@@ -53,8 +182,6 @@
 				const draftInput = card.querySelector('[data-frg-draft-input]');
 				const draftPreview = card.querySelector('[data-frg-draft-preview]');
 				const adoptButton = card.querySelector('[data-frg-adopt-draft]');
-				const status = card.querySelector('[data-frg-block-status]');
-				const statusSelect = card.querySelector('select[name$="[status]"]');
 
 				if (draftInput) {
 					draftInput.value = result.data?.draft_text || '';
@@ -65,12 +192,8 @@
 				if (adoptButton) {
 					adoptButton.disabled = !(result.data?.draft_text || '').trim();
 				}
-				if (status) {
-					status.textContent = result.data?.status || 'draft';
-				}
-				if (statusSelect) {
-					statusSelect.value = result.data?.status || 'draft';
-				}
+				renderStatus(card, result.data?.status || 'draft');
+				filterBlocks();
 				setInlineFeedback(card, result.data?.message || frgAdmin.draftUpdated, true);
 			} catch (error) {
 				setInlineFeedback(card, frgAdmin.generateError, false);
@@ -105,8 +228,6 @@
 				const overridePreview = card.querySelector('[data-frg-override-preview]');
 				const overrideInput = card.querySelector('[data-frg-override-input]');
 				const activePreview = card.querySelector('[data-frg-active-preview]');
-				const status = card.querySelector('[data-frg-block-status]');
-				const statusSelect = card.querySelector('select[name$="[status]"]');
 				const lastReviewed = card.querySelector('[data-frg-last-reviewed]');
 				const draftPreview = card.querySelector('[data-frg-draft-preview]');
 				const liveState = card.querySelector('[data-frg-live-state]');
@@ -123,18 +244,14 @@
 				if (draftPreview) {
 					draftPreview.innerHTML = result.data?.draft_html || '';
 				}
-				if (status) {
-					status.textContent = result.data?.status || 'approved';
-				}
-				if (statusSelect) {
-					statusSelect.value = result.data?.status || 'approved';
-				}
+				renderStatus(card, result.data?.status || 'editorial_approved');
 				if (lastReviewed && result.data?.last_reviewed) {
 					lastReviewed.value = result.data.last_reviewed;
 				}
 				if (liveState) {
-					liveState.textContent = 'Status: Live-Override gespeichert.';
+					liveState.textContent = frgAdmin.publishedMessage;
 				}
+				filterBlocks();
 				setInlineFeedback(card, result.data?.message || frgAdmin.overrideUpdated, true);
 			} catch (error) {
 				setInlineFeedback(card, frgAdmin.adoptError, false);
@@ -173,6 +290,31 @@
 					feedback.textContent = frgAdmin.copyMissingMessage;
 					feedback.classList.add('is-error');
 					feedback.classList.remove('is-success');
+				}
+			}
+		});
+	});
+
+	root.querySelectorAll('[data-frg-copy-value]').forEach((button) => {
+		button.addEventListener('click', async () => {
+			const input = root.querySelector(button.dataset.frgCopyValue || '');
+			const feedback = root.querySelector('[data-frg-copy-value-feedback]');
+			if (!input?.value) {
+				if (feedback) {
+					feedback.textContent = frgAdmin.copyValueMissingMessage;
+				}
+				return;
+			}
+			try {
+				await navigator.clipboard.writeText(input.value);
+				if (feedback) {
+					feedback.textContent = frgAdmin.valueCopiedMessage;
+					feedback.classList.add('is-success');
+				}
+			} catch (error) {
+				if (feedback) {
+					feedback.textContent = frgAdmin.copyValueMissingMessage;
+					feedback.classList.add('is-error');
 				}
 			}
 		});

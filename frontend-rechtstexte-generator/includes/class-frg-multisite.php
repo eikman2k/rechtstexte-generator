@@ -54,7 +54,7 @@ class FRG_Multisite {
 			</div>
 			<form method="post" class="frg-admin-card">
 				<?php wp_nonce_field( 'frg_save_network_settings_action', 'frg_save_network_settings_nonce' ); ?>
-				<h2><?php esc_html_e( 'Zentrale Ausgabe fuer Multisite', 'frontend-rechtstexte-generator' ); ?></h2>
+				<h2><?php esc_html_e( 'Zentrale Ausgabe für Multisite', 'frontend-rechtstexte-generator' ); ?></h2>
 				<p><?php esc_html_e( 'Wenn der zentrale Modus aktiv ist, geben die Shortcodes auf allen Unterseiten die Inhalte der gewaehlten Master-Site aus.', 'frontend-rechtstexte-generator' ); ?></p>
 				<table class="form-table" role="presentation">
 					<tr>
@@ -62,7 +62,7 @@ class FRG_Multisite {
 						<td>
 							<label>
 								<input type="checkbox" name="enabled" value="1" <?php checked( ! empty( $settings['enabled'] ) ); ?>>
-								<?php esc_html_e( 'Impressum und Datenschutzerklaerung netzwerkweit zentral ausgeben', 'frontend-rechtstexte-generator' ); ?>
+								<?php esc_html_e( 'Impressum und Datenschutzerklärung netzwerkweit zentral ausgeben', 'frontend-rechtstexte-generator' ); ?>
 							</label>
 						</td>
 					</tr>

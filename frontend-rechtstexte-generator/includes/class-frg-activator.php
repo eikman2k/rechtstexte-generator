@@ -21,6 +21,10 @@ class FRG_Activator {
 		self::create_table_and_defaults();
 	}
 
+	public static function deactivate(): void {
+		wp_clear_scheduled_hook( 'frg_sync_remote_block_feed' );
+	}
+
 	public static function activate_new_site( WP_Site $site ): void {
 		switch_to_blog( (int) $site->blog_id );
 		self::create_table_and_defaults();
@@ -49,8 +53,16 @@ class FRG_Activator {
 			'frg_settings',
 			array(
 				'legal_notice'       => __( 'Hinweis: Die erzeugten Texte basieren auf Ihren Eingaben und ersetzen keine anwaltliche Prüfung.', 'frontend-rechtstexte-generator' ),
+				'show_generator_notice_impressum' => false,
+				'show_generator_notice_privacy'   => false,
+				'dynamic_page_content'             => true,
 				'impressum_page'     => __( 'Impressum', 'frontend-rechtstexte-generator' ),
 				'privacy_page'       => __( 'Datenschutzerklärung', 'frontend-rechtstexte-generator' ),
+				'openai_model'       => 'gpt-5.6-terra',
+				'block_feed_mode'    => 'off',
+				'block_feed_url'     => '',
+				'block_feed_key'     => '',
+				'block_feed_auto_sync' => true,
 				'impressum_page_id'  => 0,
 				'privacy_page_id'    => 0,
 			)

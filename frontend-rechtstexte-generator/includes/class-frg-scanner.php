@@ -37,8 +37,16 @@ class FRG_Scanner {
 	private function scan_active_plugins(): array {
 		$active_plugins = get_option( 'active_plugins', array() );
 		if ( ! is_array( $active_plugins ) ) {
-			return array();
+			$active_plugins = array();
 		}
+
+		if ( is_multisite() ) {
+			$network_plugins = get_site_option( 'active_sitewide_plugins', array() );
+			if ( is_array( $network_plugins ) ) {
+				$active_plugins = array_merge( $active_plugins, array_keys( $network_plugins ) );
+			}
+		}
+		$active_plugins = array_unique( $active_plugins );
 
 		$plugin_map = array(
 			'elementor/elementor.php'                                   => array( 'key' => 'elementor', 'label' => 'Elementor', 'source' => 'plugin', 'adoptable' => true ),
@@ -80,7 +88,7 @@ class FRG_Scanner {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			$errors[] = __( 'Die Startseite konnte fuer den Scanner nicht geladen werden.', 'frontend-rechtstexte-generator' );
+			$errors[] = __( 'Die Startseite konnte für den Scanner nicht geladen werden.', 'frontend-rechtstexte-generator' );
 			return $detected;
 		}
 

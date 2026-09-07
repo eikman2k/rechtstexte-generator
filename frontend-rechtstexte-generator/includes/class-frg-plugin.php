@@ -10,6 +10,7 @@ class FRG_Plugin {
 	private FRG_Generator $generator;
 	private FRG_Page_Sync $page_sync;
 	private FRG_Scanner $scanner;
+	private FRG_Block_Feed $block_feed;
 	private FRG_Frontend_Wizard $frontend_wizard;
 	private FRG_Shortcodes $shortcodes;
 	private FRG_Admin $admin;
@@ -34,6 +35,7 @@ class FRG_Plugin {
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-generator.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-page-sync.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-scanner.php';
+		require_once FRG_PLUGIN_DIR . 'includes/class-frg-block-feed.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-multisite.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-frontend-wizard.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-shortcodes.php';
@@ -46,16 +48,21 @@ class FRG_Plugin {
 		$this->generator       = new FRG_Generator( $text_modules );
 		$this->page_sync       = new FRG_Page_Sync();
 		$this->scanner         = new FRG_Scanner();
+		$this->block_feed      = new FRG_Block_Feed( $this->generator );
 		$this->frontend_wizard = new FRG_Frontend_Wizard( $this->storage, $this->generator, $this->page_sync, $this->scanner );
 		$this->shortcodes      = new FRG_Shortcodes( $this->storage, $this->generator, $this->frontend_wizard );
-		$this->admin           = new FRG_Admin( $this->storage, $this->generator );
+		$this->admin           = new FRG_Admin( $this->storage, $this->generator, $this->block_feed, $this->frontend_wizard );
 	}
 
 	private function register_hooks(): void {
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		add_action( 'init', array( $this->shortcodes, 'register' ) );
+		add_action( 'init', array( $this->block_feed, 'maybe_schedule_sync' ) );
+		add_action( 'rest_api_init', array( $this->block_feed, 'register_routes' ) );
+		add_action( 'frg_sync_remote_block_feed', array( $this->block_feed, 'run_scheduled_sync' ) );
 		add_action( 'wp_enqueue_scripts', array( $this->frontend_wizard, 'register_assets' ) );
 		add_action( 'admin_enqueue_scripts', array( $this->admin, 'enqueue_assets' ) );
+		add_action( 'admin_enqueue_scripts', array( $this->frontend_wizard, 'enqueue_admin_assets' ) );
 		add_action( 'admin_menu', array( $this->admin, 'register_menu' ) );
 		add_action( 'network_admin_menu', array( 'FRG_Multisite', 'register_menu' ) );
 		if ( is_multisite() ) {

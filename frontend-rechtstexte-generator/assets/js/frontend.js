@@ -16,14 +16,26 @@
 	let currentStep = 0;
 
 	const syncConditionalFields = () => {
+		const aiChatbot = form.querySelector('[name="services[ai_chatbot]"]');
+		const aiProviders = form.querySelectorAll('[name="services[openai]"], [name="services[anthropic]"]');
+		if (aiChatbot && Array.from(aiProviders).some((provider) => provider.checked)) {
+			aiChatbot.checked = true;
+		}
+
 		wizard.querySelectorAll('[data-frg-conditional]').forEach((container) => {
 			const fieldName = container.getAttribute('data-frg-conditional');
 			const toggle = form.querySelector(`[name="${fieldName}"]`);
-			const isActive = !!toggle && !!toggle.checked;
+			const inverse = container.hasAttribute('data-frg-conditional-inverse');
+			const isActive = inverse ? !!toggle && !toggle.checked : !!toggle && !!toggle.checked;
 			container.hidden = !isActive;
 			container
 				.querySelectorAll('input, select, textarea')
-				.forEach((field) => field.setAttribute('aria-hidden', isActive ? 'false' : 'true'));
+				.forEach((field) => {
+					field.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+					if (field.hasAttribute('data-frg-conditional-required')) {
+						field.required = isActive;
+					}
+				});
 		});
 	};
 

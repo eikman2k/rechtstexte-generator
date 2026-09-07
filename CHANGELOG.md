@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.4.0 - 2026-09-07
+
+- vollständigen Rechtstexte-Wizard zusätzlich als geschützte Backend-Ansicht ergänzt
+- Backend als geführten Aktualisierungs- und Veröffentlichungsworkflow neu gestaltet
+- Such-, Bereichs- und Statusfilter für Textbausteine ergänzt
+- konkrete Änderungsaufträge und Quellenhinweise werden an KI-Entwürfe übergeben
+- verständliche Statusanzeigen und eindeutige Speichermeldungen ergänzt
+- Statuskarten als Schnellfilter mit direkter Navigation zur Bausteinliste verlinkt
+- Standardmodell auf GPT-5.6 Terra aktualisiert und verständliche Modellauswahl ergänzt
+- optionalen geschützten Textbaustein-Feed für getrennte WordPress-Installationen ergänzt
+- tägliche Client-Synchronisierung mit lokalem Fallback und manuellem Verbindungstest ergänzt
+- Feed überträgt keine Profile, Kundendaten, Entwürfe oder internen Notizen
+- aktive Standardtexte werden ebenfalls verteilt; kundenspezifische Platzhalter werden erst lokal ersetzt
+- Prüfstatus der Textblöcke in redaktionelle Freigabe und dokumentierte juristische Prüfung getrennt
+- Verantwortlichen der Datenschutzerklärung unabhängig vom Websitebetreiber erfassbar gemacht
+- konkrete Anbieter-, Zweck-, Rechtsgrundlagen-, Speicher- und Drittlandangaben für ausgewählte Dienste ergänzt
+- Vollständigkeitshinweise für ausgewählte Dienste und KI-Transparenz im Vorschauprozess ergänzt
+- Rechtsform- und Vertretungslogik für weitere Unternehmensformen erweitert
+- fehlerhafte Shop-Aktivierung durch eine reine Benutzerregistrierung behoben
+- Seitensynchronisierung optional auf dynamische Shortcode-Inhalte umgestellt
+- Scanner berücksichtigt in Multisite auch netzwerkweit aktivierte Plugins
+- Generator-Regressionstests für zentrale Ausgabe- und Statusregeln ergänzt
+
 ## 1.3.0
 
 - Multisite-Zentralausgabe fuer Impressum und Datenschutzerklaerung ergaenzt

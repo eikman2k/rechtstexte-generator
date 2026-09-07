@@ -19,7 +19,7 @@ class FRG_Generator {
 	}
 
 	public function build_exportable_document_html( string $content ): string {
-		$style = '<style>.frg-document{max-width:960px;color:#243447;font-size:18px}.frg-document>*:first-child{margin-top:0}.frg-document h2,.frg-document h3,.frg-document h4{margin-top:0}.frg-document h2{margin-bottom:20px;font-size:clamp(2rem,3vw,2.45rem);line-height:1.18}.frg-document h3{margin-top:52px;margin-bottom:14px;font-size:clamp(1.65rem,2.2vw,2rem);line-height:1.24;letter-spacing:-.02em}.frg-document h4{margin-top:52px;margin-bottom:14px;font-size:clamp(1.3rem,1.8vw,1.55rem);line-height:1.3}.frg-document p,.frg-document ul,.frg-document ol,.frg-document .frg-address-block,.frg-document .frg-required-facts{margin-top:0;margin-bottom:20px;line-height:1.8}.frg-document ul,.frg-document ol{padding-left:22px}.frg-document li+li{margin-top:8px}.frg-document h3+p,.frg-document h4+p{margin-top:4px}.frg-document p strong{font-weight:700}.frg-document .frg-address-block strong{display:block;margin-bottom:8px}.frg-document .frg-address{display:inline-flex;flex-direction:column;gap:4px}.frg-document .frg-address__line{display:block}.frg-document .frg-required-facts{padding:16px 18px;border:1px solid #dde5ee;border-radius:16px;background:#f8fbff}.frg-document .frg-required-facts__title{margin-bottom:10px}</style>';
+		$style = '<style>.frg-document{max-width:960px;color:#243447;font-size:18px}.frg-document>*:first-child{margin-top:0}.frg-document h2,.frg-document h3,.frg-document h4{margin-top:0}.frg-document h2{margin-bottom:20px;font-size:clamp(2rem,3vw,2.45rem);line-height:1.18}.frg-document h3{margin-top:52px;margin-bottom:14px;font-size:clamp(1.65rem,2.2vw,2rem);line-height:1.24;letter-spacing:-.02em}.frg-document h4{margin-top:52px;margin-bottom:14px;font-size:clamp(1.3rem,1.8vw,1.55rem);line-height:1.3}.frg-document p,.frg-document ul,.frg-document ol,.frg-document .frg-required-facts{margin-top:0;margin-bottom:20px;line-height:1.8}.frg-document ul,.frg-document ol{padding-left:22px}.frg-document li+li{margin-top:8px}.frg-document h3+p,.frg-document h4+p{margin-top:4px}.frg-document p strong{font-weight:700}.frg-document .frg-address-block{margin-top:0;margin-bottom:18px;line-height:1.35}.frg-document .frg-address-block strong{display:block;margin-bottom:4px}.frg-document .frg-address{display:inline-block}.frg-document .frg-address__line{display:block;line-height:1.35}.frg-document .frg-required-facts{padding:16px 18px;border:1px solid #dde5ee;border-radius:16px;background:#f8fbff}.frg-document .frg-required-facts__title{margin-bottom:10px}.frg-document .frg-required-facts p{margin-bottom:12px;line-height:1.55}.frg-document .frg-required-facts p:last-child{margin-bottom:0}</style>';
 
 		return $style . $content;
 	}
@@ -40,6 +40,10 @@ class FRG_Generator {
 		return $this->modules->get_block_placeholders( $key );
 	}
 
+	public function get_distributable_block_text( string $key ): string {
+		return $this->modules->get_distributable_block_text( $key );
+	}
+
 	public function get_block_placeholder_details( string $key ): array {
 		return $this->modules->get_block_placeholder_details( $key );
 	}
@@ -47,9 +51,9 @@ class FRG_Generator {
 	public function generate_impressum( array $data ): string {
 		$impressum_data = $this->get_impressum_template_data( $data );
 		$parts   = array();
-		$parts[] = $this->modules->render_block( 'impressum_base', $impressum_data );
+		$parts[] = $this->apply_document_notice_setting( $this->modules->render_block( 'impressum_base', $impressum_data ), 'impressum' );
 
-		if ( ! empty( $data['has_trade_register'] ) ) {
+		if ( ! empty( $data['has_trade_register'] ) || $this->requires_register_information( $this->get_effective_legal_form( $data ) ) ) {
 			$parts[] = $this->modules->render_block( 'register', $impressum_data );
 		}
 
@@ -75,7 +79,7 @@ class FRG_Generator {
 	public function generate_privacy_policy( array $data ): string {
 		$privacy_data = $this->get_privacy_template_data( $data );
 		$parts   = array();
-		$parts[] = $this->modules->render_block( 'privacy_intro', $privacy_data );
+		$parts[] = $this->apply_document_notice_setting( $this->modules->render_block( 'privacy_intro', $privacy_data ), 'privacy' );
 		$parts[] = $this->modules->render_block( 'controller', $privacy_data );
 		if (
 			! empty( $data['has_data_protection_officer'] ) &&
@@ -117,7 +121,7 @@ class FRG_Generator {
 		if ( ! empty( $data['features']['appointment_booking'] ) ) {
 			$parts[] = $this->modules->render_block( 'booking' );
 		}
-		if ( ! empty( $data['features']['shop'] ) || ! empty( $data['features']['customer_account'] ) || ! empty( $data['features']['user_registration'] ) ) {
+		if ( ! empty( $data['features']['shop'] ) || ! empty( $data['features']['customer_account'] ) ) {
 			$parts[] = $this->modules->render_block( 'shop', $privacy_data );
 		}
 		if ( ! empty( $data['features']['payment_provider'] ) ) {
@@ -134,6 +138,9 @@ class FRG_Generator {
 		}
 		if ( ! empty( $data['features']['training_portal'] ) ) {
 			$parts[] = $this->modules->render_block( 'training_portal', $privacy_data );
+		}
+		if ( ! empty( $data['services']['ai_chatbot'] ) || ! empty( $data['services']['openai'] ) || ! empty( $data['services']['anthropic'] ) ) {
+			$parts[] = $this->modules->render_block( 'ai_chatbot', $privacy_data );
 		}
 
 		$service_map = array(
@@ -194,10 +201,14 @@ class FRG_Generator {
 	}
 
 	public function get_impressum_template_data( array $data ): array {
+		$legal_form = $this->get_effective_legal_form( $data );
 		return array(
+			'document_notice'     => $this->get_document_notice( 'impressum' ),
 			'company'            => esc_html( $data['company_name'] ?? '' ),
-			'legal_form'         => esc_html( $data['legal_form'] ?? '' ),
+			'legal_form'         => esc_html( $legal_form ),
 			'representative'     => esc_html( trim( ( $data['first_name'] ?? '' ) . ' ' . ( $data['last_name'] ?? '' ) ) ),
+			'representative_label'=> esc_html( $this->get_representative_label( $legal_form ) ),
+			'representative_line' => $this->format_representative_line( $legal_form, trim( ( $data['first_name'] ?? '' ) . ' ' . ( $data['last_name'] ?? '' ) ) ),
 			'street'             => esc_html( $data['street'] ?? '' ),
 			'zip'                => esc_html( $data['zip'] ?? '' ),
 			'city'               => esc_html( $data['city'] ?? '' ),
@@ -232,6 +243,18 @@ class FRG_Generator {
 	public function get_privacy_template_data( array $data ): array {
 		$features = $data['features'] ?? array();
 		$services = $data['services'] ?? array();
+		$legal_form = $this->get_effective_legal_form( $data );
+		$controller_same = ! array_key_exists( 'controller_same_as_operator', $data ) || ! empty( $data['controller_same_as_operator'] );
+		$controller_name = $controller_same ? (string) ( $data['company_name'] ?? '' ) : (string) ( $data['controller_name'] ?? '' );
+		$controller_representative = $controller_same
+			? trim( (string) ( $data['first_name'] ?? '' ) . ' ' . (string) ( $data['last_name'] ?? '' ) )
+			: (string) ( $data['controller_representative'] ?? '' );
+		$controller_street = $controller_same ? (string) ( $data['street'] ?? '' ) : (string) ( $data['controller_street'] ?? '' );
+		$controller_zip = $controller_same ? (string) ( $data['zip'] ?? '' ) : (string) ( $data['controller_zip'] ?? '' );
+		$controller_city = $controller_same ? (string) ( $data['city'] ?? '' ) : (string) ( $data['controller_city'] ?? '' );
+		$controller_country = $controller_same ? (string) ( $data['country'] ?? '' ) : (string) ( $data['controller_country'] ?? '' );
+		$controller_email = $controller_same ? (string) ( $data['email'] ?? '' ) : (string) ( $data['controller_email'] ?? '' );
+		$controller_phone = $controller_same ? (string) ( $data['phone'] ?? '' ) : (string) ( $data['controller_phone'] ?? '' );
 
 		$newsletter_providers = $this->collect_labels(
 			$services,
@@ -326,24 +349,41 @@ class FRG_Generator {
 				'jotform'               => 'Jotform',
 				'trustpilot'            => 'Trustpilot',
 				'smtp_service'          => 'SMTP / E-Mail-Versanddienst',
+				'ai_chatbot'            => 'Website-KI-Bot / KI-Assistent',
+				'openai'                => 'OpenAI',
+				'anthropic'             => 'Anthropic',
+			)
+		);
+		$ai_providers = $this->collect_labels(
+			$services,
+			array(
+				'openai'    => 'OpenAI',
+				'anthropic' => 'Anthropic',
 			)
 		);
 
 		return array(
-			'company'                    => esc_html( $data['company_name'] ?? '' ),
-			'representative'             => esc_html( trim( ( $data['first_name'] ?? '' ) . ' ' . ( $data['last_name'] ?? '' ) ) ),
-			'street'                     => esc_html( $data['street'] ?? '' ),
-			'zip'                        => esc_html( $data['zip'] ?? '' ),
-			'city'                       => esc_html( $data['city'] ?? '' ),
-			'country'                    => esc_html( $data['country'] ?? '' ),
+			'document_notice'             => $this->get_document_notice( 'privacy' ),
+			'company'                    => esc_html( $controller_name ),
+			'representative'             => esc_html( $controller_representative ),
+			'representative_label'       => esc_html( $controller_same ? $this->get_representative_label( $legal_form ) : __( 'Vertreten durch', 'frontend-rechtstexte-generator' ) ),
+			'representative_line'        => $controller_same
+				? $this->format_representative_line( $legal_form, $controller_representative )
+				: ( '' !== trim( $controller_representative ) ? esc_html__( 'Vertreten durch', 'frontend-rechtstexte-generator' ) . ': ' . esc_html( $controller_representative ) : '' ),
+			'street'                     => esc_html( $controller_street ),
+			'zip'                        => esc_html( $controller_zip ),
+			'city'                       => esc_html( $controller_city ),
+			'country'                    => esc_html( $controller_country ),
 			'controller_address'         => $this->format_address_lines(
 				array(
-					(string) ( $data['street'] ?? '' ),
-					trim( (string) ( $data['zip'] ?? '' ) . ' ' . (string) ( $data['city'] ?? '' ) ),
-					(string) ( $data['country'] ?? '' ),
+					$controller_street,
+					trim( $controller_zip . ' ' . $controller_city ),
+					$controller_country,
 				)
 			),
-			'email'                      => esc_html( $data['email'] ?? '' ),
+			'email'                      => esc_html( $controller_email ),
+			'controller_phone'           => esc_html( $controller_phone ),
+			'controller_phone_line'      => '' !== trim( $controller_phone ) ? '<br>' . esc_html__( 'Telefon', 'frontend-rechtstexte-generator' ) . ': ' . esc_html( $controller_phone ) : '',
 			'website_url'                => esc_html( $data['website_url'] ?? '' ),
 			'name'                       => esc_html( $data['data_protection_officer_name'] ?? '' ),
 			'dpo_email'                  => esc_html( $data['data_protection_officer_email'] ?? '' ),
@@ -352,13 +392,16 @@ class FRG_Generator {
 			'purposes'                   => esc_html( $data['privacy_processing_purposes'] ?? __( 'Bereitstellung der Website, Kommunikation, Vertragsdurchfuehrung und Sicherheit', 'frontend-rechtstexte-generator' ) ),
 			'legal_basis'                => esc_html( $data['privacy_legal_basis'] ?? __( 'Art. 6 Abs. 1 DSGVO nach konkreter Verarbeitung', 'frontend-rechtstexte-generator' ) ),
 			'recipients'                 => esc_html( $data['privacy_recipient_categories'] ?? __( 'Hosting, IT-Dienstleister, eingesetzte Fachanbieter', 'frontend-rechtstexte-generator' ) ),
-			'storage'                    => esc_html( $data['privacy_storage_general'] ?? __( 'Speicherung nur so lange, wie dies fuer den jeweiligen Zweck oder gesetzliche Pflichten erforderlich ist', 'frontend-rechtstexte-generator' ) ),
+			'storage'                    => esc_html( $data['privacy_storage_general'] ?? __( 'Speicherung nur so lange, wie dies für den jeweiligen Zweck oder gesetzliche Pflichten erforderlich ist', 'frontend-rechtstexte-generator' ) ),
 			'third_country'              => esc_html( $data['privacy_third_country_transfer'] ?? __( 'Ein Drittlandtransfer erfolgt nur, wenn dies bei einzelnen Diensten angegeben ist oder technisch erforderlich wird', 'frontend-rechtstexte-generator' ) ),
 			'host'                       => esc_html( $data['hosting_provider'] ?? '' ),
 			'host_address'               => $this->format_multiline_address( (string) ( $data['hosting_provider_address'] ?? '' ) ),
 			'location'                   => esc_html( $data['server_location'] ?? '' ),
 			'av'                         => esc_html( $data['hosting_av_contract'] ?? '' ),
-			'av_sentence'                => $this->get_hosting_av_sentence( (string) ( $data['hosting_av_contract'] ?? '' ) ),
+			'av_sentence'                => $this->get_hosting_av_sentence( (string) ( $data['hosting_av_contract'] ?? '' ), __( 'Hosting-Anbieter', 'frontend-rechtstexte-generator' ) ),
+			'server_infrastructure_provider' => esc_html( $data['server_infrastructure_provider'] ?? '' ),
+			'server_infrastructure_type'     => esc_html( $data['server_infrastructure_type'] ?? '' ),
+			'server_infrastructure_address'  => $this->format_multiline_address( (string) ( $data['server_infrastructure_address'] ?? '' ) ),
 			'providers'                  => esc_html( implode( ', ', $newsletter_providers ) ),
 			'newsletter_providers'       => esc_html( implode( ', ', $newsletter_providers ) ),
 			'profiles'                   => esc_html( implode( ', ', $social_profiles ) ),
@@ -383,25 +426,159 @@ class FRG_Generator {
 			) ) ),
 			'active_features'            => esc_html( implode( ', ', $feature_labels ) ),
 			'active_services'            => esc_html( implode( ', ', $service_labels ) ),
+			'ai_providers'               => esc_html( ! empty( $ai_providers ) ? implode( ', ', $ai_providers ) : __( 'der jeweils eingesetzte KI-Anbieter', 'frontend-rechtstexte-generator' ) ),
+			'ai_chatbot_privacy_url'     => esc_url( $data['ai_chatbot_privacy_url'] ?? '' ),
+			'ai_chatbot_privacy_link'    => ! empty( $data['ai_chatbot_privacy_url'] ) ? '<a href="' . esc_url( $data['ai_chatbot_privacy_url'] ) . '" rel="nofollow noopener">' . esc_html__( 'Datenschutzhinweise des KI-Bot-Plugins', 'frontend-rechtstexte-generator' ) . '</a>' : '',
+			'ai_transparency_sentence'   => ! empty( $services['ai_transparency_notice'] ) ? esc_html__( 'Der Assistent weist Nutzer vor oder bei Beginn der Interaktion klar darauf hin, dass sie mit einem KI-System kommunizieren.', 'frontend-rechtstexte-generator' ) : '',
+			'service_details'            => $this->prepare_service_details( $data['service_details'] ?? array() ),
 		);
 	}
 
-	private function get_hosting_av_sentence( string $value ): string {
+	private function prepare_service_details( $raw_details ): array {
+		if ( ! is_array( $raw_details ) ) {
+			return array();
+		}
+
+		$prepared = array();
+		foreach ( $raw_details as $service_key => $details ) {
+			if ( ! is_array( $details ) ) {
+				continue;
+			}
+
+			$privacy_url = esc_url( $details['privacy_url'] ?? '' );
+			$prepared[ sanitize_key( (string) $service_key ) ] = array(
+				'provider'       => esc_html( $details['provider'] ?? '' ),
+				'address'        => $this->format_multiline_address( (string) ( $details['address'] ?? '' ) ),
+				'privacy_url'    => $privacy_url,
+				'privacy_link'   => '' !== $privacy_url ? '<a href="' . $privacy_url . '" rel="nofollow noopener" target="_blank">' . esc_html__( 'Datenschutzhinweise des Anbieters', 'frontend-rechtstexte-generator' ) . '</a>' : '',
+				'purpose'        => esc_html( $details['purpose'] ?? '' ),
+				'data_categories'=> esc_html( $details['data_categories'] ?? '' ),
+				'legal_basis'    => esc_html( $details['legal_basis'] ?? '' ),
+				'recipients'     => esc_html( $details['recipients'] ?? '' ),
+				'retention'      => esc_html( $details['retention'] ?? '' ),
+				'third_country'  => esc_html( $details['third_country'] ?? '' ),
+				'transfer_basis' => esc_html( $details['transfer_basis'] ?? '' ),
+				'av_contract'    => esc_html( $details['av_contract'] ?? '' ),
+				'consent'        => esc_html( $details['consent'] ?? '' ),
+			);
+		}
+
+		return $prepared;
+	}
+
+	private function get_hosting_av_sentence( string $value, string $provider_label = '' ): string {
 		$value = trim( $value );
+		$provider_label = '' !== trim( $provider_label ) ? trim( $provider_label ) : __( 'Hosting-Anbieter', 'frontend-rechtstexte-generator' );
 
 		if ( 'Ja' === $value ) {
-			return esc_html__( 'Nach Ihren Angaben besteht mit dem Hosting-Anbieter ein Vertrag zur Auftragsverarbeitung gemaess Art. 28 DSGVO.', 'frontend-rechtstexte-generator' );
+			return sprintf(
+				/* translators: %s: provider label */
+				esc_html__( 'Mit dem %s besteht ein Vertrag zur Auftragsverarbeitung gemäß Art. 28 DSGVO.', 'frontend-rechtstexte-generator' ),
+				esc_html( $provider_label )
+			);
 		}
 
 		if ( 'Nein' === $value ) {
-			return esc_html__( 'Nach Ihren Angaben besteht derzeit kein Vertrag zur Auftragsverarbeitung mit dem Hosting-Anbieter. Dieser Punkt sollte datenschutzrechtlich besonders geprueft werden.', 'frontend-rechtstexte-generator' );
+			return sprintf(
+				/* translators: %s: provider label */
+				esc_html__( 'Mit dem %s besteht derzeit kein Vertrag zur Auftragsverarbeitung. Dieser Punkt sollte datenschutzrechtlich besonders geprüft werden.', 'frontend-rechtstexte-generator' ),
+				esc_html( $provider_label )
+			);
 		}
 
 		if ( 'Unbekannt' === $value ) {
-			return esc_html__( 'Ob mit dem Hosting-Anbieter ein Vertrag zur Auftragsverarbeitung gemaess Art. 28 DSGVO besteht, wurde mit unbekannt angegeben und sollte geprueft werden.', 'frontend-rechtstexte-generator' );
+			return sprintf(
+				/* translators: %s: provider label */
+				esc_html__( 'Ob mit dem %s ein Vertrag zur Auftragsverarbeitung gemäß Art. 28 DSGVO besteht, sollte geprüft werden.', 'frontend-rechtstexte-generator' ),
+				esc_html( $provider_label )
+			);
 		}
 
-		return esc_html__( 'Bitte pruefen Sie, ob mit dem Hosting-Anbieter ein Vertrag zur Auftragsverarbeitung gemaess Art. 28 DSGVO abgeschlossen wurde.', 'frontend-rechtstexte-generator' );
+		return '';
+	}
+
+	private function get_document_notice( string $document_type ): string {
+		$settings = get_option( 'frg_settings', array() );
+		$key      = 'impressum' === $document_type ? 'show_generator_notice_impressum' : 'show_generator_notice_privacy';
+
+		if ( empty( $settings[ $key ] ) ) {
+			return '';
+		}
+
+		$document_label = 'impressum' === $document_type
+			? __( 'ein Impressum', 'frontend-rechtstexte-generator' )
+			: __( 'eine Datenschutzerklärung', 'frontend-rechtstexte-generator' );
+
+		return '<p class="frg-document-notice">' . esc_html(
+			sprintf(
+				/* translators: %s: document type, e.g. an imprint or a privacy policy */
+				__( 'Die nachfolgenden Inhalte wurden auf Basis der im Generator hinterlegten Angaben modular zusammengestellt und sollen eine strukturierte Ausgangsbasis für %s bieten. Sie ersetzen keine rechtliche Einzelfallprüfung.', 'frontend-rechtstexte-generator' ),
+				$document_label
+			)
+		) . '</p>';
+	}
+
+	private function apply_document_notice_setting( string $content, string $document_type ): string {
+		$legacy_notice = __( 'Die nachfolgenden Inhalte wurden auf Basis der im Generator hinterlegten Angaben modular zusammengestellt und sollen eine strukturierte Ausgangsbasis für eine Datenschutzerklärung bieten. Sie ersetzen keine rechtliche Einzelfallprüfung.', 'frontend-rechtstexte-generator' );
+		$content       = str_replace( array( $legacy_notice, esc_html( $legacy_notice ) ), '', $content );
+		$content       = (string) preg_replace( '/<p(?:\s[^>]*)?>\s*<\/p>/i', '', $content );
+		$notice        = $this->get_document_notice( $document_type );
+
+		if ( '' === $notice || false !== strpos( $content, 'frg-document-notice' ) ) {
+			return $content;
+		}
+
+		$with_notice = preg_replace( '/<\/h2>/i', '$0' . $notice, $content, 1, $count );
+
+		return ! empty( $count ) && is_string( $with_notice ) ? $with_notice : $notice . $content;
+	}
+
+	private function get_representative_label( string $legal_form ): string {
+		$legal_form = trim( $legal_form );
+
+		if ( in_array( $legal_form, array( 'GmbH', 'UG' ), true ) ) {
+			return __( 'Vertreten durch die Geschäftsführung', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( in_array( $legal_form, array( 'e.K.', 'Einzelunternehmen', 'Freiberufler' ), true ) ) {
+			return __( 'Inhaber', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( in_array( $legal_form, array( 'Verein', 'AG', 'eG', 'Stiftung' ), true ) ) {
+			return __( 'Vertreten durch den Vorstand', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( 'GbR' === $legal_form ) {
+			return __( 'Vertretungsberechtigte Gesellschafter', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( in_array( $legal_form, array( 'OHG', 'KG', 'GmbH & Co. KG', 'PartG' ), true ) ) {
+			return __( 'Vertreten durch die vertretungsberechtigten Gesellschafter', 'frontend-rechtstexte-generator' );
+		}
+
+		return __( 'Vertreten durch', 'frontend-rechtstexte-generator' );
+	}
+
+	private function format_representative_line( string $legal_form, string $representative ): string {
+		$representative = trim( $representative );
+		if ( '' === $representative ) {
+			return '';
+		}
+
+		return esc_html( $this->get_representative_label( $legal_form ) ) . ': ' . esc_html( $representative );
+	}
+
+	private function requires_register_information( string $legal_form ): bool {
+		return in_array( trim( $legal_form ), array( 'GmbH', 'UG', 'e.K.', 'OHG', 'KG', 'GmbH & Co. KG', 'AG', 'eG', 'PartG' ), true );
+	}
+
+	private function get_effective_legal_form( array $data ): string {
+		$legal_form = trim( (string) ( $data['legal_form'] ?? '' ) );
+		if ( 'sonstige' === $legal_form && '' !== trim( (string) ( $data['legal_form_other'] ?? '' ) ) ) {
+			return trim( (string) $data['legal_form_other'] );
+		}
+
+		return $legal_form;
 	}
 
 	private function collect_labels( array $source, array $map ): array {

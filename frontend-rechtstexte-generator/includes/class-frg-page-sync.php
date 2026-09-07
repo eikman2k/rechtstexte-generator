@@ -7,6 +7,9 @@ class FRG_Page_Sync {
 	public function create_or_update_impressum_page( string $content ): int {
 		$settings = get_option( 'frg_settings', array() );
 		$title    = ! empty( $settings['impressum_page'] ) ? sanitize_text_field( $settings['impressum_page'] ) : __( 'Impressum', 'frontend-rechtstexte-generator' );
+		if ( ! array_key_exists( 'dynamic_page_content', $settings ) || ! empty( $settings['dynamic_page_content'] ) ) {
+			$content = '[frg_impressum]';
+		}
 
 		return $this->upsert_page( $title, wp_kses_post( $content ), 'impressum_page_id' );
 	}
@@ -14,6 +17,9 @@ class FRG_Page_Sync {
 	public function create_or_update_privacy_page( string $content ): int {
 		$settings = get_option( 'frg_settings', array() );
 		$title    = ! empty( $settings['privacy_page'] ) ? sanitize_text_field( $settings['privacy_page'] ) : __( 'Datenschutzerklärung', 'frontend-rechtstexte-generator' );
+		if ( ! array_key_exists( 'dynamic_page_content', $settings ) || ! empty( $settings['dynamic_page_content'] ) ) {
+			$content = '[frg_datenschutz]';
+		}
 
 		return $this->upsert_page( $title, wp_kses_post( $content ), 'privacy_page_id' );
 	}
