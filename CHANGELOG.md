@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.6.2 - 2026-09-08
+
+- Checkboxen und Schalter im Wizard als klar erkennbare, vollständig klickbare Auswahlkarten gestaltet
+- Login-Auswahl eindeutig von `wp-admin` und dem normalen WordPress-Login abgegrenzt
+- leere Hinweiszeilen auch bei verschachtelter oder als Absatz gespeicherter Formatierung entfernt
+- Hosting-Standardtext gegenüber dem Server-Logfile-Abschnitt gestrafft
+- lokalen Google-Fonts-Abschnitt auf die wesentliche Aussage gekürzt
+
 ## 1.6.1 - 2026-09-08
 
 - weitere Umlautersatzschreibweisen und den Begriff `Resource` in Live-Overrides normalisiert

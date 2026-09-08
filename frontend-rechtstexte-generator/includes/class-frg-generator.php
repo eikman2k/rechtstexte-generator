@@ -747,7 +747,14 @@ class FRG_Generator {
 		$html = (string) preg_replace( '/<(p|div|section|li)\b[^>]*>(?:(?!<\/\1>).)*\{\{[^}]+\}\}(?:(?!<\/\1>).)*<\/\1>/isu', '', $html );
 		$html = (string) preg_replace( '/\{\{[^}]+\}\}/u', '', $html );
 		$html = (string) preg_replace( '/<(p|div|section)\b[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s)*<\/\1>/iu', '', $html );
-		$html = (string) preg_replace( '/<h([2-4])\b[^>]*>\s*(?:Hinweis|Wichtiger Hinweis)\s*<\/h\1>/iu', '', $html );
+		$html = (string) preg_replace_callback(
+			'/<(h[1-6]|p)\b[^>]*>.*?<\/\1>/isu',
+			static function ( array $matches ): string {
+				$label = trim( html_entity_decode( wp_strip_all_tags( $matches[0] ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
+				return preg_match( '/^(?:Hinweis|Wichtiger Hinweis):?$/iu', $label ) ? '' : $matches[0];
+			},
+			$html
+		);
 
 		return $html;
 	}

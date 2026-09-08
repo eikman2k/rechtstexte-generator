@@ -168,7 +168,8 @@ $privacy = $generator->generate_privacy_policy( $clean_output );
 assert_contains( 'Eigener Backup-Server in Deutschland', $privacy, 'Backup-Speicherort fehlt.' );
 assert_contains( 'Art. 6 Abs. 1 lit. f DSGVO', $privacy, 'Rechtsgrundlage des Backup-Abschnitts fehlt.' );
 assert_contains( 'Der Landesbeauftragte für den Datenschutz Niedersachsen', $privacy, 'Konkrete Aufsichtsbehörde fehlt.' );
-assert_contains( 'Die Schriftdateien befinden sich auf unserem eigenen Server', $privacy, 'Lokale Google-Fonts-Ausgabe fehlt.' );
+assert_contains( 'Google Fonts werden lokal auf unserem Server bereitgestellt', $privacy, 'Lokale Google-Fonts-Ausgabe fehlt.' );
+assert_contains( 'Einzelheiten zu den technisch erfassten Daten finden Sie im Abschnitt „Server-Logfiles“', $privacy, 'Hosting- und Logfile-Abschnitte werden nicht sauber voneinander abgegrenzt.' );
 assert_not_contains( 'Schriftarten nicht lokal', $privacy, 'Externe Google-Fonts-Ausgabe bleibt trotz lokaler Auswahl aktiv.' );
 assert_not_contains( 'Bitte prüfen Sie', $privacy, 'Redaktionelle Prüfanweisung wird veröffentlicht.' );
 assert_contains( 'Auskunft (Art. 15 DSGVO)', $privacy, 'Artikelangaben bei den Betroffenenrechten fehlen.' );
@@ -271,6 +272,17 @@ $contact_form['features']['contact_form'] = true;
 $privacy = $generator->generate_privacy_policy( $contact_form );
 assert_not_contains( 'grundsätzlich nicht statt', $privacy, 'Ungeprüfte Drittlandaussage des Kontaktformulars wird veröffentlicht.' );
 assert_not_contains( '<h3>Hinweis</h3>', $privacy, 'Leere Hinweisüberschrift wird veröffentlicht.' );
+$frg_test_options['frg_block_registry'] = array();
+
+$frg_test_options['frg_block_registry'] = array(
+	'ssl_tls' => array(
+		'status'        => 'editorial_approved',
+		'override_text' => '<p><strong>Hinweis</strong></p><h3>SSL/TLS</h3><p>Verschlüsselte Verbindung.</p>',
+	),
+);
+$privacy = $generator->generate_privacy_policy( $base );
+assert_not_contains( '<strong>Hinweis</strong>', $privacy, 'Als Absatz formatierte leere Hinweiszeile wird veröffentlicht.' );
+assert_contains( '<h3>SSL/TLS</h3>', $privacy, 'Der nachfolgende SSL/TLS-Abschnitt wurde versehentlich entfernt.' );
 $frg_test_options['frg_block_registry'] = array();
 
 $other_form = $base;

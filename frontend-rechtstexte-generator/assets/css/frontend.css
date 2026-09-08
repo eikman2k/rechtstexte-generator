@@ -117,12 +117,73 @@
 .frg-check,
 .frg-toggle {
 	flex-direction: row;
-	align-items: flex-start;
-	padding: 12px 14px;
+	align-items: center;
+	min-height: 52px;
+	padding: 13px 15px;
 	border: 1px solid #d9dde3;
 	border-radius: 12px;
 	background: #f9fbfc;
 	font-weight: 500;
+	cursor: pointer;
+	transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.frg-check:hover,
+.frg-toggle:hover {
+	border-color: #7aa9a4;
+	background: #f2faf8;
+}
+
+.frg-check input[type="checkbox"],
+.frg-toggle input[type="checkbox"] {
+	appearance: none;
+	display: grid;
+	flex: 0 0 24px;
+	place-content: center;
+	width: 24px;
+	min-width: 24px;
+	height: 24px;
+	margin: 0;
+	padding: 0;
+	border: 2px solid #7890a5;
+	border-radius: 7px;
+	background: #fff;
+	cursor: pointer;
+}
+
+.frg-check input[type="checkbox"]::before,
+.frg-toggle input[type="checkbox"]::before {
+	width: 11px;
+	height: 6px;
+	border-bottom: 3px solid #fff;
+	border-left: 3px solid #fff;
+	content: "";
+	transform: rotate(-45deg) scale(0);
+	transition: transform 0.12s ease-in-out;
+}
+
+.frg-check input[type="checkbox"]:checked,
+.frg-toggle input[type="checkbox"]:checked {
+	border-color: #0f766e;
+	background: #0f766e;
+}
+
+.frg-check input[type="checkbox"]:checked::before,
+.frg-toggle input[type="checkbox"]:checked::before {
+	transform: rotate(-45deg) scale(1);
+}
+
+.frg-check:has(input[type="checkbox"]:checked),
+.frg-toggle:has(input[type="checkbox"]:checked) {
+	border-color: #0f766e;
+	background: #e9f7f4;
+	box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.1);
+}
+
+.frg-check input[type="checkbox"]:focus-visible,
+.frg-toggle input[type="checkbox"]:focus-visible {
+	outline: 3px solid rgba(8, 145, 178, 0.3);
+	outline-offset: 3px;
 }
 
 .frg-feature-group {

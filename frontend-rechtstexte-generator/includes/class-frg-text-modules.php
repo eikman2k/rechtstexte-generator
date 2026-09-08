@@ -9,7 +9,7 @@ class FRG_Text_Modules {
 
 	public function get_module_meta(): array {
 		return array(
-			'module_version' => '2026.09.08.6',
+			'module_version' => '2026.09.08.7',
 			'content_updated_at' => '2026-09-08',
 			'last_reviewed_at' => '',
 			'legal_basis' => array(
@@ -995,7 +995,7 @@ class FRG_Text_Modules {
 	public function get_hosting_module( array $data ): string {
 		// Juristische Pruefung empfohlen.
 		return $this->replace(
-			'<h3>' . esc_html__( 'Hosting und technische Bereitstellung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Diese Website wird durch {{host}} als Hosting- und IT-Dienstleister betrieben. Im Rahmen des Hostings werden insbesondere IP-Adressen, Zugriffszeitpunkte, aufgerufene Inhalte, Referrer-Informationen, Browser- und Betriebssysteminformationen sowie weitere technisch erforderliche Verbindungsdaten verarbeitet.', 'frontend-rechtstexte-generator' ) . '</p>{{host_address_line}}{{server_infrastructure_line}}<p><strong>' . esc_html__( 'Serverstandort', 'frontend-rechtstexte-generator' ) . ':</strong> {{location}}</p><p>' . esc_html__( 'Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse liegt in der sicheren, zuverlässigen und effizienten Bereitstellung der Website.', 'frontend-rechtstexte-generator' ) . '</p><p><strong>' . esc_html__( 'Auftragsverarbeitung', 'frontend-rechtstexte-generator' ) . ':</strong> ' . '{{av_sentence}} ' . esc_html__( 'Soweit im Rahmen der Leistungserbringung weitere Auftragsverarbeiter oder Unterauftragnehmer eingesetzt werden, erfolgt deren Einbindung unter Beachtung der Anforderungen des Art. 28 DSGVO.', 'frontend-rechtstexte-generator' ) . '</p>',
+			'<h3>' . esc_html__( 'Hosting und technische Bereitstellung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Diese Website wird durch {{host}} als Hosting- und IT-Dienstleister technisch bereitgestellt. Dabei werden die für den sicheren und zuverlässigen Betrieb erforderlichen Verbindungs- und Nutzungsdaten verarbeitet. Einzelheiten zu den technisch erfassten Daten finden Sie im Abschnitt „Server-Logfiles“.', 'frontend-rechtstexte-generator' ) . '</p>{{host_address_line}}{{server_infrastructure_line}}<p><strong>' . esc_html__( 'Serverstandort', 'frontend-rechtstexte-generator' ) . ':</strong> {{location}}</p><p>' . esc_html__( 'Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse liegt in der sicheren, zuverlässigen und effizienten Bereitstellung der Website.', 'frontend-rechtstexte-generator' ) . '</p><p><strong>' . esc_html__( 'Auftragsverarbeitung', 'frontend-rechtstexte-generator' ) . ':</strong> ' . '{{av_sentence}} ' . esc_html__( 'Soweit im Rahmen der Leistungserbringung weitere Auftragsverarbeiter oder Unterauftragnehmer eingesetzt werden, erfolgt deren Einbindung unter Beachtung der Anforderungen des Art. 28 DSGVO.', 'frontend-rechtstexte-generator' ) . '</p>',
 			array_merge(
 				$data,
 				array(
@@ -1204,7 +1204,7 @@ class FRG_Text_Modules {
 	}
 
 	public function get_google_fonts_local_module(): string {
-		return '<h3>Google Fonts</h3><p>' . esc_html__( 'Auf dieser Website werden Google Fonts lokal eingebunden. Die Schriftdateien befinden sich auf unserem eigenen Server und werden von dort ausgeliefert. Beim Aufruf unserer Website wird daher keine Verbindung zu Servern von Google hergestellt und es werden im Zusammenhang mit der Bereitstellung der Schriftarten keine personenbezogenen Daten an Google übertragen.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>Google Fonts</h3><p>' . esc_html__( 'Google Fonts werden lokal auf unserem Server bereitgestellt. Beim Aufruf der Website wird keine Verbindung zu Servern von Google hergestellt und es werden im Zusammenhang mit der Bereitstellung der Schriftarten keine personenbezogenen Daten an Google übermittelt.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_google_maps_module( array $data = array() ): string {
