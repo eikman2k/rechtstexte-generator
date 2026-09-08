@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.2 - 2026-09-08
+
+- technische Angabe zum verwendeten Formularsystem aus dem Kompakttext entfernt
+- Elementor bleibt ein internes Erkennungsmerkmal und wird nicht als Empfänger oder Dienstleister dargestellt
+- Login-Datenschutzblock bleibt ausschließlich an eine bewusste Auswahl eines öffentlichen Nutzerbereichs gebunden
+
 ## 1.8.1 - 2026-09-08
 
 - eigenständigen Kompaktbaustein für Kontaktformulare ergänzt

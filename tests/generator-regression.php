@@ -142,7 +142,7 @@ assert_contains( 'Im Rahmen des Hostings werden technisch erforderliche Verbindu
 assert_contains( 'Beim Aufruf unserer Website werden technisch erforderliche Daten', $privacy, 'Kompakter Server-Logfile-Text fehlt.' );
 assert_contains( 'Google Fonts (lokale Einbindung)', $privacy, 'Kompakter Google-Fonts-Text fehlt.' );
 assert_contains( 'Wenn Sie uns über das Kontaktformular kontaktieren', $privacy, 'Kompakter Kontaktformular-Text fehlt.' );
-assert_contains( '<strong>Formularsystem:</strong> Elementor', $privacy, 'Formularsystem fehlt im kompakten Kontaktformular-Text.' );
+assert_not_contains( 'Formularsystem:', $privacy, 'Technisches Formularsystem wird im kompakten Kontaktformular-Text veröffentlicht.' );
 assert_contains( 'Art. 6 Abs. 1 lit. f DSGVO', $privacy, 'Rechtsgrundlage fehlt im kompakten Modus.' );
 assert_contains( 'Hostweg 1', $privacy, 'Hosting-Adresse fehlt im kompakten Modus.' );
 assert_contains( 'Infrastruktur GmbH', $privacy, 'Server-Infrastruktur-Anbieter fehlt im kompakten Modus.' );
