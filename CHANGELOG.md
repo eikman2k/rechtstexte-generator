@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.0 - 2026-09-08
+
+- eigenständige veröffentlichte Kompaktbausteine unabhängig von ausführlichen Live-Overrides ergänzt
+- Hosting, Server-Logfiles und lokale Google Fonts als deutlich kürzere Kompaktmodule umgesetzt
+- optionale Kompakttexte pro Baustein im Backend bearbeitbar gemacht
+- Kompakttexte in den zentralen Textbaustein-Feed aufgenommen
+- Kompaktmodus behält Anbieter, Adressen, Infrastruktur, Serverstandort, Rechtsgrundlage und AV-Angaben bei
+
 ## 1.7.0 - 2026-09-08
 
 - optionalen Lesbarkeitsmodus „Kompakt“ für Datenschutzerklärungen ergänzt

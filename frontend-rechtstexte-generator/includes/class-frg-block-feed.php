@@ -158,8 +158,9 @@ class FRG_Block_Feed {
 		$public = array();
 		foreach ( $this->generator->get_block_registry() as $key => $block ) {
 			$public[ $key ] = array(
-				'published_text' => $this->generator->get_distributable_block_text( $key ),
-				'legal_basis'    => array_values( array_map( 'sanitize_text_field', $block['legal_basis'] ?? array() ) ),
+				'published_text'         => $this->generator->get_distributable_block_text( $key ),
+				'published_compact_text' => $this->generator->get_distributable_compact_block_text( $key ),
+				'legal_basis'            => array_values( array_map( 'sanitize_text_field', $block['legal_basis'] ?? array() ) ),
 			);
 		}
 
@@ -173,8 +174,9 @@ class FRG_Block_Feed {
 			}
 
 			$remote_block = $remote[ $key ];
-			$local[ $key ]['override_text'] = wp_kses_post( $remote_block['published_text'] ?? '' );
-			$local[ $key ]['legal_basis']   = is_array( $remote_block['legal_basis'] ?? null ) ? $remote_block['legal_basis'] : $block['legal_basis'];
+			$local[ $key ]['override_text']         = wp_kses_post( $remote_block['published_text'] ?? '' );
+			$local[ $key ]['compact_override_text'] = wp_kses_post( $remote_block['published_compact_text'] ?? '' );
+			$local[ $key ]['legal_basis']           = is_array( $remote_block['legal_basis'] ?? null ) ? $remote_block['legal_basis'] : $block['legal_basis'];
 		}
 
 		return $local;

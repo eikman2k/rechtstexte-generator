@@ -110,6 +110,20 @@ $privacy = $generator->generate_privacy_policy( $base );
 assert_not_contains( 'Registrierung und Login-Bereich', $privacy, 'Login-Abschnitt erscheint ohne bewusste Auswahl im Wizard.' );
 
 $frg_test_options['frg_settings'] = array( 'privacy_readability_mode' => 'compact' );
+$frg_test_options['frg_block_registry'] = array(
+	'hosting' => array(
+		'status'        => 'editorial_approved',
+		'override_text' => '<h3>Hosting</h3><p>ALTER-AUSFÜHRLICHER-HOSTINGTEXT mit zahlreichen technischen Einzelheiten.</p>',
+	),
+	'server_logs' => array(
+		'status'        => 'editorial_approved',
+		'override_text' => '<h3>Server-Logfiles</h3><p>ALTER-AUSFÜHRLICHER-LOGTEXT mit zahlreichen technischen Einzelheiten.</p>',
+	),
+	'google_fonts_local' => array(
+		'status'        => 'editorial_approved',
+		'override_text' => '<h3>Google Fonts</h3><p>ALTER-AUSFÜHRLICHER-FONTSTEXT mit zahlreichen technischen Einzelheiten.</p>',
+	),
+);
 $compact = $base;
 $compact['services']['google_fonts_local'] = true;
 $compact['hosting_provider_address'] = "Hostweg 1\n10000 Berlin\nDeutschland";
@@ -117,15 +131,18 @@ $compact['server_infrastructure_provider'] = 'Infrastruktur GmbH';
 $compact['server_infrastructure_address'] = "Serverweg 2\n20000 Hamburg\nDeutschland";
 $privacy = $generator->generate_privacy_policy( $compact );
 assert_contains( 'frg-document--readability-compact', $privacy, 'CSS-Klasse des kompakten Lesbarkeitsmodus fehlt.' );
-assert_contains( 'Diese Website wird durch Testhoster GmbH technisch bereitgestellt.', $privacy, 'Kompakter Hosting-Text fehlt.' );
-assert_contains( 'Beim Aufruf dieser Website erfasst der Webserver technisch erforderliche Protokolldaten', $privacy, 'Kompakter Server-Logfile-Text fehlt.' );
-assert_contains( 'Google Fonts werden lokal bereitgestellt.', $privacy, 'Kompakter Google-Fonts-Text fehlt.' );
+assert_contains( '<h3>Hosting</h3>', $privacy, 'Kompakter Hosting-Text fehlt.' );
+assert_contains( 'Im Rahmen des Hostings werden technisch erforderliche Verbindungs- und Zugriffsdaten verarbeitet', $privacy, 'Kompakter Hosting-Zweck fehlt.' );
+assert_contains( 'Beim Aufruf unserer Website werden technisch erforderliche Daten', $privacy, 'Kompakter Server-Logfile-Text fehlt.' );
+assert_contains( 'Google Fonts (lokale Einbindung)', $privacy, 'Kompakter Google-Fonts-Text fehlt.' );
 assert_contains( 'Art. 6 Abs. 1 lit. f DSGVO', $privacy, 'Rechtsgrundlage fehlt im kompakten Modus.' );
 assert_contains( 'Hostweg 1', $privacy, 'Hosting-Adresse fehlt im kompakten Modus.' );
 assert_contains( 'Infrastruktur GmbH', $privacy, 'Server-Infrastruktur-Anbieter fehlt im kompakten Modus.' );
 assert_contains( 'Serverweg 2', $privacy, 'Server-Infrastruktur-Adresse fehlt im kompakten Modus.' );
 assert_contains( 'Art. 28 DSGVO', $privacy, 'AV-Angabe fehlt im kompakten Modus.' );
+assert_not_contains( 'ALTER-AUSFÜHRLICHER-', $privacy, 'Ein ausführlicher Live-Override verdrängt den eigenen Kompaktbaustein.' );
 $frg_test_options['frg_settings'] = array();
+$frg_test_options['frg_block_registry'] = array();
 
 $different_controller = array_merge(
 	$base,
@@ -342,6 +359,7 @@ $public_blocks_method = new ReflectionMethod( FRG_Block_Feed::class, 'build_publ
 $public_blocks = $public_blocks_method->invoke( $feed );
 $public_hosting_json = wp_json_encode( $public_blocks['hosting'] );
 assert_contains( 'Veröffentlichter Hostingtext', $public_hosting_json, 'Veröffentlichter Feed-Text fehlt.' );
+assert_contains( 'Im Rahmen des Hostings werden technisch erforderliche Verbindungs- und Zugriffsdaten verarbeitet', $public_hosting_json, 'Kompakter Hostingtext fehlt im Feed.' );
 assert_not_contains( 'Interne Notiz', $public_hosting_json, 'Interne Notiz wird im Feed veröffentlicht.' );
 assert_not_contains( 'Unveröffentlichter Entwurf', $public_hosting_json, 'Entwurf wird im Feed veröffentlicht.' );
 

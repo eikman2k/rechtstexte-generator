@@ -9,7 +9,7 @@ class FRG_Text_Modules {
 
 	public function get_module_meta(): array {
 		return array(
-			'module_version' => '2026.09.08.9',
+			'module_version' => '2026.09.08.10',
 			'content_updated_at' => '2026-09-08',
 			'last_reviewed_at' => '',
 			'legal_basis' => array(
@@ -40,6 +40,7 @@ class FRG_Text_Modules {
 			$defaults[ $key ]['admin_notes']    = sanitize_textarea_field( $stored[ $key ]['admin_notes'] ?? '' );
 			$defaults[ $key ]['draft_text']     = wp_kses_post( $stored[ $key ]['draft_text'] ?? '' );
 			$defaults[ $key ]['override_text']  = wp_kses_post( $stored[ $key ]['override_text'] ?? '' );
+			$defaults[ $key ]['compact_override_text'] = wp_kses_post( $stored[ $key ]['compact_override_text'] ?? '' );
 			$defaults[ $key ]['legal_basis']    = $this->sanitize_legal_basis( $stored[ $key ]['legal_basis'] ?? $block['legal_basis'] );
 		}
 
@@ -48,6 +49,7 @@ class FRG_Text_Modules {
 
 	public function save_block_registry( array $raw ): void {
 		$defaults = $this->get_default_block_registry();
+		$current  = $this->get_block_registry();
 		$payload  = array();
 
 		foreach ( $defaults as $key => $block ) {
@@ -68,6 +70,7 @@ class FRG_Text_Modules {
 				'admin_notes'   => sanitize_textarea_field( $item['admin_notes'] ?? '' ),
 				'draft_text'    => wp_kses_post( $item['draft_text'] ?? '' ),
 				'override_text' => wp_kses_post( $item['override_text'] ?? '' ),
+				'compact_override_text' => wp_kses_post( $item['compact_override_text'] ?? $current[ $key ]['compact_override_text'] ?? '' ),
 				'legal_basis'   => $this->sanitize_legal_basis( $item['legal_basis'] ?? $block['legal_basis'] ),
 			);
 		}
@@ -97,6 +100,19 @@ class FRG_Text_Modules {
 			return '';
 		}
 		$data = $this->inject_service_detail_data( $key, $data );
+		$compact_callback = $callback . '_compact';
+
+		if ( 'compact' === ( $data['readability_mode'] ?? 'detailed' ) ) {
+			if ( ! empty( $registry[ $key ]['compact_override_text'] ) ) {
+				$content = $this->format_rich_text( $this->replace( $this->normalize_german_ascii_terms( $registry[ $key ]['compact_override_text'] ), $this->normalize_template_data( $data ) ) );
+				return $this->enforce_required_block_details( $key, $this->normalize_german_ascii_terms( $content ), $data );
+			}
+
+			if ( method_exists( $this, $compact_callback ) ) {
+				$content = $this->normalize_german_ascii_terms( (string) $this->{$compact_callback}( $data ) );
+				return $this->enforce_required_block_details( $key, $content, $data );
+			}
+		}
 
 		if ( ! empty( $registry[ $key ]['override_text'] ) ) {
 			$content = $this->format_rich_text( $this->replace( $this->normalize_german_ascii_terms( $registry[ $key ]['override_text'] ), $this->normalize_template_data( $data ) ) );
@@ -147,6 +163,32 @@ class FRG_Text_Modules {
 			: (string) $this->{$callback}( $placeholder_data );
 
 		return wp_kses_post( $this->normalize_german_ascii_terms( $text ) );
+	}
+
+	public function get_distributable_compact_block_text( string $key ): string {
+		$registry = $this->get_block_registry();
+		if ( empty( $registry[ $key ] ) || ! is_array( $registry[ $key ] ) ) {
+			return '';
+		}
+
+		if ( ! empty( $registry[ $key ]['compact_override_text'] ) ) {
+			return wp_kses_post( $registry[ $key ]['compact_override_text'] );
+		}
+
+		$callback = (string) ( $registry[ $key ]['callback'] ?? '' ) . '_compact';
+		if ( ! method_exists( $this, $callback ) ) {
+			return '';
+		}
+
+		$placeholder_data = array( 'readability_mode' => 'compact' );
+		foreach ( $this->get_block_placeholders( $key ) as $placeholder ) {
+			$name = trim( (string) $placeholder, '{}' );
+			if ( '' !== $name ) {
+				$placeholder_data[ $name ] = '{{' . $name . '}}';
+			}
+		}
+
+		return wp_kses_post( $this->normalize_german_ascii_terms( (string) $this->{$callback}( $placeholder_data ) ) );
 	}
 
 	public function get_block_placeholder_details( string $key ): array {
@@ -524,6 +566,7 @@ class FRG_Text_Modules {
 			'admin_notes'            => '',
 			'draft_text'             => '',
 			'override_text'          => '',
+			'compact_override_text'  => '',
 		);
 	}
 
@@ -998,11 +1041,8 @@ class FRG_Text_Modules {
 
 	public function get_hosting_module( array $data ): string {
 		// Juristische Pruefung empfohlen.
-		$intro = 'compact' === ( $data['readability_mode'] ?? 'detailed' )
-			? __( 'Diese Website wird durch {{host}} technisch bereitgestellt. Einzelheiten zu den dabei verarbeiteten Verbindungs- und Nutzungsdaten finden Sie im Abschnitt „Server-Logfiles“.', 'frontend-rechtstexte-generator' )
-			: __( 'Diese Website wird durch {{host}} als Hosting- und IT-Dienstleister technisch bereitgestellt. Dabei werden die für den sicheren und zuverlässigen Betrieb erforderlichen Verbindungs- und Nutzungsdaten verarbeitet. Einzelheiten zu den technisch erfassten Daten finden Sie im Abschnitt „Server-Logfiles“.', 'frontend-rechtstexte-generator' );
 		return $this->replace(
-			'<h3>' . esc_html__( 'Hosting und technische Bereitstellung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html( $intro ) . '</p>{{host_address_line}}{{server_infrastructure_line}}<p><strong>' . esc_html__( 'Serverstandort', 'frontend-rechtstexte-generator' ) . ':</strong> {{location}}</p><p>' . esc_html__( 'Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse liegt in der sicheren, zuverlässigen und effizienten Bereitstellung der Website.', 'frontend-rechtstexte-generator' ) . '</p><p><strong>' . esc_html__( 'Auftragsverarbeitung', 'frontend-rechtstexte-generator' ) . ':</strong> ' . '{{av_sentence}} ' . esc_html__( 'Soweit im Rahmen der Leistungserbringung weitere Auftragsverarbeiter oder Unterauftragnehmer eingesetzt werden, erfolgt deren Einbindung unter Beachtung der Anforderungen des Art. 28 DSGVO.', 'frontend-rechtstexte-generator' ) . '</p>',
+			'<h3>' . esc_html__( 'Hosting und technische Bereitstellung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Diese Website wird durch {{host}} als Hosting- und IT-Dienstleister technisch bereitgestellt. Dabei werden die für den sicheren und zuverlässigen Betrieb erforderlichen Verbindungs- und Nutzungsdaten verarbeitet. Einzelheiten zu den technisch erfassten Daten finden Sie im Abschnitt „Server-Logfiles“.', 'frontend-rechtstexte-generator' ) . '</p>{{host_address_line}}{{server_infrastructure_line}}<p><strong>' . esc_html__( 'Serverstandort', 'frontend-rechtstexte-generator' ) . ':</strong> {{location}}</p><p>' . esc_html__( 'Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse liegt in der sicheren, zuverlässigen und effizienten Bereitstellung der Website.', 'frontend-rechtstexte-generator' ) . '</p><p><strong>' . esc_html__( 'Auftragsverarbeitung', 'frontend-rechtstexte-generator' ) . ':</strong> ' . '{{av_sentence}} ' . esc_html__( 'Soweit im Rahmen der Leistungserbringung weitere Auftragsverarbeiter oder Unterauftragnehmer eingesetzt werden, erfolgt deren Einbindung unter Beachtung der Anforderungen des Art. 28 DSGVO.', 'frontend-rechtstexte-generator' ) . '</p>',
 			array_merge(
 				$data,
 				array(
@@ -1022,13 +1062,32 @@ class FRG_Text_Modules {
 		);
 	}
 
+	public function get_hosting_module_compact( array $data ): string {
+		// Juristische Prüfung empfohlen.
+		$host_address = ! empty( $data['host_address'] ) ? '<div class="frg-address-block"><strong>' . esc_html__( 'Hosting-Anbieter', 'frontend-rechtstexte-generator' ) . ':</strong><br><strong>{{host}}</strong><br>' . $data['host_address'] . '</div>' : '<p><strong>' . esc_html__( 'Hosting-Anbieter', 'frontend-rechtstexte-generator' ) . ':</strong> {{host}}</p>';
+		$infrastructure = '';
+		if ( ! empty( $data['server_infrastructure_provider'] ) ) {
+			$infrastructure = '<div class="frg-address-block"><strong>' . esc_html__( 'Server-Infrastruktur', 'frontend-rechtstexte-generator' ) . ':</strong><br><strong>{{server_infrastructure_provider}}</strong>';
+			$infrastructure .= ! empty( $data['server_infrastructure_type'] ) ? '<br>{{server_infrastructure_type}}' : '';
+			$infrastructure .= ! empty( $data['server_infrastructure_address'] ) ? '<br>' . $data['server_infrastructure_address'] : '';
+			$infrastructure .= '</div>';
+		}
+		$subprocessor = ! empty( $data['server_infrastructure_provider'] ) ? ' ' . esc_html__( 'Der Server-Infrastruktur-Anbieter wird dabei als Unterauftragnehmer eingebunden.', 'frontend-rechtstexte-generator' ) : '';
+
+		return $this->replace(
+			'<h3>' . esc_html__( 'Hosting', 'frontend-rechtstexte-generator' ) . '</h3>' . $host_address . $infrastructure . '<p>' . esc_html__( 'Im Rahmen des Hostings werden technisch erforderliche Verbindungs- und Zugriffsdaten verarbeitet, um die Website sicher, stabil und zuverlässig bereitzustellen.', 'frontend-rechtstexte-generator' ) . '</p><p><strong>' . esc_html__( 'Serverstandort', 'frontend-rechtstexte-generator' ) . ':</strong> {{location}}</p><p>' . esc_html__( 'Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO.', 'frontend-rechtstexte-generator' ) . '</p><p><strong>' . esc_html__( 'Auftragsverarbeitung', 'frontend-rechtstexte-generator' ) . ':</strong> {{av_sentence}}' . $subprocessor . '</p>',
+			$data
+		);
+	}
+
 	public function get_server_logs_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		if ( 'compact' === ( $data['readability_mode'] ?? 'detailed' ) ) {
-			return '<h3>' . esc_html__( 'Server-Logfiles', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Beim Aufruf dieser Website erfasst der Webserver technisch erforderliche Protokolldaten, insbesondere IP-Adresse, Zeitpunkt und Ziel des Abrufs, Referrer-URL sowie Browser- und Betriebssysteminformationen. Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO zur sicheren und stabilen Bereitstellung der Website, zur Fehleranalyse und zur Abwehr missbräuchlicher Zugriffe.', 'frontend-rechtstexte-generator' ) . '</p>';
-		}
-
 		return '<h3>' . esc_html__( 'Server-Logfiles', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Beim Besuch dieser Website werden durch den Webserver regelmäßig Informationen in sogenannten Server-Logfiles erhoben und gespeichert. Erfasst werden können insbesondere Browsertyp und Browserversion, verwendetes Betriebssystem, Referrer-URL, Hostname des zugreifenden Rechners, Uhrzeit der Serveranfrage sowie die IP-Adresse.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung dieser Daten erfolgt zur Gewährleistung der technischen Funktionsfähigkeit, zur IT-Sicherheit, zur Fehleranalyse und zur Abwehr missbräuchlicher Zugriffe. Eine Zusammenführung dieser Daten mit anderen Datenquellen erfolgt nur, soweit dies zur Klärung konkreter Sicherheits- oder Missbrauchsvorfälle erforderlich ist.', 'frontend-rechtstexte-generator' ) . '</p>';
+	}
+
+	public function get_server_logs_module_compact( array $data = array() ): string {
+		// Juristische Prüfung empfohlen.
+		return '<h3>' . esc_html__( 'Server-Logfiles', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Beim Aufruf unserer Website werden technisch erforderliche Daten wie IP-Adresse, Zeitpunkt des Zugriffs, aufgerufene Inhalte, Browserinformationen und HTTP-Statuscodes in Server-Logfiles verarbeitet. Die Verarbeitung dient der sicheren und stabilen Bereitstellung der Website, der Fehleranalyse sowie der Abwehr von Angriffen und Missbrauch und erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Die Daten werden nur so lange gespeichert, wie dies für diese Zwecke erforderlich ist.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_contact_form_module( array $data = array() ): string {
@@ -1215,11 +1274,12 @@ class FRG_Text_Modules {
 	}
 
 	public function get_google_fonts_local_module( array $data = array() ): string {
-		if ( 'compact' === ( $data['readability_mode'] ?? 'detailed' ) ) {
-			return '<h3>Google Fonts</h3><p>' . esc_html__( 'Google Fonts werden lokal bereitgestellt. Dabei wird keine Verbindung zu Google-Servern hergestellt und es werden keine Daten an Google übermittelt.', 'frontend-rechtstexte-generator' ) . '</p>';
-		}
-
 		return '<h3>Google Fonts</h3><p>' . esc_html__( 'Google Fonts werden lokal auf unserem Server bereitgestellt. Beim Aufruf der Website wird keine Verbindung zu Servern von Google hergestellt und es werden im Zusammenhang mit der Bereitstellung der Schriftarten keine personenbezogenen Daten an Google übermittelt.', 'frontend-rechtstexte-generator' ) . '</p>';
+	}
+
+	public function get_google_fonts_local_module_compact( array $data = array() ): string {
+		// Juristische Prüfung empfohlen.
+		return '<h3>' . esc_html__( 'Google Fonts (lokale Einbindung)', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Auf dieser Website werden Google Fonts lokal auf unserem eigenen Server bereitgestellt. Beim Aufruf der Website wird daher keine Verbindung zu Servern von Google hergestellt und es werden im Zusammenhang mit der Bereitstellung der Schriftarten keine personenbezogenen Daten an Google übermittelt. Die Verarbeitung im Rahmen der lokalen Bereitstellung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_google_maps_module( array $data = array() ): string {

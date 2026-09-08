@@ -44,6 +44,10 @@ class FRG_Generator {
 		return $this->modules->get_distributable_block_text( $key );
 	}
 
+	public function get_distributable_compact_block_text( string $key ): string {
+		return $this->modules->get_distributable_compact_block_text( $key );
+	}
+
 	public function get_block_placeholder_details( string $key ): array {
 		return $this->modules->get_block_placeholder_details( $key );
 	}
