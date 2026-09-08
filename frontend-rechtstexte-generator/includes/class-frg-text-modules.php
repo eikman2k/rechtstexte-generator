@@ -9,7 +9,7 @@ class FRG_Text_Modules {
 
 	public function get_module_meta(): array {
 		return array(
-			'module_version' => '2026.09.08.7',
+			'module_version' => '2026.09.08.8',
 			'content_updated_at' => '2026-09-08',
 			'last_reviewed_at' => '',
 			'legal_basis' => array(
@@ -339,6 +339,9 @@ class FRG_Text_Modules {
 				'{{consent_tools}}' => __( 'aktive Consent-Tools', 'frontend-rechtstexte-generator' ),
 				'{{website_url}}' => __( 'Website-URL', 'frontend-rechtstexte-generator' ),
 			),
+			'cloudflare_turnstile' => array(
+				'{{website_url}}' => __( 'Website-URL', 'frontend-rechtstexte-generator' ),
+			),
 			'cookie_consent' => array(
 				'{{consent_tools}}' => __( 'aktive Consent-Tools', 'frontend-rechtstexte-generator' ),
 			),
@@ -395,7 +398,7 @@ class FRG_Text_Modules {
 		$service_detail_keys = array(
 			'google_fonts_external', 'google_maps', 'youtube', 'vimeo', 'google_analytics', 'google_tag_manager',
 			'google_ads_conversion_tracking', 'meta_pixel', 'matomo', 'microsoft_clarity',
-			'cloudflare', 'recaptcha', 'hcaptcha', 'calendly', 'jotform', 'trustpilot',
+			'cloudflare', 'recaptcha', 'hcaptcha', 'cloudflare_turnstile', 'calendly', 'jotform', 'trustpilot',
 			'smtp_service', 'ai_chatbot', 'newsletter_provider',
 		);
 		if ( in_array( $key, $service_detail_keys, true ) ) {
@@ -487,6 +490,7 @@ class FRG_Text_Modules {
 			'cloudflare' => $this->build_block_definition( __( 'Cloudflare', 'frontend-rechtstexte-generator' ), 'privacy', 'get_cloudflare_module', array( 'DSGVO Art. 6 Abs. 1 lit. f', 'DSGVO Art. 28, 44 ff.' ), false, true, $reviewed_at, $due_at ),
 			'recaptcha' => $this->build_block_definition( __( 'reCAPTCHA', 'frontend-rechtstexte-generator' ), 'privacy', 'get_recaptcha_module', array( 'DSGVO Art. 6 Abs. 1 lit. f oder a', 'TDDDG § 25' ), true, true, $reviewed_at, $due_at ),
 			'hcaptcha' => $this->build_block_definition( __( 'hCaptcha', 'frontend-rechtstexte-generator' ), 'privacy', 'get_hcaptcha_module', array( 'DSGVO Art. 6 Abs. 1 lit. f oder a', 'TDDDG § 25' ), true, true, $reviewed_at, $due_at ),
+			'cloudflare_turnstile' => $this->build_block_definition( __( 'Cloudflare Turnstile', 'frontend-rechtstexte-generator' ), 'privacy', 'get_cloudflare_turnstile_module', array( 'DSGVO Art. 6 Abs. 1 lit. f oder a', 'TDDDG § 25' ), true, true, $reviewed_at, $due_at ),
 			'cookie_consent' => $this->build_block_definition( __( 'Cookie-Consent', 'frontend-rechtstexte-generator' ), 'privacy', 'get_cookie_consent_module', array( 'DSGVO Art. 6 Abs. 1 lit. c, f', 'TDDDG § 25' ), false, false, $reviewed_at, $due_at ),
 			'social_media_profiles' => $this->build_block_definition( __( 'Social Media Profile', 'frontend-rechtstexte-generator' ), 'privacy', 'get_social_media_profiles_module', array( 'DSGVO Art. 13, 26, 44 ff.' ), false, true, $reviewed_at, $due_at ),
 			'embeds' => $this->build_block_definition( __( 'Embeds / externe Ressourcen', 'frontend-rechtstexte-generator' ), 'privacy', 'get_embeds_module', array( 'DSGVO Art. 6 Abs. 1', 'DSGVO Art. 44 ff.' ), true, true, $reviewed_at, $due_at ),
@@ -1260,17 +1264,22 @@ class FRG_Text_Modules {
 
 	public function get_cloudflare_module(): string {
 		// Juristische Pruefung empfohlen.
-		return '<h3>Cloudflare</h3><p>' . esc_html__( 'Cloudflare kann als Content Delivery Network, Sicherheits- und Performance-Dienst eingesetzt werden. Dabei können insbesondere IP-Adresse, Anfragedaten, Sicherheitsmerkmale und technische Verbindungsinformationen verarbeitet werden, um Inhalte schneller auszuliefern und Angriffe auf die Website abzuwehren.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>Cloudflare</h3><p>' . esc_html__( 'Auf dieser Website wird Cloudflare als Content Delivery Network, Sicherheits- oder Performance-Dienst eingesetzt. Dabei können insbesondere IP-Adresse, Anfragedaten, Sicherheitsmerkmale und technische Verbindungsinformationen verarbeitet werden, um Inhalte schneller auszuliefern und Angriffe auf die Website abzuwehren.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_recaptcha_module(): string {
 		// Juristische Pruefung empfohlen.
-		return '<h3>reCAPTCHA</h3><p>' . esc_html__( 'Zum Schutz vor Missbrauch kann reCAPTCHA eingesetzt werden. Dabei können Daten an Google übermittelt werden.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>reCAPTCHA</h3><p>' . esc_html__( 'Zum Schutz vor automatisierten Eingaben und Missbrauch wird reCAPTCHA eingesetzt. Dabei können Daten an Google übermittelt werden.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_hcaptcha_module(): string {
 		// Juristische Pruefung empfohlen.
-		return '<h3>hCaptcha</h3><p>' . esc_html__( 'Zum Schutz vor automatisierten Eingaben kann hCaptcha eingesetzt werden. Dabei werden Nutzungs- und Verbindungsdaten verarbeitet.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>hCaptcha</h3><p>' . esc_html__( 'Zum Schutz vor automatisierten Eingaben wird hCaptcha eingesetzt. Dabei werden Nutzungs- und Verbindungsdaten verarbeitet.', 'frontend-rechtstexte-generator' ) . '</p>';
+	}
+
+	public function get_cloudflare_turnstile_module(): string {
+		// Juristische Prüfung empfohlen.
+		return '<h3>Cloudflare Turnstile</h3><p>' . esc_html__( 'Zum Schutz von Formularen vor automatisierten Eingaben und Missbrauch wird Cloudflare Turnstile eingesetzt. Hierbei können insbesondere IP-Adresse, Browser- und Geräteinformationen, Angaben zur aufgerufenen Seite sowie Interaktions- und Prüfdaten verarbeitet und an Cloudflare übermittelt werden.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_cookie_consent_module( array $data = array() ): string {

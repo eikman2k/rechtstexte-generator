@@ -110,6 +110,8 @@ class FRG_Scanner {
 			array( 'key' => 'meta_pixel', 'label' => 'Meta Pixel', 'needle' => 'fbq(', 'source' => 'html' ),
 			array( 'key' => 'recaptcha', 'label' => 'reCAPTCHA', 'needle' => 'www.google.com/recaptcha', 'source' => 'html' ),
 			array( 'key' => 'hcaptcha', 'label' => 'hCaptcha', 'needle' => 'hcaptcha.com', 'source' => 'html' ),
+			array( 'key' => 'cloudflare_turnstile', 'label' => 'Cloudflare Turnstile', 'needle' => 'challenges.cloudflare.com/turnstile/', 'source' => 'html' ),
+			array( 'key' => 'cloudflare_turnstile', 'label' => 'Cloudflare Turnstile', 'needle' => 'cf-turnstile', 'source' => 'html' ),
 		);
 
 		foreach ( $patterns as $pattern ) {

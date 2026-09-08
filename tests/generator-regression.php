@@ -106,6 +106,9 @@ $base = array(
 	'services'           => array(),
 );
 
+$privacy = $generator->generate_privacy_policy( $base );
+assert_not_contains( 'Registrierung und Login-Bereich', $privacy, 'Login-Abschnitt erscheint ohne bewusste Auswahl im Wizard.' );
+
 $different_controller = array_merge(
 	$base,
 	array(
@@ -150,6 +153,12 @@ $privacy = $generator->generate_privacy_policy( $contact_form );
 assert_contains( 'Eingesetztes Formularsystem', $privacy, 'Bezeichnung des Formularsystems fehlt.' );
 assert_contains( 'Elementor', $privacy, 'Ausgewähltes Formularsystem fehlt im Kontaktformular-Abschnitt.' );
 assert_not_contains( '{{', $privacy, 'Nicht ersetzter Platzhalter im Kontaktformular-Abschnitt.' );
+
+$turnstile = $contact_form;
+$turnstile['services']['cloudflare_turnstile'] = true;
+$privacy = $generator->generate_privacy_policy( $turnstile );
+assert_contains( '<h3>Cloudflare Turnstile</h3>', $privacy, 'Cloudflare-Turnstile-Abschnitt fehlt trotz Auswahl.' );
+assert_contains( 'Schutz von Formularen vor automatisierten Eingaben', $privacy, 'Cloudflare-Turnstile-Zweck fehlt.' );
 
 $clean_output = $base;
 $clean_output['services'] = array(

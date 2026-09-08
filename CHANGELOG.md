@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.3 - 2026-09-08
+
+- Cloudflare Turnstile als auswählbaren Datenschutzbaustein ergänzt
+- Turnstile-Erkennung anhand der offiziellen Script-URL und Widget-Klasse ergänzt
+- Hinweis bei Kontaktformularen ohne ausgewählten externen Spam-Schutz ergänzt
+- bestätigt: WordPress-Admin-Login und `/wp-login.php` aktivieren keinen Login-Datenschutzabschnitt
+
 ## 1.6.2 - 2026-09-08
 
 - Checkboxen und Schalter im Wizard als klar erkennbare, vollständig klickbare Auswahlkarten gestaltet

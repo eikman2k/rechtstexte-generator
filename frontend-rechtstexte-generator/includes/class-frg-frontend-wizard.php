@@ -316,7 +316,7 @@ class FRG_Frontend_Wizard {
 			array(
 				'google_fonts_external', 'google_fonts_local', 'google_maps', 'youtube', 'vimeo',
 				'google_analytics', 'google_tag_manager', 'google_ads_conversion_tracking', 'meta_pixel', 'matomo',
-				'cloudflare', 'recaptcha', 'hcaptcha', 'borlabs_cookie', 'real_cookie_banner', 'complianz',
+				'cloudflare', 'recaptcha', 'hcaptcha', 'cloudflare_turnstile', 'borlabs_cookie', 'real_cookie_banner', 'complianz',
 				'cookieyes', 'elementor', 'gravity_forms', 'contact_form_7', 'wpforms', 'wordfence',
 				'ithemes_security', 'updraftplus', 'wpvivid', 'mailchimp', 'brevo', 'sendinblue', 'cleverreach',
 				'facebook', 'instagram', 'linkedin', 'xing', 'tiktok', 'microsoft_clarity', 'calendly',
@@ -340,7 +340,7 @@ class FRG_Frontend_Wizard {
 		$allowed_services = array(
 			'google_fonts_external', 'google_maps', 'youtube', 'vimeo', 'google_analytics', 'google_tag_manager',
 			'google_ads_conversion_tracking', 'meta_pixel', 'matomo', 'microsoft_clarity',
-			'cloudflare', 'recaptcha', 'hcaptcha', 'calendly', 'jotform', 'trustpilot',
+			'cloudflare', 'recaptcha', 'hcaptcha', 'cloudflare_turnstile', 'calendly', 'jotform', 'trustpilot',
 			'smtp_service', 'ai_chatbot', 'newsletter_provider',
 		);
 		$textarea_fields = array( 'address', 'purpose', 'data_categories', 'legal_basis', 'recipients', 'retention', 'third_country', 'transfer_basis' );
@@ -547,6 +547,14 @@ class FRG_Frontend_Wizard {
 			}
 			if ( ! $has_form_service ) {
 				$warnings[] = __( 'Für das Kontaktformular ist noch kein konkretes Formularsystem ausgewählt.', 'frontend-rechtstexte-generator' );
+			}
+
+			if (
+				empty( $data['services']['recaptcha'] ) &&
+				empty( $data['services']['hcaptcha'] ) &&
+				empty( $data['services']['cloudflare_turnstile'] )
+			) {
+				$warnings[] = __( 'Für das Kontaktformular ist kein externer Spam-Schutz ausgewählt. Falls reCAPTCHA, hCaptcha, Cloudflare Turnstile oder ein vergleichbarer Dienst eingesetzt wird, muss dieser zusätzlich angegeben werden.', 'frontend-rechtstexte-generator' );
 			}
 		}
 
