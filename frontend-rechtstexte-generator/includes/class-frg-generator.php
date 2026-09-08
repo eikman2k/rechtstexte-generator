@@ -19,7 +19,7 @@ class FRG_Generator {
 	}
 
 	public function build_exportable_document_html( string $content ): string {
-		$style = '<style>.frg-document{max-width:960px;color:#243447;font-size:18px}.frg-document>*:first-child{margin-top:0}.frg-document h2,.frg-document h3,.frg-document h4{margin-top:0}.frg-document h2{margin-bottom:20px;font-size:clamp(2rem,3vw,2.45rem);line-height:1.18}.frg-document h3{margin-top:52px;margin-bottom:14px;font-size:clamp(1.65rem,2.2vw,2rem);line-height:1.24;letter-spacing:-.02em}.frg-document h4{margin-top:52px;margin-bottom:14px;font-size:clamp(1.3rem,1.8vw,1.55rem);line-height:1.3}.frg-document p,.frg-document ul,.frg-document ol,.frg-document .frg-required-facts{margin-top:0;margin-bottom:20px;line-height:1.8}.frg-document ul,.frg-document ol{padding-left:22px}.frg-document li+li{margin-top:8px}.frg-document h3+p,.frg-document h4+p{margin-top:4px}.frg-document p strong{font-weight:700}.frg-document .frg-address-block{margin-top:0;margin-bottom:18px;line-height:1.35}.frg-document .frg-address-block strong{display:block;margin-bottom:4px}.frg-document .frg-address{display:inline-block}.frg-document .frg-address__line{display:block;line-height:1.35}.frg-document .frg-required-facts{padding:16px 18px;border:1px solid #dde5ee;border-radius:16px;background:#f8fbff}.frg-document .frg-required-facts__title{margin-bottom:10px}.frg-document .frg-required-facts p{margin-bottom:12px;line-height:1.55}.frg-document .frg-required-facts p:last-child{margin-bottom:0}</style>';
+		$style = '<style>.frg-document{max-width:960px;color:#243447;font-size:18px}.frg-document--readability-compact{max-width:820px;text-wrap:pretty}.frg-document>*:first-child{margin-top:0}.frg-document h2,.frg-document h3,.frg-document h4{margin-top:0}.frg-document h2{margin-bottom:20px;font-size:clamp(2rem,3vw,2.45rem);line-height:1.18}.frg-document h3{margin-top:52px;margin-bottom:14px;font-size:clamp(1.65rem,2.2vw,2rem);line-height:1.24;letter-spacing:-.02em}.frg-document h4{margin-top:52px;margin-bottom:14px;font-size:clamp(1.3rem,1.8vw,1.55rem);line-height:1.3}.frg-document p,.frg-document ul,.frg-document ol,.frg-document .frg-required-facts{margin-top:0;margin-bottom:20px;line-height:1.8}.frg-document--readability-compact p,.frg-document--readability-compact ul,.frg-document--readability-compact ol{line-height:1.7}.frg-document ul,.frg-document ol{padding-left:22px}.frg-document li+li{margin-top:8px}.frg-document h3+p,.frg-document h4+p{margin-top:4px}.frg-document p strong{font-weight:700}.frg-document .frg-address-block{margin-top:0;margin-bottom:18px;line-height:1.35}.frg-document .frg-address-block strong{display:block;margin-bottom:4px}.frg-document .frg-address{display:inline-block}.frg-document .frg-address__line{display:block;line-height:1.35}.frg-document .frg-required-facts{padding:16px 18px;border:1px solid #dde5ee;border-radius:16px;background:#f8fbff}.frg-document .frg-required-facts__title{margin-bottom:10px}.frg-document .frg-required-facts p{margin-bottom:12px;line-height:1.55}.frg-document .frg-required-facts p:last-child{margin-bottom:0}</style>';
 
 		return $style . $content;
 	}
@@ -119,7 +119,7 @@ class FRG_Generator {
 		}
 		$parts[] = $this->modules->render_block( 'general_processing', $privacy_data );
 		$parts[] = $this->ensure_hosting_av_notice( $this->modules->render_block( 'hosting', $privacy_data ), $privacy_data );
-		$parts[] = $this->modules->render_block( 'server_logs' );
+		$parts[] = $this->modules->render_block( 'server_logs', $privacy_data );
 		$parts[] = $this->modules->render_block( 'ssl_tls' );
 
 		if ( ! empty( $data['features']['contact_form'] ) ) {
@@ -237,7 +237,9 @@ class FRG_Generator {
 		}
 		$content = $this->finalize_generated_content( $content );
 
-		return '<div class="frg-document frg-document--privacy">' . $this->normalize_document_section_headings( $content ) . '</div>';
+		$readability_class = 'compact' === $this->get_privacy_readability_mode() ? ' frg-document--readability-compact' : '';
+
+		return '<div class="frg-document frg-document--privacy' . $readability_class . '">' . $this->normalize_document_section_headings( $content ) . '</div>';
 	}
 
 	public function get_impressum_template_data( array $data ): array {
@@ -413,6 +415,7 @@ class FRG_Generator {
 		);
 
 		return array(
+			'readability_mode'             => $this->get_privacy_readability_mode(),
 			'document_notice'             => '',
 			'company'                    => esc_html( $controller_name ),
 			'representative'             => esc_html( $controller_representative ),
@@ -491,6 +494,13 @@ class FRG_Generator {
 			'ai_transparency_sentence'   => ! empty( $services['ai_transparency_notice'] ) ? esc_html__( 'Der Assistent weist Nutzer vor oder bei Beginn der Interaktion klar darauf hin, dass sie mit einem KI-System kommunizieren.', 'frontend-rechtstexte-generator' ) : '',
 			'service_details'            => $this->prepare_service_details( $data['service_details'] ?? array() ),
 		);
+	}
+
+	private function get_privacy_readability_mode(): string {
+		$settings = get_option( 'frg_settings', array() );
+		$mode = is_array( $settings ) ? sanitize_key( (string) ( $settings['privacy_readability_mode'] ?? 'detailed' ) ) : 'detailed';
+
+		return 'compact' === $mode ? 'compact' : 'detailed';
 	}
 
 	private function prepare_service_details( $raw_details ): array {

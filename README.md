@@ -2,7 +2,7 @@
 
 WordPress-Plugin zur Generierung von Impressum und Datenschutzerklärung über einen Frontend-Wizard mit festen, modularen Textbausteinen.
 
-Aktuelle Version: `1.6.3`
+Aktuelle Version: `1.7.0`
 
 ## Hinweis
 
@@ -13,6 +13,7 @@ Die erzeugten Texte ersetzen keine anwaltliche Prüfung. Das Plugin arbeitet mit
 - Frontend-Wizard per Shortcode
 - identischer Wizard im geschützten WordPress-Backend
 - Generierung von Impressum und Datenschutzerklärung
+- optionaler kompakter Lesbarkeitsmodus für die Datenschutzerklärung
 - Speicherung von Profilen in eigener Datenbanktabelle
 - HTML-Ausgabe zum direkten Kopieren
 - Seitensynchronisierung als WordPress-Seiten

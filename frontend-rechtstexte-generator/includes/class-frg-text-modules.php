@@ -9,7 +9,7 @@ class FRG_Text_Modules {
 
 	public function get_module_meta(): array {
 		return array(
-			'module_version' => '2026.09.08.8',
+			'module_version' => '2026.09.08.9',
 			'content_updated_at' => '2026-09-08',
 			'last_reviewed_at' => '',
 			'legal_basis' => array(
@@ -998,8 +998,11 @@ class FRG_Text_Modules {
 
 	public function get_hosting_module( array $data ): string {
 		// Juristische Pruefung empfohlen.
+		$intro = 'compact' === ( $data['readability_mode'] ?? 'detailed' )
+			? __( 'Diese Website wird durch {{host}} technisch bereitgestellt. Einzelheiten zu den dabei verarbeiteten Verbindungs- und Nutzungsdaten finden Sie im Abschnitt „Server-Logfiles“.', 'frontend-rechtstexte-generator' )
+			: __( 'Diese Website wird durch {{host}} als Hosting- und IT-Dienstleister technisch bereitgestellt. Dabei werden die für den sicheren und zuverlässigen Betrieb erforderlichen Verbindungs- und Nutzungsdaten verarbeitet. Einzelheiten zu den technisch erfassten Daten finden Sie im Abschnitt „Server-Logfiles“.', 'frontend-rechtstexte-generator' );
 		return $this->replace(
-			'<h3>' . esc_html__( 'Hosting und technische Bereitstellung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Diese Website wird durch {{host}} als Hosting- und IT-Dienstleister technisch bereitgestellt. Dabei werden die für den sicheren und zuverlässigen Betrieb erforderlichen Verbindungs- und Nutzungsdaten verarbeitet. Einzelheiten zu den technisch erfassten Daten finden Sie im Abschnitt „Server-Logfiles“.', 'frontend-rechtstexte-generator' ) . '</p>{{host_address_line}}{{server_infrastructure_line}}<p><strong>' . esc_html__( 'Serverstandort', 'frontend-rechtstexte-generator' ) . ':</strong> {{location}}</p><p>' . esc_html__( 'Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse liegt in der sicheren, zuverlässigen und effizienten Bereitstellung der Website.', 'frontend-rechtstexte-generator' ) . '</p><p><strong>' . esc_html__( 'Auftragsverarbeitung', 'frontend-rechtstexte-generator' ) . ':</strong> ' . '{{av_sentence}} ' . esc_html__( 'Soweit im Rahmen der Leistungserbringung weitere Auftragsverarbeiter oder Unterauftragnehmer eingesetzt werden, erfolgt deren Einbindung unter Beachtung der Anforderungen des Art. 28 DSGVO.', 'frontend-rechtstexte-generator' ) . '</p>',
+			'<h3>' . esc_html__( 'Hosting und technische Bereitstellung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html( $intro ) . '</p>{{host_address_line}}{{server_infrastructure_line}}<p><strong>' . esc_html__( 'Serverstandort', 'frontend-rechtstexte-generator' ) . ':</strong> {{location}}</p><p>' . esc_html__( 'Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse liegt in der sicheren, zuverlässigen und effizienten Bereitstellung der Website.', 'frontend-rechtstexte-generator' ) . '</p><p><strong>' . esc_html__( 'Auftragsverarbeitung', 'frontend-rechtstexte-generator' ) . ':</strong> ' . '{{av_sentence}} ' . esc_html__( 'Soweit im Rahmen der Leistungserbringung weitere Auftragsverarbeiter oder Unterauftragnehmer eingesetzt werden, erfolgt deren Einbindung unter Beachtung der Anforderungen des Art. 28 DSGVO.', 'frontend-rechtstexte-generator' ) . '</p>',
 			array_merge(
 				$data,
 				array(
@@ -1019,8 +1022,12 @@ class FRG_Text_Modules {
 		);
 	}
 
-	public function get_server_logs_module(): string {
+	public function get_server_logs_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
+		if ( 'compact' === ( $data['readability_mode'] ?? 'detailed' ) ) {
+			return '<h3>' . esc_html__( 'Server-Logfiles', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Beim Aufruf dieser Website erfasst der Webserver technisch erforderliche Protokolldaten, insbesondere IP-Adresse, Zeitpunkt und Ziel des Abrufs, Referrer-URL sowie Browser- und Betriebssysteminformationen. Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO zur sicheren und stabilen Bereitstellung der Website, zur Fehleranalyse und zur Abwehr missbräuchlicher Zugriffe.', 'frontend-rechtstexte-generator' ) . '</p>';
+		}
+
 		return '<h3>' . esc_html__( 'Server-Logfiles', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Beim Besuch dieser Website werden durch den Webserver regelmäßig Informationen in sogenannten Server-Logfiles erhoben und gespeichert. Erfasst werden können insbesondere Browsertyp und Browserversion, verwendetes Betriebssystem, Referrer-URL, Hostname des zugreifenden Rechners, Uhrzeit der Serveranfrage sowie die IP-Adresse.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung dieser Daten erfolgt zur Gewährleistung der technischen Funktionsfähigkeit, zur IT-Sicherheit, zur Fehleranalyse und zur Abwehr missbräuchlicher Zugriffe. Eine Zusammenführung dieser Daten mit anderen Datenquellen erfolgt nur, soweit dies zur Klärung konkreter Sicherheits- oder Missbrauchsvorfälle erforderlich ist.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
@@ -1207,7 +1214,11 @@ class FRG_Text_Modules {
 		return $this->replace( '<h3>Google Fonts</h3><p>' . esc_html__( 'Auf dieser Website werden Schriftarten über Server von Google geladen. Beim Aufruf der Website wird dadurch eine Verbindung zu Google hergestellt, bei der insbesondere Ihre IP-Adresse und weitere technische Verbindungsdaten übermittelt werden können.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 
-	public function get_google_fonts_local_module(): string {
+	public function get_google_fonts_local_module( array $data = array() ): string {
+		if ( 'compact' === ( $data['readability_mode'] ?? 'detailed' ) ) {
+			return '<h3>Google Fonts</h3><p>' . esc_html__( 'Google Fonts werden lokal bereitgestellt. Dabei wird keine Verbindung zu Google-Servern hergestellt und es werden keine Daten an Google übermittelt.', 'frontend-rechtstexte-generator' ) . '</p>';
+		}
+
 		return '<h3>Google Fonts</h3><p>' . esc_html__( 'Google Fonts werden lokal auf unserem Server bereitgestellt. Beim Aufruf der Website wird keine Verbindung zu Servern von Google hergestellt und es werden im Zusammenhang mit der Bereitstellung der Schriftarten keine personenbezogenen Daten an Google übermittelt.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 

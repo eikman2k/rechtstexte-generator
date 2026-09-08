@@ -109,6 +109,24 @@ $base = array(
 $privacy = $generator->generate_privacy_policy( $base );
 assert_not_contains( 'Registrierung und Login-Bereich', $privacy, 'Login-Abschnitt erscheint ohne bewusste Auswahl im Wizard.' );
 
+$frg_test_options['frg_settings'] = array( 'privacy_readability_mode' => 'compact' );
+$compact = $base;
+$compact['services']['google_fonts_local'] = true;
+$compact['hosting_provider_address'] = "Hostweg 1\n10000 Berlin\nDeutschland";
+$compact['server_infrastructure_provider'] = 'Infrastruktur GmbH';
+$compact['server_infrastructure_address'] = "Serverweg 2\n20000 Hamburg\nDeutschland";
+$privacy = $generator->generate_privacy_policy( $compact );
+assert_contains( 'frg-document--readability-compact', $privacy, 'CSS-Klasse des kompakten Lesbarkeitsmodus fehlt.' );
+assert_contains( 'Diese Website wird durch Testhoster GmbH technisch bereitgestellt.', $privacy, 'Kompakter Hosting-Text fehlt.' );
+assert_contains( 'Beim Aufruf dieser Website erfasst der Webserver technisch erforderliche Protokolldaten', $privacy, 'Kompakter Server-Logfile-Text fehlt.' );
+assert_contains( 'Google Fonts werden lokal bereitgestellt.', $privacy, 'Kompakter Google-Fonts-Text fehlt.' );
+assert_contains( 'Art. 6 Abs. 1 lit. f DSGVO', $privacy, 'Rechtsgrundlage fehlt im kompakten Modus.' );
+assert_contains( 'Hostweg 1', $privacy, 'Hosting-Adresse fehlt im kompakten Modus.' );
+assert_contains( 'Infrastruktur GmbH', $privacy, 'Server-Infrastruktur-Anbieter fehlt im kompakten Modus.' );
+assert_contains( 'Serverweg 2', $privacy, 'Server-Infrastruktur-Adresse fehlt im kompakten Modus.' );
+assert_contains( 'Art. 28 DSGVO', $privacy, 'AV-Angabe fehlt im kompakten Modus.' );
+$frg_test_options['frg_settings'] = array();
+
 $different_controller = array_merge(
 	$base,
 	array(

@@ -56,6 +56,7 @@ class FRG_Activator {
 				'show_generator_notice_impressum' => false,
 				'show_generator_notice_privacy'   => false,
 				'dynamic_page_content'             => true,
+				'privacy_readability_mode'          => 'detailed',
 				'impressum_page'     => __( 'Impressum', 'frontend-rechtstexte-generator' ),
 				'privacy_page'       => __( 'Datenschutzerklärung', 'frontend-rechtstexte-generator' ),
 				'openai_model'       => 'gpt-5.6-terra',

@@ -123,6 +123,10 @@ class FRG_Admin {
 			if ( ! in_array( $feed_mode, array( 'off', 'hub', 'client' ), true ) ) {
 				$feed_mode = 'off';
 			}
+			$readability_mode = sanitize_key( wp_unslash( $_POST['privacy_readability_mode'] ?? 'detailed' ) );
+			if ( ! in_array( $readability_mode, array( 'detailed', 'compact' ), true ) ) {
+				$readability_mode = 'detailed';
+			}
 			$feed_key = sanitize_text_field( wp_unslash( $_POST['block_feed_key'] ?? '' ) );
 			if ( 'hub' === $feed_mode && ( '' === $feed_key || ! empty( $_POST['block_feed_regenerate_key'] ) ) ) {
 				$feed_key = wp_generate_password( 48, false, false );
@@ -133,6 +137,7 @@ class FRG_Admin {
 				'show_generator_notice_impressum' => ! empty( $_POST['show_generator_notice_impressum'] ),
 				'show_generator_notice_privacy'   => ! empty( $_POST['show_generator_notice_privacy'] ),
 				'dynamic_page_content'             => ! empty( $_POST['dynamic_page_content'] ),
+				'privacy_readability_mode'          => $readability_mode,
 				'impressum_page'    => sanitize_text_field( wp_unslash( $_POST['impressum_page'] ?? '' ) ),
 				'privacy_page'      => sanitize_text_field( wp_unslash( $_POST['privacy_page'] ?? '' ) ),
 				'openai_api_key'    => sanitize_text_field( wp_unslash( $_POST['openai_api_key'] ?? '' ) ),

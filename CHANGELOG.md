@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.0 - 2026-09-08
+
+- optionalen Lesbarkeitsmodus „Kompakt“ für Datenschutzerklärungen ergänzt
+- Hosting, Server-Logfiles und lokale Google Fonts im kompakten Modus gestrafft
+- kompakte Darstellung auf eine angenehmere Zeilenlänge begrenzt
+- Pflichtangaben, Anbieterdaten, Adressen, AV-Angaben und Rechtsgrundlagen bleiben erhalten
+- eigene und zentral synchronisierte Live-Overrides werden nicht automatisch umgeschrieben
+
 ## 1.6.3 - 2026-09-08
 
 - Cloudflare Turnstile als auswählbaren Datenschutzbaustein ergänzt

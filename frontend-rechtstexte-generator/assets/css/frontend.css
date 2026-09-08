@@ -414,6 +414,17 @@
 	font-size: 18px;
 }
 
+.frg-document--readability-compact {
+	max-width: 820px;
+	text-wrap: pretty;
+}
+
+.frg-document--readability-compact p,
+.frg-document--readability-compact ul,
+.frg-document--readability-compact ol {
+	line-height: 1.7;
+}
+
 .frg-document > *:first-child {
 	margin-top: 0;
 }
