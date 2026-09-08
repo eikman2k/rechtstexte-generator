@@ -9,7 +9,7 @@ class FRG_Text_Modules {
 
 	public function get_module_meta(): array {
 		return array(
-			'module_version' => '2026.09.08.10',
+			'module_version' => '2026.09.08.11',
 			'content_updated_at' => '2026-09-08',
 			'last_reviewed_at' => '',
 			'legal_basis' => array(
@@ -1095,6 +1095,16 @@ class FRG_Text_Modules {
 		$form_tool = ! empty( $data['form_tools'] ) ? '<p><strong>' . esc_html__( 'Eingesetztes Formularsystem', 'frontend-rechtstexte-generator' ) . ':</strong> {{form_tools}}</p>' : '';
 		return $this->replace(
 			'<h3>' . esc_html__( 'Kontaktformular', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wenn Sie uns über das Kontaktformular auf {{website_url}} Anfragen zukommen lassen, werden Ihre Angaben aus dem Formular einschließlich der von Ihnen dort angegebenen Kontaktdaten zum Zweck der Bearbeitung Ihrer Anfrage und für den Fall von Anschlussfragen bei {{company}} gespeichert und verarbeitet.', 'frontend-rechtstexte-generator' ) . '</p>' . $form_tool . '<p>' . esc_html__( 'Die Verarbeitung erfolgt je nach Inhalt Ihrer Anfrage zur Durchführung vorvertraglicher Maßnahmen, zur Vertragserfüllung, auf Grundlage berechtigter Interessen an einer effizienten Kommunikation oder aufgrund Ihrer Einwilligung, sofern eine solche abgefragt wurde.', 'frontend-rechtstexte-generator' ) . '</p>',
+			$data
+		);
+	}
+
+	public function get_contact_form_module_compact( array $data = array() ): string {
+		// Juristische Prüfung empfohlen.
+		$form_tool = ! empty( $data['form_tools'] ) ? '<p><strong>' . esc_html__( 'Formularsystem', 'frontend-rechtstexte-generator' ) . ':</strong> {{form_tools}}</p>' : '';
+
+		return $this->replace(
+			'<h3>' . esc_html__( 'Kontaktformular', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wenn Sie uns über das Kontaktformular kontaktieren, verarbeiten wir die von Ihnen angegebenen Daten zur Bearbeitung Ihrer Anfrage und gegebenenfalls zur Anbahnung oder Durchführung eines Vertragsverhältnisses. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO beziehungsweise Art. 6 Abs. 1 lit. f DSGVO. Die Daten werden nur so lange gespeichert, wie dies für die Bearbeitung Ihrer Anfrage oder aufgrund gesetzlicher Aufbewahrungspflichten erforderlich ist.', 'frontend-rechtstexte-generator' ) . '</p>' . $form_tool,
 			$data
 		);
 	}

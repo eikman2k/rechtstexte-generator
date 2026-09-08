@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.1 - 2026-09-08
+
+- eigenständigen Kompaktbaustein für Kontaktformulare ergänzt
+- Kontaktformular im Kompaktmodus auf Zweck, Rechtsgrundlage und Speicherdauer reduziert
+- verwendetes Formularsystem bleibt als kurze konkrete Angabe erhalten
+- Serverstandort-Auswahl kennzeichnet Deutschland und EU/EWR als zu bestätigende Angaben
+- Hilfetext empfiehlt bei nicht verifiziertem Serverstandort ausdrücklich „Unbekannt“
+
 ## 1.8.0 - 2026-09-08
 
 - eigenständige veröffentlichte Kompaktbausteine unabhängig von ausführlichen Live-Overrides ergänzt

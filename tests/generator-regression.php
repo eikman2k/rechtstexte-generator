@@ -123,9 +123,15 @@ $frg_test_options['frg_block_registry'] = array(
 		'status'        => 'editorial_approved',
 		'override_text' => '<h3>Google Fonts</h3><p>ALTER-AUSFÜHRLICHER-FONTSTEXT mit zahlreichen technischen Einzelheiten.</p>',
 	),
+	'contact_form' => array(
+		'status'        => 'editorial_approved',
+		'override_text' => '<h3>Kontaktformular</h3><p>ALTER-AUSFÜHRLICHER-KONTAKTTEXT mit zahlreichen technischen Einzelheiten.</p>',
+	),
 );
 $compact = $base;
 $compact['services']['google_fonts_local'] = true;
+$compact['services']['elementor'] = true;
+$compact['features']['contact_form'] = true;
 $compact['hosting_provider_address'] = "Hostweg 1\n10000 Berlin\nDeutschland";
 $compact['server_infrastructure_provider'] = 'Infrastruktur GmbH';
 $compact['server_infrastructure_address'] = "Serverweg 2\n20000 Hamburg\nDeutschland";
@@ -135,6 +141,8 @@ assert_contains( '<h3>Hosting</h3>', $privacy, 'Kompakter Hosting-Text fehlt.' )
 assert_contains( 'Im Rahmen des Hostings werden technisch erforderliche Verbindungs- und Zugriffsdaten verarbeitet', $privacy, 'Kompakter Hosting-Zweck fehlt.' );
 assert_contains( 'Beim Aufruf unserer Website werden technisch erforderliche Daten', $privacy, 'Kompakter Server-Logfile-Text fehlt.' );
 assert_contains( 'Google Fonts (lokale Einbindung)', $privacy, 'Kompakter Google-Fonts-Text fehlt.' );
+assert_contains( 'Wenn Sie uns über das Kontaktformular kontaktieren', $privacy, 'Kompakter Kontaktformular-Text fehlt.' );
+assert_contains( '<strong>Formularsystem:</strong> Elementor', $privacy, 'Formularsystem fehlt im kompakten Kontaktformular-Text.' );
 assert_contains( 'Art. 6 Abs. 1 lit. f DSGVO', $privacy, 'Rechtsgrundlage fehlt im kompakten Modus.' );
 assert_contains( 'Hostweg 1', $privacy, 'Hosting-Adresse fehlt im kompakten Modus.' );
 assert_contains( 'Infrastruktur GmbH', $privacy, 'Server-Infrastruktur-Anbieter fehlt im kompakten Modus.' );
