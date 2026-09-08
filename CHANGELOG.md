@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.5.0 - 2026-09-08
+
+- eindeutigen Schalter „Drittlandtransfer vorhanden“ ergänzt; der allgemeine Drittlandabschnitt erscheint nur noch bei aktiver Bestätigung und konkretem Text
+- Datenschutzerklärung auf konkrete Tatsachen statt Eventualformulierungen umgestellt: Drittlandabschnitt nur bei konkretem Bezug, Social-Media-Links getrennt von Einbettungen und präzisere Vimeo-/SMTP-Ausgabe
+- Hosting-Rechtsgrundlage `Art. 6 Abs. 1 lit. f DSGVO` wird auch bei zentralen oder KI-basierten Live-Overrides systemseitig ergänzt
+- veröffentlichte Rechtstexte enthalten keine internen Generator- oder Rechtsberatungshinweise mehr; diese bleiben im Wizard sichtbar
+- Backup-Text konzentriert sich auf Speicherort und Aufbewahrung statt auf den Namen des verwendeten WordPress-Plugins
+- Netcup-Anschrift im internen Backend-Beispieldatensatz auf Emmy-Noether-Straße 10, 76131 Karlsruhe aktualisiert
+- redaktionelle Prüfanweisungen werden zuverlässig aus veröffentlichten Datenschutzerklärungen entfernt
+- doppelte allgemeine Angaben zu Speicherdauer und Drittlandtransfer bereinigt
+- konkrete Datenschutzaufsichtsbehörde und Backup-Speicherziel im Wizard ergänzt
+- Google-Fonts-Auswahl gegen widersprüchliche lokale und externe Ausgabe abgesichert
+- Hosting-Infrastruktur sprachlich als Unterauftragnehmer des Hosting-Dienstleisters präzisiert
+
 ## 1.4.0 - 2026-09-07
 
 - vollständigen Rechtstexte-Wizard zusätzlich als geschützte Backend-Ansicht ergänzt

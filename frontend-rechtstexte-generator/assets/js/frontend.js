@@ -37,6 +37,18 @@
 					}
 				});
 		});
+
+		wizard.querySelectorAll('[data-frg-conditional-any]').forEach((container) => {
+			const fieldNames = (container.getAttribute('data-frg-conditional-any') || '')
+				.split(',')
+				.map((name) => name.trim())
+				.filter(Boolean);
+			const isActive = fieldNames.some((fieldName) => form.querySelector(`[name="${fieldName}"]`)?.checked);
+			container.hidden = !isActive;
+			container.querySelectorAll('input, select, textarea').forEach((field) => {
+				field.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+			});
+		});
 	};
 
 	const setFeedback = (message, success) => {
@@ -179,13 +191,28 @@
 				return;
 			}
 			target.checked = true;
+			target.dispatchEvent(new Event('change', { bubbles: true }));
 			button.disabled = true;
 			setFeedback(frgWizard.adoptMessage, true);
 		});
 	});
 
 	form.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
-		checkbox.addEventListener('change', syncConditionalFields);
+		checkbox.addEventListener('change', () => {
+			if (checkbox.checked && checkbox.name === 'services[google_fonts_local]') {
+				const externalFonts = form.querySelector('[name="services[google_fonts_external]"]');
+				if (externalFonts) {
+					externalFonts.checked = false;
+				}
+			}
+			if (checkbox.checked && checkbox.name === 'services[google_fonts_external]') {
+				const localFonts = form.querySelector('[name="services[google_fonts_local]"]');
+				if (localFonts) {
+					localFonts.checked = false;
+				}
+			}
+			syncConditionalFields();
+		});
 	});
 
 	syncConditionalFields();

@@ -273,11 +273,12 @@ class FRG_Frontend_Wizard {
 				'controller_name', 'controller_representative', 'controller_street', 'controller_zip', 'controller_city', 'controller_country', 'controller_email', 'controller_phone',
 				'data_protection_officer_name', 'data_protection_officer_email', 'data_protection_officer_phone', 'data_protection_officer_address', 'privacy_processing_purposes',
 			'privacy_legal_basis', 'privacy_storage_general', 'privacy_recipient_categories', 'privacy_third_country_transfer',
-			'ai_chatbot_privacy_url',
+			'privacy_supervisory_authority_name', 'privacy_supervisory_authority_address', 'privacy_supervisory_authority_url',
+			'backup_destination', 'backup_storage_provider', 'backup_storage_address', 'backup_retention', 'ai_chatbot_privacy_url', 'social_media_integration',
 		);
 		$bool_fields = array(
 			'has_trade_register', 'has_vat_id', 'has_responsible_content', 'has_professional_info',
-			'has_liability_insurance', 'controller_same_as_operator', 'has_data_protection_officer',
+			'has_liability_insurance', 'controller_same_as_operator', 'has_data_protection_officer', 'has_third_country_transfer',
 		);
 		$data = array();
 
@@ -285,9 +286,9 @@ class FRG_Frontend_Wizard {
 			$value = isset( $raw[ $field ] ) ? wp_unslash( $raw[ $field ] ) : '';
 			if ( 'email' === $field || 'data_protection_officer_email' === $field || 'controller_email' === $field ) {
 				$data[ $field ] = sanitize_email( $value );
-			} elseif ( 'website_url' === $field || 'ai_chatbot_privacy_url' === $field ) {
+			} elseif ( 'website_url' === $field || 'ai_chatbot_privacy_url' === $field || 'privacy_supervisory_authority_url' === $field ) {
 				$data[ $field ] = esc_url_raw( $value );
-			} elseif ( 'responsible_address' === $field || 'professional_rules' === $field || 'liability_insurer_address' === $field || 'hosting_provider_address' === $field || 'server_infrastructure_address' === $field || 'data_protection_officer_address' === $field ) {
+			} elseif ( 'responsible_address' === $field || 'professional_rules' === $field || 'liability_insurer_address' === $field || 'hosting_provider_address' === $field || 'server_infrastructure_address' === $field || 'data_protection_officer_address' === $field || 'privacy_supervisory_authority_address' === $field || 'backup_storage_address' === $field ) {
 				$data[ $field ] = sanitize_textarea_field( $value );
 			} else {
 				$data[ $field ] = sanitize_text_field( $value );
@@ -324,6 +325,9 @@ class FRG_Frontend_Wizard {
 			'services'
 		);
 		$data['service_details'] = $this->sanitize_service_details( $raw['service_details'] ?? array() );
+		$data['social_media_integration'] = in_array( $data['social_media_integration'] ?? '', array( 'links', 'embeds' ), true )
+			? $data['social_media_integration']
+			: 'links';
 
 		return $data;
 	}
@@ -334,7 +338,7 @@ class FRG_Frontend_Wizard {
 		}
 
 		$allowed_services = array(
-			'google_maps', 'youtube', 'vimeo', 'google_analytics', 'google_tag_manager',
+			'google_fonts_external', 'google_maps', 'youtube', 'vimeo', 'google_analytics', 'google_tag_manager',
 			'google_ads_conversion_tracking', 'meta_pixel', 'matomo', 'microsoft_clarity',
 			'cloudflare', 'recaptcha', 'hcaptcha', 'calendly', 'jotform', 'trustpilot',
 			'smtp_service', 'ai_chatbot', 'newsletter_provider',
@@ -446,6 +450,7 @@ class FRG_Frontend_Wizard {
 
 	private function get_completeness_warnings( array $data ): array {
 		$labels = array(
+			'google_fonts_external'         => 'Google Fonts extern',
 			'google_maps'                    => 'Google Maps',
 			'youtube'                        => 'YouTube',
 			'vimeo'                          => 'Vimeo',
@@ -493,6 +498,61 @@ class FRG_Frontend_Wizard {
 			empty( $data['services']['ai_transparency_notice'] )
 		) {
 			$warnings[] = __( 'Für den KI-Bot ist noch nicht bestätigt, dass Besucher klar auf die Interaktion mit einem KI-System hingewiesen werden.', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( empty( $data['privacy_supervisory_authority_name'] ) ) {
+			$warnings[] = __( 'Die konkret zuständige Datenschutzaufsichtsbehörde ist noch nicht eingetragen.', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( ! empty( $data['has_third_country_transfer'] ) && empty( $data['privacy_third_country_transfer'] ) ) {
+			$warnings[] = __( 'Drittlandtransfer ist aktiviert, aber der konkrete Transfer, das Empfängerland und die verwendete Garantie fehlen.', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( 'Drittland' === ( $data['server_location'] ?? '' ) && empty( $data['has_third_country_transfer'] ) ) {
+			$warnings[] = __( 'Der Serverstandort ist als Drittland angegeben, der allgemeine Drittlandtransfer wurde aber nicht aktiviert.', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( 'Ja' !== ( $data['hosting_av_contract'] ?? '' ) ) {
+			$warnings[] = __( 'Für den Hosting-Anbieter ist kein bestätigter AV-Vertrag hinterlegt. Diese Angabe erscheint deshalb nicht als positive Aussage im veröffentlichten Text.', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( ! empty( $data['services']['updraftplus'] ) || ! empty( $data['services']['wpvivid'] ) ) {
+			if ( empty( $data['backup_destination'] ) ) {
+				$warnings[] = __( 'Für die Backups fehlt noch der tatsächliche Speicherort, zum Beispiel eigener Server oder externer Cloud-Speicher.', 'frontend-rechtstexte-generator' );
+			}
+			if ( empty( $data['backup_retention'] ) ) {
+				$warnings[] = __( 'Für die Backups fehlt noch die Aufbewahrungsdauer oder ein Löschkriterium.', 'frontend-rechtstexte-generator' );
+			}
+		}
+
+		if ( ! empty( $data['services']['google_fonts_external'] ) && ! empty( $data['services']['google_fonts_local'] ) ) {
+			$warnings[] = __( 'Google Fonts wurde lokal und extern ausgewählt. Für die Ausgabe wird die lokale Variante verwendet.', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( ! empty( $data['features']['contact_form'] ) ) {
+			$form_services = array( 'elementor', 'contact_form_7', 'gravity_forms', 'wpforms' );
+			$has_form_service = false;
+			foreach ( $form_services as $form_service ) {
+				if ( ! empty( $data['services'][ $form_service ] ) ) {
+					$has_form_service = true;
+					break;
+				}
+			}
+			if ( ! $has_form_service ) {
+				$warnings[] = __( 'Für das Kontaktformular ist noch kein konkretes Formularsystem ausgewählt.', 'frontend-rechtstexte-generator' );
+			}
+		}
+
+		if ( ! empty( $data['services']['vimeo'] ) && 'Vor Einwilligung blockiert' !== ( $details['vimeo']['consent'] ?? '' ) ) {
+			$warnings[] = __( 'Vimeo ist ausgewählt, aber die Blockierung vor Einwilligung wurde noch nicht bestätigt.', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( ! empty( $data['services']['smtp_service'] ) && empty( $details['smtp_service']['provider'] ) ) {
+			$warnings[] = __( 'Für den E-Mail-Versand fehlt der tatsächlich eingesetzte SMTP- oder Mail-Anbieter.', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( ! empty( $data['features']['social_media_profiles'] ) && 'embeds' === ( $data['social_media_integration'] ?? 'links' ) ) {
+			$warnings[] = __( 'Eingebettete Social-Media-Inhalte müssen technisch geprüft und gegebenenfalls bis zur Einwilligung blockiert werden.', 'frontend-rechtstexte-generator' );
 		}
 
 		return $warnings;

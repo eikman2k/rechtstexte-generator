@@ -20,6 +20,7 @@ Die erzeugten Texte ersetzen keine anwaltliche Prüfung. Das Plugin arbeitet mit
 - Suche sowie Bereichs- und Statusfilter für Textbausteine
 - getrennte Status für redaktionelle Freigabe und dokumentierte juristische Prüfung
 - strukturierte Detailangaben zu eingebundenen externen Diensten
+- konkrete Angaben zu Backup-Speicherort und zuständiger Datenschutzaufsichtsbehörde
 - Export und Import von Profilen und Block-Registry
 - Schulungsportal-/Lernplattform-Erweiterungen inklusive SCORM-, Zertifikats- und Rollenlogik
 - optionale Multisite-Zentralausgabe für Impressum und Datenschutzerklärung
@@ -137,9 +138,18 @@ Das Plugin enthält einen eigenen Datenschutzbereich für Schulungsportale mit O
 
 ## Version
 
-Aktueller Release: `1.4.0`
+Aktueller Release: `1.5.0`
 
 ## Changelog
+
+### 1.5.0
+
+- Datenschutzerklärung konsequenter aus tatsächlich aktivierten Funktionen und Diensten zusammengesetzt
+- eindeutigen Schalter für den allgemeinen Drittlandtransfer ergänzt
+- Hosting-, Vimeo-, SMTP-, Backup- und Google-Fonts-Texte präzisiert
+- Social-Media-Verlinkungen von technisch eingebetteten Inhalten getrennt
+- konkrete Aufsichtsbehörde, Backup-Ziel und Formularsysteme ergänzt
+- interne Generator- und Prüfanweisungen aus veröffentlichten Texten entfernt
 
 ### 1.4.0
 

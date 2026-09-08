@@ -18,7 +18,7 @@ $privacy_defaults        = array(
 	'privacy_legal_basis'          => 'Art. 6 Abs. 1 lit. a DSGVO bei Einwilligungen, Art. 6 Abs. 1 lit. b DSGVO zur Durchführung vorvertraglicher Maßnahmen und zur Vertragserfüllung, Art. 6 Abs. 1 lit. c DSGVO zur Erfüllung rechtlicher Verpflichtungen sowie Art. 6 Abs. 1 lit. f DSGVO auf Grundlage berechtigter Interessen an einem sicheren, stabilen und wirtschaftlichen Online-Angebot.',
 	'privacy_recipient_categories' => 'Hosting-Anbieter, technische Dienstleister, IT- und Support-Dienstleister, Kommunikationsdienstleister sowie gegebenenfalls weitere Auftragsverarbeiter oder eingesetzte Fachanbieter, soweit dies für den jeweiligen Zweck erforderlich ist.',
 	'privacy_storage_general'      => 'Personenbezogene Daten werden nur so lange gespeichert, wie dies für die jeweiligen Verarbeitungszwecke erforderlich ist oder gesetzliche Aufbewahrungspflichten bestehen. Anschließend werden die Daten gelöscht oder ihre Verarbeitung eingeschränkt, soweit keine gesetzlichen oder vertraglichen Gründe entgegenstehen.',
-	'privacy_third_country_transfer' => 'Eine Übermittlung personenbezogener Daten in Staaten außerhalb der EU bzw. des EWR erfolgt nur, wenn dies für einzelne Dienste erforderlich ist, eine entsprechende Rechtsgrundlage vorliegt und die gesetzlichen Voraussetzungen der Art. 44 ff. DSGVO eingehalten werden.',
+	'privacy_third_country_transfer' => '',
 );
 ?>
 <div class="frg-wizard" data-frg-wizard>
@@ -154,7 +154,7 @@ $privacy_defaults        = array(
 					<label class="frg-grid__full"><span><?php esc_html_e( 'Anschrift Hosting-Anbieter', 'frontend-rechtstexte-generator' ); ?></span><textarea name="hosting_provider_address" rows="5"><?php echo esc_textarea( $data['hosting_provider_address'] ?? $privacy_defaults['hosting_provider_address'] ); ?></textarea></label>
 					<label><span><?php esc_html_e( 'Server-Infrastruktur-Anbieter', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="server_infrastructure_provider" value="<?php echo esc_attr( $data['server_infrastructure_provider'] ?? '' ); ?>" placeholder="<?php echo esc_attr__( 'z. B. netcup GmbH', 'frontend-rechtstexte-generator' ); ?>"></label>
 					<label><span><?php esc_html_e( 'Art der Server-Infrastruktur', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="server_infrastructure_type" value="<?php echo esc_attr( $data['server_infrastructure_type'] ?? '' ); ?>" placeholder="<?php echo esc_attr__( 'z. B. virtueller Server (vServer)', 'frontend-rechtstexte-generator' ); ?>"></label>
-					<label class="frg-grid__full"><span><?php esc_html_e( 'Anschrift Server-Infrastruktur-Anbieter', 'frontend-rechtstexte-generator' ); ?></span><textarea name="server_infrastructure_address" rows="4" placeholder="<?php echo esc_attr__( "netcup GmbH\nDaimlerstraße 25\n76185 Karlsruhe\nDeutschland", 'frontend-rechtstexte-generator' ); ?>"><?php echo esc_textarea( $data['server_infrastructure_address'] ?? '' ); ?></textarea></label>
+					<label class="frg-grid__full"><span><?php esc_html_e( 'Anschrift Server-Infrastruktur-Anbieter', 'frontend-rechtstexte-generator' ); ?></span><textarea name="server_infrastructure_address" rows="4" placeholder="<?php echo esc_attr__( "Firmenname\nStraße und Hausnummer\nPLZ Ort\nLand", 'frontend-rechtstexte-generator' ); ?>"><?php echo esc_textarea( $data['server_infrastructure_address'] ?? '' ); ?></textarea></label>
 				</div>
 			</div>
 			<div class="frg-feature-group frg-feature-group--section">
@@ -167,7 +167,21 @@ $privacy_defaults        = array(
 					<label class="frg-grid__full"><span><?php esc_html_e( 'Allgemeine Rechtsgrundlagen der Verarbeitung', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_legal_basis" rows="3"><?php echo esc_textarea( $data['privacy_legal_basis'] ?? $privacy_defaults['privacy_legal_basis'] ); ?></textarea></label>
 					<label class="frg-grid__full"><span><?php esc_html_e( 'Kategorien von Empfängern', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_recipient_categories" rows="3"><?php echo esc_textarea( $data['privacy_recipient_categories'] ?? $privacy_defaults['privacy_recipient_categories'] ); ?></textarea></label>
 					<label class="frg-grid__full"><span><?php esc_html_e( 'Allgemeine Angaben zur Speicherdauer', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_storage_general" rows="3"><?php echo esc_textarea( $data['privacy_storage_general'] ?? $privacy_defaults['privacy_storage_general'] ); ?></textarea></label>
-					<label class="frg-grid__full"><span><?php esc_html_e( 'Hinweise zu Drittlandtransfer', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_third_country_transfer" rows="3"><?php echo esc_textarea( $data['privacy_third_country_transfer'] ?? $privacy_defaults['privacy_third_country_transfer'] ); ?></textarea></label>
+					<label class="frg-toggle frg-grid__full"><input type="checkbox" name="has_third_country_transfer" value="1" <?php checked( ! empty( $data['has_third_country_transfer'] ) ); ?>><span><?php esc_html_e( 'Drittlandtransfer vorhanden', 'frontend-rechtstexte-generator' ); ?></span></label>
+					<div class="frg-conditional-fields frg-grid__full" data-frg-conditional="has_third_country_transfer">
+						<label><span><?php esc_html_e( 'Konkreter Drittlandtransfer', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_third_country_transfer" rows="3" data-frg-conditional-required><?php echo esc_textarea( $data['privacy_third_country_transfer'] ?? $privacy_defaults['privacy_third_country_transfer'] ); ?></textarea><small><?php esc_html_e( 'Beschreiben Sie nur tatsächlich stattfindende Übermittlungen, Empfängerländer und die verwendete Garantie nach Art. 44 ff. DSGVO.', 'frontend-rechtstexte-generator' ); ?></small></label>
+					</div>
+				</div>
+			</div>
+			<div class="frg-feature-group frg-feature-group--section">
+				<div class="frg-feature-group__header">
+					<h4><?php esc_html_e( 'Zuständige Datenschutzaufsichtsbehörde', 'frontend-rechtstexte-generator' ); ?></h4>
+					<p><?php esc_html_e( 'Tragen Sie die für den Verantwortlichen zuständige Behörde ein. Die Angabe erscheint beim Beschwerderecht.', 'frontend-rechtstexte-generator' ); ?></p>
+				</div>
+				<div class="frg-grid frg-grid--2">
+					<label><span><?php esc_html_e( 'Name der Aufsichtsbehörde', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="privacy_supervisory_authority_name" value="<?php echo esc_attr( $data['privacy_supervisory_authority_name'] ?? '' ); ?>" placeholder="<?php echo esc_attr__( 'z. B. Der Landesbeauftragte für den Datenschutz Niedersachsen', 'frontend-rechtstexte-generator' ); ?>"></label>
+					<label><span><?php esc_html_e( 'Website der Aufsichtsbehörde', 'frontend-rechtstexte-generator' ); ?></span><input type="url" name="privacy_supervisory_authority_url" value="<?php echo esc_attr( $data['privacy_supervisory_authority_url'] ?? '' ); ?>" placeholder="https://www.lfd.niedersachsen.de/"></label>
+					<label class="frg-grid__full"><span><?php esc_html_e( 'Anschrift der Aufsichtsbehörde', 'frontend-rechtstexte-generator' ); ?></span><textarea name="privacy_supervisory_authority_address" rows="4" placeholder="<?php echo esc_attr__( "Prinzenstraße 5\n30159 Hannover", 'frontend-rechtstexte-generator' ); ?>"><?php echo esc_textarea( $data['privacy_supervisory_authority_address'] ?? '' ); ?></textarea></label>
 				</div>
 			</div>
 		</section>
@@ -224,8 +238,20 @@ $privacy_defaults        = array(
 						<?php endforeach; ?>
 					</div>
 				</div>
-			<?php endforeach; ?>
-			<div class="frg-feature-group frg-feature-group--training">
+				<?php endforeach; ?>
+				<div class="frg-conditional-fields" data-frg-conditional="features[social_media_profiles]">
+					<div class="frg-feature-group frg-feature-group--section">
+						<div class="frg-feature-group__header">
+							<h4><?php esc_html_e( 'Art der Social-Media-Einbindung', 'frontend-rechtstexte-generator' ); ?></h4>
+							<p><?php esc_html_e( 'Unterscheiden Sie zwischen einfachen Links und technisch eingebetteten Feeds, Beiträgen oder Widgets.', 'frontend-rechtstexte-generator' ); ?></p>
+						</div>
+						<label><span><?php esc_html_e( 'Einbindungsart', 'frontend-rechtstexte-generator' ); ?></span><select name="social_media_integration">
+							<option value="links" <?php selected( $data['social_media_integration'] ?? 'links', 'links' ); ?>><?php esc_html_e( 'Nur Links zu Social-Media-Profilen', 'frontend-rechtstexte-generator' ); ?></option>
+							<option value="embeds" <?php selected( $data['social_media_integration'] ?? 'links', 'embeds' ); ?>><?php esc_html_e( 'Feeds, Beiträge oder Widgets eingebettet', 'frontend-rechtstexte-generator' ); ?></option>
+						</select></label>
+					</div>
+				</div>
+				<div class="frg-feature-group frg-feature-group--training">
 				<div class="frg-feature-group__header">
 					<h4><?php esc_html_e( 'Bereich Schulungsportal / Lernplattform', 'frontend-rechtstexte-generator' ); ?></h4>
 					<p><?php esc_html_e( 'Nutzen Sie diese Auswahl, wenn Ihre Website Kurse, Lernstände, Prüfungen, Zertifikate oder rollenbasierte Portalzugriffe verarbeitet.', 'frontend-rechtstexte-generator' ); ?></p>
@@ -383,6 +409,16 @@ $privacy_defaults        = array(
 							<label class="frg-check"><input type="checkbox" name="services[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( ! empty( $services[ $key ] ) ); ?>><span><?php echo esc_html( $label ); ?></span></label>
 						<?php endforeach; ?>
 					</div>
+					<?php if ( 'backup_marketing' === $service_group['key'] ) : ?>
+						<div class="frg-conditional-fields" data-frg-conditional-any="services[updraftplus],services[wpvivid]">
+							<div class="frg-grid frg-grid--2">
+								<label><span><?php esc_html_e( 'Tatsächlicher Speicherort der Backups', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="backup_destination" value="<?php echo esc_attr( $data['backup_destination'] ?? '' ); ?>" placeholder="<?php echo esc_attr__( 'z. B. eigener Server in Deutschland oder Google Drive', 'frontend-rechtstexte-generator' ); ?>"></label>
+								<label><span><?php esc_html_e( 'Aufbewahrungsdauer / Löschkriterium', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="backup_retention" value="<?php echo esc_attr( $data['backup_retention'] ?? '' ); ?>" placeholder="<?php echo esc_attr__( 'z. B. 30 Tage oder die letzten 10 Sicherungen', 'frontend-rechtstexte-generator' ); ?>"></label>
+								<label><span><?php esc_html_e( 'Externer Speicheranbieter', 'frontend-rechtstexte-generator' ); ?></span><input type="text" name="backup_storage_provider" value="<?php echo esc_attr( $data['backup_storage_provider'] ?? '' ); ?>" placeholder="<?php echo esc_attr__( 'Nur ausfüllen, wenn ein externer Speicher genutzt wird', 'frontend-rechtstexte-generator' ); ?>"></label>
+								<label class="frg-grid__full"><span><?php esc_html_e( 'Anschrift des externen Speicheranbieters', 'frontend-rechtstexte-generator' ); ?></span><textarea name="backup_storage_address" rows="3"><?php echo esc_textarea( $data['backup_storage_address'] ?? '' ); ?></textarea></label>
+							</div>
+						</div>
+					<?php endif; ?>
 					<?php if ( 'ai_chatbot' === $service_group['key'] ) : ?>
 						<div class="frg-conditional-fields" data-frg-conditional="services[ai_chatbot]">
 							<div class="frg-grid frg-grid--2">
@@ -397,6 +433,7 @@ $privacy_defaults        = array(
 			<?php endforeach; ?>
 			<?php
 			$service_detail_labels = array(
+				'google_fonts_external'         => 'Google Fonts extern',
 				'google_maps'                    => 'Google Maps',
 				'youtube'                        => 'YouTube',
 				'vimeo'                          => 'Vimeo',

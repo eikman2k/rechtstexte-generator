@@ -9,8 +9,8 @@ class FRG_Text_Modules {
 
 	public function get_module_meta(): array {
 		return array(
-			'module_version' => '2026.09.07.1',
-			'content_updated_at' => '2026-09-07',
+			'module_version' => '2026.09.08.3',
+			'content_updated_at' => '2026-09-08',
 			'last_reviewed_at' => '',
 			'legal_basis' => array(
 				'DDG § 5',
@@ -239,6 +239,7 @@ class FRG_Text_Modules {
 			'contact_form' => array(
 				'{{company}}' => __( 'Unternehmensname', 'frontend-rechtstexte-generator' ),
 				'{{email}}' => __( 'Kontakt-E-Mail', 'frontend-rechtstexte-generator' ),
+				'{{form_tools}}' => __( 'eingesetztes Formularsystem', 'frontend-rechtstexte-generator' ),
 			),
 			'email_contact' => array(
 				'{{company}}' => __( 'Unternehmensname', 'frontend-rechtstexte-generator' ),
@@ -354,6 +355,10 @@ class FRG_Text_Modules {
 			),
 			'backup_plugins' => array(
 				'{{backup_tools}}' => __( 'aktive Backup-Tools', 'frontend-rechtstexte-generator' ),
+				'{{backup_destination}}' => __( 'Speicherort der Sicherungen', 'frontend-rechtstexte-generator' ),
+				'{{backup_storage_provider}}' => __( 'Anbieter des Backup-Speichers', 'frontend-rechtstexte-generator' ),
+				'{{backup_storage_address}}' => __( 'Anschrift des Backup-Anbieters', 'frontend-rechtstexte-generator' ),
+				'{{backup_retention}}' => __( 'Aufbewahrungsdauer der Sicherungen', 'frontend-rechtstexte-generator' ),
 			),
 			'storage_duration' => array(
 				'{{storage}}' => __( 'allgemeine Speicherdauer', 'frontend-rechtstexte-generator' ),
@@ -362,6 +367,11 @@ class FRG_Text_Modules {
 			'third_country_transfer' => array(
 				'{{third_country}}' => __( 'Hinweise zu Drittlandtransfers', 'frontend-rechtstexte-generator' ),
 				'{{privacy_third_country_transfer}}' => __( 'Hinweise zu Drittlandtransfers', 'frontend-rechtstexte-generator' ),
+			),
+			'complaint_authority' => array(
+				'{{privacy_supervisory_authority_name}}' => __( 'zuständige Datenschutzaufsichtsbehörde', 'frontend-rechtstexte-generator' ),
+				'{{privacy_supervisory_authority_address}}' => __( 'Anschrift der Datenschutzaufsichtsbehörde', 'frontend-rechtstexte-generator' ),
+				'{{privacy_supervisory_authority_url}}' => __( 'Website der Datenschutzaufsichtsbehörde', 'frontend-rechtstexte-generator' ),
 			),
 			'calendly' => array(
 				'{{company}}' => __( 'Unternehmensname', 'frontend-rechtstexte-generator' ),
@@ -383,7 +393,7 @@ class FRG_Text_Modules {
 
 		$placeholders = $map[ $key ] ?? array();
 		$service_detail_keys = array(
-			'google_maps', 'youtube', 'vimeo', 'google_analytics', 'google_tag_manager',
+			'google_fonts_external', 'google_maps', 'youtube', 'vimeo', 'google_analytics', 'google_tag_manager',
 			'google_ads_conversion_tracking', 'meta_pixel', 'matomo', 'microsoft_clarity',
 			'cloudflare', 'recaptcha', 'hcaptcha', 'calendly', 'jotform', 'trustpilot',
 			'smtp_service', 'ai_chatbot', 'newsletter_provider',
@@ -766,6 +776,9 @@ class FRG_Text_Modules {
 	private function ensure_hosting_required_details( string $content, array $data ): string {
 		$content = $this->ensure_hosting_av_notice( $content, $data );
 		$facts   = array();
+		if ( false === stripos( wp_strip_all_tags( $content ), 'Art. 6 Abs. 1 lit. f DSGVO' ) ) {
+			$facts[] = '<p><strong>' . esc_html__( 'Rechtsgrundlage', 'frontend-rechtstexte-generator' ) . ':</strong> Art. 6 Abs. 1 lit. f DSGVO (' . esc_html__( 'berechtigtes Interesse an einer sicheren, zuverlässigen und effizienten Bereitstellung der Website', 'frontend-rechtstexte-generator' ) . ').</p>';
+		}
 
 		if ( ! $this->contains_required_value( $content, (string) ( $data['host'] ?? $data['hosting_provider'] ?? '' ) ) && ! empty( $data['host'] ) ) {
 			$facts[] = '<p><strong>' . esc_html__( 'Hosting-Anbieter', 'frontend-rechtstexte-generator' ) . ':</strong> ' . esc_html( (string) $data['host'] ) . '</p>';
@@ -964,7 +977,7 @@ class FRG_Text_Modules {
 
 	public function get_general_processing_module( array $data ): string {
 		// Juristische Pruefung empfohlen.
-		return $this->replace( '<h3>' . esc_html__( 'Allgemeine Hinweise zur Datenverarbeitung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wir verarbeiten personenbezogene Daten nur, soweit dies zur Bereitstellung einer funktionsfähigen Website, zur Bearbeitung von Anfragen, zur Erfüllung vertraglicher oder vorvertraglicher Pflichten, zur Wahrung berechtigter Interessen oder auf Grundlage einer von Ihnen erteilten Einwilligung erforderlich ist.', 'frontend-rechtstexte-generator' ) . '</p><p><strong>' . esc_html__( 'Verarbeitungszwecke', 'frontend-rechtstexte-generator' ) . ':</strong> {{purposes}}</p><p><strong>' . esc_html__( 'Rechtsgrundlagen', 'frontend-rechtstexte-generator' ) . ':</strong> {{legal_basis}}</p><p><strong>' . esc_html__( 'Empfänger bzw. Kategorien von Empfängern', 'frontend-rechtstexte-generator' ) . ':</strong> {{recipients}}</p><p><strong>' . esc_html__( 'Allgemeine Speicherdauer', 'frontend-rechtstexte-generator' ) . ':</strong> {{storage}}</p><p><strong>' . esc_html__( 'Hinweise zu Drittlandtransfers', 'frontend-rechtstexte-generator' ) . ':</strong> {{third_country}}</p>', $data );
+		return $this->replace( '<h3>' . esc_html__( 'Allgemeine Hinweise zur Datenverarbeitung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wir verarbeiten personenbezogene Daten nur, soweit dies zur Bereitstellung einer funktionsfähigen Website, zur Bearbeitung von Anfragen, zur Erfüllung vertraglicher oder vorvertraglicher Pflichten, zur Wahrung berechtigter Interessen oder auf Grundlage einer von Ihnen erteilten Einwilligung erforderlich ist.', 'frontend-rechtstexte-generator' ) . '</p><p><strong>' . esc_html__( 'Verarbeitungszwecke', 'frontend-rechtstexte-generator' ) . ':</strong> {{purposes}}</p><p><strong>' . esc_html__( 'Rechtsgrundlagen', 'frontend-rechtstexte-generator' ) . ':</strong> {{legal_basis}}</p><p><strong>' . esc_html__( 'Empfänger bzw. Kategorien von Empfängern', 'frontend-rechtstexte-generator' ) . ':</strong> {{recipients}}</p>', $data );
 	}
 
 	public function get_hosting_module( array $data ): string {
@@ -977,7 +990,7 @@ class FRG_Text_Modules {
 					'host_address_line' => ! empty( $data['host_address'] ) ? '<div class="frg-address-block"><strong>' . esc_html__( 'Anschrift des Hosting-Anbieters', 'frontend-rechtstexte-generator' ) . ':</strong><br>' . $data['host_address'] . '</div>' : '',
 					'server_infrastructure_line' => ! empty( $data['server_infrastructure_provider'] ) ? '<p><strong>' . esc_html__( 'Server-Infrastruktur', 'frontend-rechtstexte-generator' ) . ':</strong><br>' . ( ! empty( $data['server_infrastructure_type'] ) ? sprintf(
 						/* translators: 1: infrastructure type, 2: provider */
-						esc_html__( 'Für die Bereitstellung der technischen Server-Infrastruktur wird %1$s der %2$s eingesetzt.', 'frontend-rechtstexte-generator' ),
+							esc_html__( 'Der Hosting-Dienstleister nutzt für die technische Server-Infrastruktur %1$s von %2$s. Der Infrastruktur-Anbieter wird dabei als Unterauftragnehmer eingebunden.', 'frontend-rechtstexte-generator' ),
 						esc_html( (string) $data['server_infrastructure_type'] ),
 						esc_html( (string) $data['server_infrastructure_provider'] )
 					) : sprintf(
@@ -997,8 +1010,9 @@ class FRG_Text_Modules {
 
 	public function get_contact_form_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
+		$form_tool = ! empty( $data['form_tools'] ) ? '<p><strong>' . esc_html__( 'Eingesetztes Formularsystem', 'frontend-rechtstexte-generator' ) . ':</strong> {{form_tools}}</p>' : '';
 		return $this->replace(
-			'<h3>' . esc_html__( 'Kontaktformular', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wenn Sie uns über das Kontaktformular auf {{website_url}} Anfragen zukommen lassen, werden Ihre Angaben aus dem Formular einschließlich der von Ihnen dort angegebenen Kontaktdaten zum Zweck der Bearbeitung Ihrer Anfrage und für den Fall von Anschlussfragen bei {{company}} gespeichert und verarbeitet.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung erfolgt je nach Inhalt Ihrer Anfrage zur Durchführung vorvertraglicher Maßnahmen, zur Vertragserfüllung, auf Grundlage berechtigter Interessen an einer effizienten Kommunikation oder aufgrund Ihrer Einwilligung, sofern eine solche abgefragt wurde.', 'frontend-rechtstexte-generator' ) . '</p>',
+			'<h3>' . esc_html__( 'Kontaktformular', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wenn Sie uns über das Kontaktformular auf {{website_url}} Anfragen zukommen lassen, werden Ihre Angaben aus dem Formular einschließlich der von Ihnen dort angegebenen Kontaktdaten zum Zweck der Bearbeitung Ihrer Anfrage und für den Fall von Anschlussfragen bei {{company}} gespeichert und verarbeitet.', 'frontend-rechtstexte-generator' ) . '</p>' . $form_tool . '<p>' . esc_html__( 'Die Verarbeitung erfolgt je nach Inhalt Ihrer Anfrage zur Durchführung vorvertraglicher Maßnahmen, zur Vertragserfüllung, auf Grundlage berechtigter Interessen an einer effizienten Kommunikation oder aufgrund Ihrer Einwilligung, sofern eine solche abgefragt wurde.', 'frontend-rechtstexte-generator' ) . '</p>',
 			$data
 		);
 	}
@@ -1017,26 +1031,26 @@ class FRG_Text_Modules {
 
 	public function get_registration_module(): string {
 		// Juristische Pruefung empfohlen.
-		return '<h3>' . esc_html__( 'Registrierung und Login-Bereich', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Sofern auf dieser Website die Registrierung eines Benutzerkontos, ein Login-Bereich oder sonstige geschützte Bereiche angeboten werden, verarbeiten wir die zur Einrichtung, Verwaltung und Nutzung des jeweiligen Zugangs erforderlichen Bestands-, Zugangs- und Nutzungsdaten.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung dient der Bereitstellung der jeweiligen Funktion, der Nutzerverwaltung, der IT-Sicherheit sowie gegebenenfalls der Vertragserfüllung. Ohne diese Daten kann der geschützte Bereich regelmäßig nicht oder nicht vollumfänglich bereitgestellt werden.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>' . esc_html__( 'Registrierung und Login-Bereich', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Auf dieser Website wird eine Registrierung, ein Login-Bereich oder ein sonstiger geschützter Bereich angeboten. Dabei verarbeiten wir die zur Einrichtung, Verwaltung und Nutzung des Zugangs erforderlichen Bestands-, Zugangs- und Nutzungsdaten.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung dient der Bereitstellung der jeweiligen Funktion, der Nutzerverwaltung, der IT-Sicherheit sowie gegebenenfalls der Vertragserfüllung. Ohne diese Daten kann der geschützte Bereich regelmäßig nicht oder nicht vollumfänglich bereitgestellt werden.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_newsletter_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
 		return $this->replace(
-			'<h3>' . esc_html__( 'Newsletter und E-Mail-Marketing', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wenn Sie einen Newsletter oder vergleichbare E-Mail-Informationen von {{company}} abonnieren, verarbeiten wir die für die Anmeldung und Zusendung erforderlichen Daten. Dazu gehören regelmäßig die E-Mail-Adresse sowie gegebenenfalls weitere freiwillig angegebene Daten. Soweit eine Einwilligung erforderlich ist, erfolgt die Verarbeitung auf Grundlage Ihrer Einwilligung; diese können Sie jederzeit mit Wirkung für die Zukunft widerrufen.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Zur Nachweisbarkeit von Anmeldungen und Einwilligungen können Anmeldezeitpunkte, Bestätigungen sowie technische Protokolldaten gespeichert werden. Nach den vorliegenden Angaben können dabei folgende Versand- oder Marketingdienste eingesetzt werden: {{newsletter_providers}}. Bitte prüfen Sie bei eingesetzten Versanddienstleistern auch mögliches Tracking innerhalb von Newslettern, etwa zur Messung von Öffnungen oder Klicks.', 'frontend-rechtstexte-generator' ) . '</p>',
+			'<h3>' . esc_html__( 'Newsletter und E-Mail-Marketing', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wenn Sie einen Newsletter oder vergleichbare E-Mail-Informationen von {{company}} abonnieren, verarbeiten wir die für die Anmeldung und Zusendung erforderlichen Daten. Dazu gehören regelmäßig die E-Mail-Adresse sowie gegebenenfalls weitere freiwillig angegebene Daten. Soweit eine Einwilligung erforderlich ist, erfolgt die Verarbeitung auf Grundlage Ihrer Einwilligung; diese können Sie jederzeit mit Wirkung für die Zukunft widerrufen.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Zur Nachweisbarkeit von Anmeldungen und Einwilligungen können Anmeldezeitpunkte, Bestätigungen sowie technische Protokolldaten gespeichert werden. Für den Versand werden folgende Versand- oder Marketingdienste eingesetzt: {{newsletter_providers}}. Je nach Konfiguration können dabei Öffnungen und Klicks statistisch ausgewertet werden.', 'frontend-rechtstexte-generator' ) . '</p>',
 			$data
 		);
 	}
 
 	public function get_newsletter_provider_module( array $data ): string {
 		// Juristische Pruefung empfohlen.
-		return $this->replace( '<p>' . esc_html__( 'Nach den Angaben können für den Newsletter oder E-Mail-Marketing externe Dienstleister eingesetzt werden', 'frontend-rechtstexte-generator' ) . ': {{providers}}. ' . esc_html__( 'Bitte prüfen Sie insbesondere Auftragsverarbeitung, Einwilligung, Tracking innerhalb von Newslettern und mögliche Drittlandbezüge.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		return $this->replace( '<p>' . esc_html__( 'Für den Newsletter und das E-Mail-Marketing werden folgende externe Dienstleister eingesetzt', 'frontend-rechtstexte-generator' ) . ': {{providers}}.</p>', $data );
 	}
 
 	public function get_application_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
 		return $this->replace(
-			'<h3>' . esc_html__( 'Bewerbungen', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wenn Sie {{company}} Bewerbungsunterlagen übermitteln, verarbeiten wir die darin enthaltenen personenbezogenen Daten zum Zweck der Durchführung des Bewerbungsverfahrens, zur Beurteilung Ihrer Eignung für die ausgeschriebene oder eine andere passende Position sowie zur Kommunikation mit Ihnen.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Je nach Einzelfall können dabei auch besondere Kategorien personenbezogener Daten betroffen sein, sofern diese von Ihnen mitgeteilt werden. Bitte prüfen Sie für diesen Bereich insbesondere Aufbewahrungsfristen, Löschkonzepte und gegebenenfalls Einwilligungserfordernisse bei längerer Bewerberpool-Speicherung.', 'frontend-rechtstexte-generator' ) . '</p>',
+			'<h3>' . esc_html__( 'Bewerbungen', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wenn Sie {{company}} Bewerbungsunterlagen übermitteln, verarbeiten wir die darin enthaltenen personenbezogenen Daten zum Zweck der Durchführung des Bewerbungsverfahrens, zur Beurteilung Ihrer Eignung für die ausgeschriebene oder eine andere passende Position sowie zur Kommunikation mit Ihnen.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Je nach Einzelfall können dabei auch besondere Kategorien personenbezogener Daten betroffen sein, sofern diese von Ihnen mitgeteilt werden. Die Daten werden nach Abschluss des Bewerbungsverfahrens gelöscht, sobald ihrer Löschung keine gesetzlichen Aufbewahrungspflichten oder berechtigten Interessen an einer weiteren Speicherung entgegenstehen.', 'frontend-rechtstexte-generator' ) . '</p>',
 			$data
 		);
 	}
@@ -1044,7 +1058,7 @@ class FRG_Text_Modules {
 	public function get_booking_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
 		return $this->replace(
-			'<h3>' . esc_html__( 'Terminbuchung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wenn Sie über diese Website Termine bei {{company}} anfragen oder buchen, verarbeiten wir die von Ihnen eingegebenen Kontakt-, Termin- und gegebenenfalls Leistungsdaten, um den gewünschten Termin zu planen, zu bestätigen, durchzuführen und gegebenenfalls nachzubereiten.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Sofern hierfür externe Buchungsdienste eingesetzt werden, können Daten an diese Anbieter übermittelt werden. Nach den vorliegenden Angaben sind insbesondere folgende Dienste relevant: {{active_services}}. Bitte prüfen Sie in diesem Zusammenhang insbesondere die konkreten Empfänger, den Serverstandort sowie mögliche Drittlandbezüge.', 'frontend-rechtstexte-generator' ) . '</p>',
+			'<h3>' . esc_html__( 'Terminbuchung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wenn Sie über diese Website Termine bei {{company}} anfragen oder buchen, verarbeiten wir die von Ihnen eingegebenen Kontakt-, Termin- und gegebenenfalls Leistungsdaten, um den gewünschten Termin zu planen, zu bestätigen, durchzuführen und gegebenenfalls nachzubereiten.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Für die Terminbuchung können Daten an folgende eingesetzte Dienste übermittelt werden: {{active_services}}.', 'frontend-rechtstexte-generator' ) . '</p>',
 			$data
 		);
 	}
@@ -1052,7 +1066,7 @@ class FRG_Text_Modules {
 	public function get_shop_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
 		return $this->replace(
-			'<h3>' . esc_html__( 'Bestellungen, Kundenkonto und Vertragsabwicklung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wenn Sie über diese Website Bestellungen bei {{company}} tätigen, ein Kundenkonto anlegen oder vertragliche Leistungen in Anspruch nehmen, verarbeiten wir die für die Begründung, Durchführung und Abwicklung des Vertragsverhältnisses erforderlichen Daten. Hierzu können insbesondere Bestandsdaten, Rechnungs- und Lieferdaten, Kommunikationsdaten, Bestellinformationen sowie zahlungsbezogene Daten gehören.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Nach den vorliegenden Angaben sind in diesem Zusammenhang insbesondere folgende Funktionen relevant: {{active_features}}. Die Verarbeitung erfolgt zur Vertragserfüllung, zur Erfüllung gesetzlicher Pflichten wie handels- und steuerrechtlicher Aufbewahrungspflichten sowie gegebenenfalls zur Durchsetzung oder Abwehr von Ansprüchen.', 'frontend-rechtstexte-generator' ) . '</p>',
+			'<h3>' . esc_html__( 'Bestellungen, Kundenkonto und Vertragsabwicklung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wenn Sie über diese Website Bestellungen bei {{company}} tätigen, ein Kundenkonto anlegen oder vertragliche Leistungen in Anspruch nehmen, verarbeiten wir die für die Begründung, Durchführung und Abwicklung des Vertragsverhältnisses erforderlichen Daten. Hierzu können insbesondere Bestandsdaten, Rechnungs- und Lieferdaten, Kommunikationsdaten, Bestellinformationen sowie zahlungsbezogene Daten gehören.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Dabei werden insbesondere folgende Funktionen eingesetzt: {{active_features}}. Die Verarbeitung erfolgt zur Vertragserfüllung, zur Erfüllung gesetzlicher Pflichten wie handels- und steuerrechtlicher Aufbewahrungspflichten sowie gegebenenfalls zur Durchsetzung oder Abwehr von Ansprüchen.', 'frontend-rechtstexte-generator' ) . '</p>',
 			$data
 		);
 	}
@@ -1060,7 +1074,7 @@ class FRG_Text_Modules {
 	public function get_payment_provider_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
 		return $this->replace(
-			'<h3>' . esc_html__( 'Zahlungsdienstleister', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Zur Abwicklung von Zahlungen können wir personenbezogene Daten an eingesetzte Zahlungsdienstleister übermitteln, soweit dies für die Zahlungsabwicklung und Vertragserfüllung erforderlich ist. Welche Daten im Einzelfall übermittelt werden, richtet sich nach dem gewählten Zahlungsmittel und dem eingesetzten Anbieter.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Nach den vorliegenden Angaben können insbesondere folgende Funktionen oder Dienste beteiligt sein: {{active_features}}; {{active_services}}. Zahlungsdienstleister können Daten unter Umständen auch zur Identitäts- oder Plausibilitätsprüfung, Betrugsprävention und Erfüllung regulatorischer Pflichten verarbeiten. Bitte prüfen Sie diesen Abschnitt anhand der konkret eingesetzten Zahlungsarten.', 'frontend-rechtstexte-generator' ) . '</p>',
+			'<h3>' . esc_html__( 'Zahlungsdienstleister', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Zur Abwicklung von Zahlungen können wir personenbezogene Daten an eingesetzte Zahlungsdienstleister übermitteln, soweit dies für die Zahlungsabwicklung und Vertragserfüllung erforderlich ist. Welche Daten im Einzelfall übermittelt werden, richtet sich nach dem gewählten Zahlungsmittel und dem eingesetzten Anbieter.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'An der Zahlungsabwicklung können folgende Funktionen oder Dienste beteiligt sein: {{active_features}}; {{active_services}}. Zahlungsdienstleister können Daten außerdem zur Identitäts- oder Plausibilitätsprüfung, Betrugsprävention und Erfüllung regulatorischer Pflichten verarbeiten.', 'frontend-rechtstexte-generator' ) . '</p>',
 			$data
 		);
 	}
@@ -1068,7 +1082,7 @@ class FRG_Text_Modules {
 	public function get_shipping_provider_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
 		return $this->replace(
-			'<h3>' . esc_html__( 'Versanddienstleister', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Zur Zustellung bestellter Waren oder zur Organisation logistischer Prozesse können wir die hierfür erforderlichen Daten an beauftragte Versand- und Logistikdienstleister übermitteln. Dazu gehören insbesondere Name, Lieferadresse sowie - soweit erforderlich - weitere Angaben zur Kontaktaufnahme oder Zustellung. Nach den vorliegenden Angaben ist diese Funktion Bestandteil folgender Website-Funktionen: {{active_features}}.', 'frontend-rechtstexte-generator' ) . '</p>',
+			'<h3>' . esc_html__( 'Versanddienstleister', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Zur Zustellung bestellter Waren oder zur Organisation logistischer Prozesse können wir die hierfür erforderlichen Daten an beauftragte Versand- und Logistikdienstleister übermitteln. Dazu gehören insbesondere Name, Lieferadresse sowie - soweit erforderlich - weitere Angaben zur Kontaktaufnahme oder Zustellung. Die Versandverarbeitung ist Bestandteil folgender Website-Funktionen: {{active_features}}.', 'frontend-rechtstexte-generator' ) . '</p>',
 			$data
 		);
 	}
@@ -1123,7 +1137,7 @@ class FRG_Text_Modules {
 		if ( '' !== $training_modules ) {
 			$module_sentence = ' ' . sprintf(
 				/* translators: %s: list of training portal functions */
-				esc_html__( 'Nach den vorliegenden Angaben betrifft dies insbesondere folgende Portal-Funktionen: %s.', 'frontend-rechtstexte-generator' ),
+				esc_html__( 'Dabei werden insbesondere folgende Portal-Funktionen eingesetzt: %s.', 'frontend-rechtstexte-generator' ),
 				esc_html( $training_modules )
 			);
 		}
@@ -1167,63 +1181,69 @@ class FRG_Text_Modules {
 			: '';
 
 		return $this->replace(
-			'<h3>' . esc_html__( 'Website-KI-Bot / KI-Assistent', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Auf dieser Website kann ein KI-gestützter Chatbot oder Assistent eingesetzt werden, um Nutzeranfragen automatisiert zu beantworten, Informationen bereitzustellen oder bei der Navigation und Nutzung der Website zu unterstützen. Wenn Sie den KI-Bot verwenden, können insbesondere die von Ihnen eingegebenen Nachrichten, technische Nutzungsdaten, Zeitpunkte der Interaktion, Browser- und Geräteinformationen sowie gegebenenfalls weitere freiwillig übermittelte Angaben verarbeitet werden.', 'frontend-rechtstexte-generator' ) . ' {{ai_transparency_sentence}}</p><p>' . esc_html__( 'Nach den vorliegenden Angaben können für die Verarbeitung und Beantwortung von Eingaben insbesondere folgende KI-Anbieter eingesetzt werden: {{ai_providers}}. Je nach konkreter Konfiguration können Eingaben an diese Anbieter übermittelt und dort verarbeitet werden. Bitte geben Sie in den Chat keine sensiblen personenbezogenen Daten, Gesundheitsdaten, Zugangsdaten oder sonstige vertrauliche Informationen ein, sofern dies nicht ausdrücklich erforderlich und hierfür eine geeignete Rechtsgrundlage vorhanden ist.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung erfolgt je nach Einsatzzweck zur Bearbeitung Ihrer Anfrage, zur Bereitstellung der gewünschten Bot-Funktion, zur Verbesserung der Nutzerführung, zur technischen Sicherheit oder auf Grundlage einer Einwilligung, sofern eine solche vor der Nutzung abgefragt wird. Soweit externe KI-Anbieter eingebunden werden, sind insbesondere Auftragsverarbeitung, mögliche gemeinsame Verantwortlichkeit, Protokollierung, Speicherfristen, Trainingsnutzung der Eingaben sowie mögliche Datenübermittlungen in Drittländer zu prüfen.', 'frontend-rechtstexte-generator' ) . '</p>' . $privacy_link,
+			'<h3>' . esc_html__( 'Website-KI-Bot / KI-Assistent', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Auf dieser Website kann ein KI-gestützter Chatbot oder Assistent eingesetzt werden, um Nutzeranfragen automatisiert zu beantworten, Informationen bereitzustellen oder bei der Navigation und Nutzung der Website zu unterstützen. Wenn Sie den KI-Bot verwenden, können insbesondere die von Ihnen eingegebenen Nachrichten, technische Nutzungsdaten, Zeitpunkte der Interaktion, Browser- und Geräteinformationen sowie gegebenenfalls weitere freiwillig übermittelte Angaben verarbeitet werden.', 'frontend-rechtstexte-generator' ) . ' {{ai_transparency_sentence}}</p><p>' . esc_html__( 'Für die Verarbeitung und Beantwortung von Eingaben werden folgende KI-Anbieter eingesetzt: {{ai_providers}}. Je nach konkreter Konfiguration können Eingaben an diese Anbieter übermittelt und dort verarbeitet werden. Bitte geben Sie in den Chat keine sensiblen personenbezogenen Daten, Gesundheitsdaten, Zugangsdaten oder sonstige vertrauliche Informationen ein, sofern dies nicht ausdrücklich erforderlich und hierfür eine geeignete Rechtsgrundlage vorhanden ist.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung erfolgt je nach Einsatzzweck zur Bearbeitung Ihrer Anfrage, zur Bereitstellung der gewünschten Bot-Funktion, zur Verbesserung der Nutzerführung, zur technischen Sicherheit oder auf Grundlage einer Einwilligung, sofern eine solche vor der Nutzung abgefragt wird.', 'frontend-rechtstexte-generator' ) . '</p>' . $privacy_link,
 			$data
 		);
 	}
 
 	public function get_google_fonts_external_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		return $this->replace( '<h3>Google Fonts</h3><p>' . esc_html__( 'Sofern auf dieser Website Schriftarten nicht lokal, sondern über Server von Google geladen werden, wird beim Aufruf der Website regelmäßig eine Verbindung zu Servern von Google hergestellt. Dabei kann insbesondere Ihre IP-Adresse sowie weitere technische Verbindungsdaten an Google übermittelt werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Bitte prüfen Sie für diesen Abschnitt insbesondere die konkrete Einbindungsart, mögliche Einwilligungserfordernisse und internationale Datentransfers. Sofern ein Consent-Tool eingesetzt wird, sollte die Einbindung entsprechend über {{consent_tools}} gesteuert werden.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		return $this->replace( '<h3>Google Fonts</h3><p>' . esc_html__( 'Auf dieser Website werden Schriftarten über Server von Google geladen. Beim Aufruf der Website wird dadurch eine Verbindung zu Google hergestellt, bei der insbesondere Ihre IP-Adresse und weitere technische Verbindungsdaten übermittelt werden können.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 
 	public function get_google_fonts_local_module(): string {
-		return '<h3>Google Fonts</h3><p>' . esc_html__( 'Verwendete Schriftarten werden nach Ihren Angaben lokal auf dem eigenen Webspace eingebunden. Dadurch erfolgt beim Aufruf der Website kein externer Abruf der Schriftdateien von Servern von Google ausschließlich zum Zweck der Schriftdarstellung.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>Google Fonts</h3><p>' . esc_html__( 'Auf dieser Website werden Google Fonts zur einheitlichen Darstellung von Schriftarten verwendet. Die Schriftarten sind lokal auf unserem Server gespeichert und werden von dort ausgeliefert. Beim Aufruf der Website wird daher keine Verbindung zu Servern von Google hergestellt und es werden im Zusammenhang mit der Bereitstellung der Schriftarten keine personenbezogenen Daten an Google übermittelt.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_google_maps_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		return $this->replace( '<h3>Google Maps</h3><p>' . esc_html__( 'Zur Darstellung interaktiver Karten kann Google Maps eingebunden werden. Bei Aufruf einer Seite mit eingebetteter Karte können insbesondere IP-Adresse, Standortbezüge, Nutzungsdaten und technische Verbindungsdaten an Google übermittelt werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Bitte prüfen Sie bei dieser Einbindung insbesondere, ob die Karte erst nach Einwilligung geladen wird und welche Einstellungen zum Datenschutzmodus oder zur externen Nachlade-Logik verwendet werden. Sofern vorhanden, sollte die Einbindung über {{consent_tools}} gesteuert werden.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		return $this->replace( '<h3>Google Maps</h3><p>' . esc_html__( 'Auf dieser Website wird Google Maps zur Darstellung interaktiver Karten eingesetzt. Beim Laden einer eingebetteten Karte können insbesondere IP-Adresse, Standortbezüge, Nutzungsdaten und technische Verbindungsdaten an Google übermittelt werden.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 
 	public function get_youtube_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		return $this->replace( '<h3>YouTube</h3><p>' . esc_html__( 'Auf dieser Website können Videos der Plattform YouTube eingebunden sein. Beim Aufruf einer Seite mit eingebettetem Video kann eine Verbindung zu Servern von YouTube bzw. Google hergestellt werden. Dabei können insbesondere IP-Adresse, Nutzungsdaten, technische Informationen zum Endgerät und Interaktionsdaten verarbeitet werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Bitte prüfen Sie für diesen Abschnitt insbesondere die Verwendung des erweiterten Datenschutzmodus, Einwilligungsanforderungen und mögliche Datenübermittlungen in Drittstaaten. Sofern ein Consent-Tool eingesetzt wird, sollte die Freischaltung über {{consent_tools}} erfolgen.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		return $this->replace( '<h3>YouTube</h3><p>' . esc_html__( 'Auf dieser Website sind Videos der Plattform YouTube eingebunden. Beim Laden oder Abspielen eines Videos kann eine Verbindung zu Servern von YouTube beziehungsweise Google hergestellt werden. Dabei können insbesondere IP-Adresse, Nutzungsdaten, technische Informationen zum Endgerät und Interaktionsdaten verarbeitet werden.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 
 	public function get_vimeo_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		return $this->replace( '<h3>Vimeo</h3><p>' . esc_html__( 'Auf dieser Website können Videos des Anbieters Vimeo eingebunden sein. Beim Laden oder Abspielen solcher Inhalte können Verbindungsdaten, IP-Adresse, Browserinformationen und Nutzungsdaten an Vimeo übermittelt werden. Sofern ein Consent-Tool eingesetzt wird, sollte die Freischaltung über {{consent_tools}} erfolgen.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		$consent_sentence = '';
+		if ( 'Vor Einwilligung blockiert' === ( $data['service_consent'] ?? '' ) ) {
+			$consent_sentence = ! empty( $data['consent_tools'] )
+				? ' ' . sprintf( esc_html__( 'Die Vimeo-Inhalte werden durch %s blockiert und erst nach Ihrer Einwilligung geladen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. a DSGVO.', 'frontend-rechtstexte-generator' ), esc_html( (string) $data['consent_tools'] ) )
+				: ' ' . esc_html__( 'Die Vimeo-Inhalte werden vor der Einwilligung blockiert und erst nach Ihrer Einwilligung geladen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. a DSGVO.', 'frontend-rechtstexte-generator' );
+		}
+		return $this->replace( '<h3>Vimeo</h3><p>' . esc_html__( 'Auf dieser Website sind Videos des Anbieters Vimeo eingebunden. Beim Laden oder Abspielen dieser Inhalte werden Verbindungsdaten, IP-Adresse, Browserinformationen und Nutzungsdaten an Vimeo übermittelt.', 'frontend-rechtstexte-generator' ) . $consent_sentence . '</p>', $data );
 	}
 
 	public function get_google_analytics_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		return $this->replace( '<h3>Google Analytics</h3><p>' . esc_html__( 'Sofern Google Analytics eingesetzt wird, dient der Dienst der Analyse des Nutzerverhaltens und der statistischen Auswertung der Nutzung dieser Website. Dabei können insbesondere Seitenaufrufe, Verweildauer, Interaktionen, technische Geräteinformationen, Referrer-Informationen sowie gekürzte oder anderweitig verarbeitete IP-bezogene Daten verarbeitet werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Bitte prüfen Sie für diesen Abschnitt insbesondere die konkrete Konfiguration, die Einwilligungslogik, mögliche Nutzerkennungen, Speicherfristen und internationale Datenübermittlungen. Sofern vorhanden, sollte die Einwilligungssteuerung über {{consent_tools}} erfolgen.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		return $this->replace( '<h3>Google Analytics</h3><p>' . esc_html__( 'Google Analytics wird zur Analyse des Nutzerverhaltens und zur statistischen Auswertung der Nutzung dieser Website eingesetzt. Dabei können insbesondere Seitenaufrufe, Verweildauer, Interaktionen, technische Geräteinformationen, Referrer-Informationen sowie gekürzte oder anderweitig verarbeitete IP-bezogene Daten verarbeitet werden.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 
 	public function get_google_tag_manager_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		return $this->replace( '<h3>Google Tag Manager</h3><p>' . esc_html__( 'Der Google Tag Manager dient der Verwaltung und Ausspielung von Website-Tags. Der Dienst selbst erstellt nach üblicher Konfiguration nicht zwingend eigenständige Nutzerprofile, kann aber weitere Tools und Tracking-Dienste technisch einbinden und deren Auslösung steuern.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Datenschutzrechtlich relevant ist deshalb vor allem, welche weiteren Tags oder Dienste über den Tag Manager eingebunden werden und ob diese erst nach einer wirksamen Einwilligung aktiviert werden. Nach den vorliegenden Angaben sind in diesem Zusammenhang insbesondere folgende Dienste relevant: {{active_services}}.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		return $this->replace( '<h3>Google Tag Manager</h3><p>' . esc_html__( 'Der Google Tag Manager dient der Verwaltung und Ausspielung von Website-Tags. Der Dienst selbst erstellt nach üblicher Konfiguration nicht zwingend eigenständige Nutzerprofile, kann aber weitere Tools und Tracking-Dienste technisch einbinden und deren Auslösung steuern.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Über den Tag Manager können insbesondere folgende weitere Dienste eingebunden und gesteuert werden: {{active_services}}.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 
 	public function get_google_ads_conversion_tracking_module(): string {
 		// Juristische Pruefung empfohlen.
-		return '<h3>' . esc_html__( 'Google Ads Conversion Tracking', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Sofern Google Ads Conversion Tracking eingesetzt wird, kann nachvollzogen werden, ob Nutzer nach einem Klick auf eine Anzeige bestimmte Aktionen auf dieser Website ausführen. Dabei können insbesondere Conversion-Daten, technische Kennungen und Nutzungsinformationen verarbeitet werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Bitte prüfen Sie insbesondere die Einwilligungssteuerung, Cookie-Nutzung, Speicherfristen sowie mögliche Datenübermittlungen an Google.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>' . esc_html__( 'Google Ads Conversion Tracking', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Google Ads Conversion Tracking wird eingesetzt, um nachzuvollziehen, ob Nutzer nach einem Klick auf eine Anzeige bestimmte Aktionen auf dieser Website ausführen. Dabei können insbesondere Conversion-Daten, technische Kennungen und Nutzungsinformationen verarbeitet werden.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_meta_pixel_module(): string {
 		// Juristische Pruefung empfohlen.
-		return '<h3>Meta Pixel</h3><p>' . esc_html__( 'Beim Einsatz des Meta Pixels können Interaktionen von Nutzern auf dieser Website erfasst und für Marketing-, Remarketing- und Conversion-Zwecke an Meta übermittelt werden. Dabei können insbesondere Seitenaufrufe, technische Kennungen, Browserinformationen und Nutzungsdaten verarbeitet werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Bitte prüfen Sie für diesen Abschnitt insbesondere Einwilligung, gemeinsame Verantwortlichkeiten bei bestimmten Konstellationen sowie internationale Datenübermittlungen.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>Meta Pixel</h3><p>' . esc_html__( 'Mit dem Meta Pixel werden Interaktionen von Nutzern auf dieser Website für Marketing-, Remarketing- und Conversion-Zwecke erfasst und an Meta übermittelt. Dabei können insbesondere Seitenaufrufe, technische Kennungen, Browserinformationen und Nutzungsdaten verarbeitet werden.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_matomo_module(): string {
 		// Juristische Pruefung empfohlen.
-		return '<h3>Matomo</h3><p>' . esc_html__( 'Matomo kann zur statistischen Analyse der Nutzung dieser Website eingesetzt werden. Je nach Konfiguration können dabei Nutzungsdaten, Seitenaufrufe, technische Informationen und gekürzte IP-bezogene Daten verarbeitet werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Bitte prüfen Sie insbesondere, ob Matomo cookielos oder mit Cookies eingesetzt wird, welche Speicherfristen gelten und ob eine Einwilligung erforderlich ist.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>Matomo</h3><p>' . esc_html__( 'Matomo wird zur statistischen Analyse der Nutzung dieser Website eingesetzt. Je nach Konfiguration können dabei Nutzungsdaten, Seitenaufrufe, technische Informationen und gekürzte IP-bezogene Daten verarbeitet werden.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_microsoft_clarity_module(): string {
 		// Juristische Pruefung empfohlen.
-		return '<h3>Microsoft Clarity</h3><p>' . esc_html__( 'Sofern Microsoft Clarity eingesetzt wird, können Nutzungsdaten zur Analyse des Nutzerverhaltens verarbeitet werden. Je nach Konfiguration können dabei insbesondere Mausbewegungen, Scroll-Verhalten, Klicks, aufgerufene Seiten, technische Geräteinformationen und Interaktionsdaten ausgewertet werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Bitte prüfen Sie für diesen Abschnitt insbesondere die Einwilligungssteuerung, mögliche Sitzungsaufzeichnungen, Datenmaskierung und internationale Datentransfers.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>Microsoft Clarity</h3><p>' . esc_html__( 'Microsoft Clarity wird zur Analyse des Nutzerverhaltens eingesetzt. Je nach Konfiguration können dabei insbesondere Mausbewegungen, Scroll-Verhalten, Klicks, aufgerufene Seiten, technische Geräteinformationen und Interaktionsdaten ausgewertet werden.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_cloudflare_module(): string {
@@ -1242,25 +1262,43 @@ class FRG_Text_Modules {
 	}
 
 	public function get_cookie_consent_module( array $data = array() ): string {
-		return $this->replace( '<h3>' . esc_html__( 'Cookie-Einwilligungsmanagement', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Auf dieser Website kann ein Consent-Tool eingesetzt werden, um Einwilligungen für technisch nicht erforderliche Cookies, vergleichbare Technologien und externe Dienste einzuholen, zu verwalten und zu dokumentieren. Nach den vorliegenden Angaben kommen dafür insbesondere folgende Tools in Betracht: {{consent_tools}}. Dabei können insbesondere Einwilligungsstatus, Zeitpunkte, technische Kennungen und Browserinformationen verarbeitet werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung dient dem Nachweis erteilter oder verweigerter Einwilligungen sowie der datenschutzkonformen Steuerung nachgeladener Dienste.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		return $this->replace( '<h3>' . esc_html__( 'Cookie-Einwilligungsmanagement', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Auf dieser Website wird folgendes Consent-Tool eingesetzt, um Einwilligungen für technisch nicht erforderliche Cookies, vergleichbare Technologien und externe Dienste einzuholen, zu verwalten und zu dokumentieren: {{consent_tools}}. Dabei können insbesondere Einwilligungsstatus, Zeitpunkte, technische Kennungen und Browserinformationen verarbeitet werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung dient dem Nachweis erteilter oder verweigerter Einwilligungen sowie der datenschutzkonformen Steuerung nachgeladener Dienste.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 
 	public function get_social_media_profiles_module( array $data ): string {
 		// Juristische Pruefung empfohlen.
-		return $this->replace( '<h3>' . esc_html__( 'Social-Media-Auftritte und Verlinkungen', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wir unterhalten oder verlinken nach den gemachten Angaben auf Präsenzen bei folgenden sozialen Netzwerken bzw. Plattformen', 'frontend-rechtstexte-generator' ) . ': {{profiles}}.</p><p>' . esc_html__( 'Beim Besuch unserer Social-Media-Präsenzen oder bei der Interaktion mit eingebundenen Inhalten können personenbezogene Daten durch die jeweiligen Plattformbetreiber verarbeitet werden. Dies kann insbesondere auch außerhalb der EU bzw. des EWR erfolgen. Bitte prüfen Sie für jede Plattform die konkrete Einbindung, mögliche gemeinsame Verantwortlichkeiten, Datenschutzhinweise des Plattformbetreibers und etwaige Drittlandtransfers.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		if ( 'embeds' === ( $data['social_media_integration'] ?? 'links' ) ) {
+			return $this->replace( '<h3>' . esc_html__( 'Eingebettete Social-Media-Inhalte', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Auf dieser Website sind Inhalte folgender sozialer Netzwerke beziehungsweise Plattformen eingebettet', 'frontend-rechtstexte-generator' ) . ': {{profiles}}.</p><p>' . esc_html__( 'Beim Laden oder bei der Interaktion mit diesen Inhalten wird eine Verbindung zum jeweiligen Plattformbetreiber hergestellt. Dabei werden insbesondere IP-Adresse, Browser- und Geräteinformationen sowie Interaktionsdaten verarbeitet.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		}
+
+		return $this->replace( '<h3>' . esc_html__( 'Social-Media-Verlinkungen', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Diese Website enthält Verlinkungen zu folgenden Social-Media-Profilen', 'frontend-rechtstexte-generator' ) . ': {{profiles}}.</p><p>' . esc_html__( 'Beim bloßen Aufruf dieser Website werden über diese Links keine Daten an die Plattformbetreiber übertragen. Erst wenn Sie einen Link anklicken, verlassen Sie diese Website; die weitere Datenverarbeitung erfolgt dann durch den jeweiligen Plattformbetreiber.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 
 	public function get_embeds_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		return $this->replace( '<h3>' . esc_html__( 'Eingebettete Inhalte und externe Ressourcen', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Bei der Einbindung externer Inhalte, Medien, Karten, Schriftarten oder sonstiger Ressourcen kann Ihr Browser eine direkte Verbindung zu Servern der jeweiligen Drittanbieter herstellen. Hierbei können insbesondere IP-Adresse, Browserinformationen, Nutzungsdaten und technische Verbindungsdaten übermittelt werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Nach den vorliegenden Angaben betrifft dies insbesondere folgende Dienste: {{active_services}}. Ob und in welchem Umfang dabei personenbezogene Daten verarbeitet werden, hängt von der konkreten Einbindung und den Diensten des jeweiligen Drittanbieters ab.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		return $this->replace( '<h3>' . esc_html__( 'Eingebettete Inhalte und externe Ressourcen', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Bei der Einbindung externer Inhalte, Medien, Karten, Schriftarten oder sonstiger Ressourcen kann Ihr Browser eine direkte Verbindung zu Servern der jeweiligen Drittanbieter herstellen. Hierbei können insbesondere IP-Adresse, Browserinformationen, Nutzungsdaten und technische Verbindungsdaten übermittelt werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Dies betrifft insbesondere folgende Dienste: {{active_services}}. Umfang und Art der Verarbeitung hängen von der konkreten Einbindung und dem jeweiligen Drittanbieter ab.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 
 	public function get_security_plugins_module( array $data = array() ): string {
-		return $this->replace( '<h3>' . esc_html__( 'Sicherheits-Plugins und Schutzmechanismen', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Zum Schutz dieser Website können Sicherheits-Plugins oder vergleichbare Schutzmechanismen eingesetzt werden. Nach den vorliegenden Angaben betrifft dies insbesondere folgende Tools: {{security_tools}}. Dabei können insbesondere IP-Adressen, technische Zugriffsdaten, Login-Vorgänge und auffällige Anfragemuster verarbeitet werden, um Angriffe, Missbrauch oder unberechtigte Zugriffe zu erkennen und abzuwehren.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		return $this->replace( '<h3>' . esc_html__( 'Sicherheits-Plugins und Schutzmechanismen', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Zum Schutz dieser Website werden folgende Sicherheits-Plugins oder vergleichbare Schutzmechanismen eingesetzt: {{security_tools}}. Dabei können insbesondere IP-Adressen, technische Zugriffsdaten, Login-Vorgänge und auffällige Anfragemuster verarbeitet werden, um Angriffe, Missbrauch oder unberechtigte Zugriffe zu erkennen und abzuwehren.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 
 	public function get_backup_plugins_module( array $data = array() ): string {
-		return $this->replace( '<h3>' . esc_html__( 'Backup- und Wiederherstellungssysteme', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Zur Sicherung und Wiederherstellung der Website können Inhalte, Datenbankeinträge und Systemdaten in Backup-Systemen gespeichert werden. Nach den vorliegenden Angaben können dabei insbesondere folgende Tools eingesetzt werden: {{backup_tools}}. Dies dient der Ausfallsicherheit, der Wiederherstellbarkeit und dem Schutz vor Datenverlust.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		$details = '';
+		if ( ! empty( $data['backup_destination'] ) ) {
+			$details .= '<p><strong>' . esc_html__( 'Speicherort der Sicherungen', 'frontend-rechtstexte-generator' ) . ':</strong> {{backup_destination}}</p>';
+		}
+		if ( ! empty( $data['backup_storage_provider'] ) ) {
+			$details .= '<p><strong>' . esc_html__( 'Anbieter des Backup-Speichers', 'frontend-rechtstexte-generator' ) . ':</strong> {{backup_storage_provider}}</p>';
+		}
+		if ( ! empty( $data['backup_storage_address'] ) ) {
+			$details .= '<div class="frg-address-block"><strong>' . esc_html__( 'Anschrift des Backup-Anbieters', 'frontend-rechtstexte-generator' ) . ':</strong><br>{{backup_storage_address}}</div>';
+		}
+		if ( ! empty( $data['backup_retention'] ) ) {
+			$details .= '<p><strong>' . esc_html__( 'Aufbewahrungsdauer', 'frontend-rechtstexte-generator' ) . ':</strong> {{backup_retention}}</p>';
+		}
+
+		return $this->replace( '<h3>' . esc_html__( 'Backups und Wiederherstellung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Zur Sicherung und Wiederherstellung dieser Website erstellen wir regelmäßige Backups der Website-Dateien und Datenbanken. Die Verarbeitung dient der Ausfallsicherheit, der Wiederherstellbarkeit und dem Schutz vor Datenverlust.', 'frontend-rechtstexte-generator' ) . '</p>' . $details, $data );
 	}
 
 	public function get_data_subject_rights_module(): string {
@@ -1278,9 +1316,20 @@ class FRG_Text_Modules {
 		return $this->replace( '<h3>' . esc_html__( 'Drittlandtransfer', 'frontend-rechtstexte-generator' ) . '</h3><p>{{third_country}}</p>', $data );
 	}
 
-	public function get_complaint_authority_module(): string {
+	public function get_complaint_authority_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		return '<h3>' . esc_html__( 'Beschwerderecht bei einer Aufsichtsbehörde', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Sie haben unbeschadet anderweitiger verwaltungsrechtlicher oder gerichtlicher Rechtsbehelfe das Recht, sich bei einer Datenschutzaufsichtsbehörde über die Verarbeitung Ihrer personenbezogenen Daten zu beschweren, wenn Sie der Ansicht sind, dass die Verarbeitung gegen datenschutzrechtliche Vorgaben verstößt.', 'frontend-rechtstexte-generator' ) . '</p>';
+		$authority = '';
+		if ( ! empty( $data['privacy_supervisory_authority_name'] ) ) {
+			$authority .= '<p><strong>{{privacy_supervisory_authority_name}}</strong></p>';
+		}
+		if ( ! empty( $data['privacy_supervisory_authority_address'] ) ) {
+			$authority .= '<div class="frg-address-block">{{privacy_supervisory_authority_address}}</div>';
+		}
+		if ( ! empty( $data['privacy_supervisory_authority_url'] ) ) {
+			$authority .= '<p><a href="{{privacy_supervisory_authority_url}}" rel="nofollow noopener" target="_blank">' . esc_html__( 'Website der Aufsichtsbehörde', 'frontend-rechtstexte-generator' ) . '</a></p>';
+		}
+
+		return $this->replace( '<h3>' . esc_html__( 'Beschwerderecht bei einer Aufsichtsbehörde', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Sie haben unbeschadet anderweitiger verwaltungsrechtlicher oder gerichtlicher Rechtsbehelfe das Recht, sich bei einer Datenschutzaufsichtsbehörde über die Verarbeitung Ihrer personenbezogenen Daten zu beschweren, wenn Sie der Ansicht sind, dass die Verarbeitung gegen datenschutzrechtliche Vorgaben verstößt.', 'frontend-rechtstexte-generator' ) . '</p>' . $authority, $data );
 	}
 
 	public function get_ssl_tls_module(): string {
@@ -1289,7 +1338,7 @@ class FRG_Text_Modules {
 
 	public function get_calendly_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		return $this->replace( '<h3>Calendly / externe Terminbuchungsdienste</h3><p>' . esc_html__( 'Sofern externe Terminbuchungsdienste wie Calendly eingesetzt werden, können bei Aufruf oder Nutzung der Buchungsfunktion Kontakt-, Termin-, Nutzungs- und technische Verbindungsdaten verarbeitet und an den jeweiligen Anbieter übermittelt werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Bitte prüfen Sie für diesen Bereich insbesondere Einwilligungserfordernisse, Serverstandorte, Auftragsverarbeitung und die konkrete Einbindung des Dienstes. Sofern vorhanden, sollte die Freischaltung über {{consent_tools}} gesteuert werden.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		return $this->replace( '<h3>Calendly / externe Terminbuchungsdienste</h3><p>' . esc_html__( 'Bei der Nutzung externer Terminbuchungsdienste wie Calendly werden Kontakt-, Termin-, Nutzungs- und technische Verbindungsdaten verarbeitet und an den jeweiligen Anbieter übermittelt.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 
 	public function get_jotform_module( array $data = array() ): string {
@@ -1304,6 +1353,9 @@ class FRG_Text_Modules {
 
 	public function get_smtp_service_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		return $this->replace( '<h3>' . esc_html__( 'E-Mail-Versanddienstleister / SMTP', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Zum Versand transaktionaler E-Mails, Systemnachrichten oder Kontaktantworten können externe E-Mail- oder SMTP-Dienstleister eingesetzt werden. Dabei können insbesondere E-Mail-Adresse, Nachrichteninhalte, Versandzeitpunkte und technische Metadaten verarbeitet werden, soweit dies für Zustellung, Nachweisbarkeit und Sicherheit des E-Mail-Versands erforderlich ist. Für Rückfragen zu diesem Bereich ist regelmäßig {{email}} die zentrale Kontaktadresse von {{company}}.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		$provider_sentence = ! empty( $data['service_provider'] )
+			? sprintf( esc_html__( 'Für den Versand wird %s eingesetzt.', 'frontend-rechtstexte-generator' ), esc_html( (string) $data['service_provider'] ) )
+			: esc_html__( 'Für den Versand wird ein SMTP-Dienst eingesetzt.', 'frontend-rechtstexte-generator' );
+		return $this->replace( '<h3>' . esc_html__( 'E-Mail-Versand / SMTP', 'frontend-rechtstexte-generator' ) . '</h3><p>' . $provider_sentence . ' ' . esc_html__( 'Dabei werden E-Mail-Adressen, Nachrichteninhalte, Versandzeitpunkte und technische Metadaten verarbeitet, soweit dies für Zustellung, Nachweisbarkeit und Sicherheit des E-Mail-Versands erforderlich ist.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 }

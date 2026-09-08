@@ -136,6 +136,78 @@ $privacy = $generator->generate_privacy_policy( $analytics );
 assert_contains( 'Google Ireland Limited', $privacy, 'Konkreter Dienstanbieter fehlt.' );
 assert_contains( '14 Monate', $privacy, 'Konkrete Speicherdauer fehlt.' );
 assert_not_contains( '{{', $privacy, 'Nicht ersetzter Platzhalter in der Datenschutzerklärung.' );
+assert_not_contains( 'Bitte prüfen Sie', $privacy, 'Redaktionelle Prüfanweisung eines Dienstmoduls wird veröffentlicht.' );
+
+$contact_form = $base;
+$contact_form['features']['contact_form'] = true;
+$contact_form['services']['elementor'] = true;
+$privacy = $generator->generate_privacy_policy( $contact_form );
+assert_contains( 'Eingesetztes Formularsystem', $privacy, 'Bezeichnung des Formularsystems fehlt.' );
+assert_contains( 'Elementor', $privacy, 'Ausgewähltes Formularsystem fehlt im Kontaktformular-Abschnitt.' );
+assert_not_contains( '{{', $privacy, 'Nicht ersetzter Platzhalter im Kontaktformular-Abschnitt.' );
+
+$clean_output = $base;
+$clean_output['services'] = array(
+	'google_fonts_external' => true,
+	'google_fonts_local'    => true,
+	'wpvivid'               => true,
+);
+$clean_output['backup_destination'] = 'Eigener Backup-Server in Deutschland';
+$clean_output['backup_storage_provider'] = 'Betreiber GmbH';
+$clean_output['backup_storage_address'] = "Backupweg 3\n30000 Hannover";
+$clean_output['backup_retention'] = '30 Tage';
+$clean_output['privacy_supervisory_authority_name'] = 'Der Landesbeauftragte für den Datenschutz Niedersachsen';
+$clean_output['privacy_supervisory_authority_address'] = "Prinzenstraße 5\n30159 Hannover";
+$clean_output['privacy_supervisory_authority_url'] = 'https://www.lfd.niedersachsen.de/';
+$privacy = $generator->generate_privacy_policy( $clean_output );
+assert_contains( 'Eigener Backup-Server in Deutschland', $privacy, 'Backup-Speicherort fehlt.' );
+assert_contains( 'Der Landesbeauftragte für den Datenschutz Niedersachsen', $privacy, 'Konkrete Aufsichtsbehörde fehlt.' );
+assert_contains( 'Die Schriftarten sind lokal auf unserem Server gespeichert', $privacy, 'Lokale Google-Fonts-Ausgabe fehlt.' );
+assert_not_contains( 'Schriftarten nicht lokal', $privacy, 'Externe Google-Fonts-Ausgabe bleibt trotz lokaler Auswahl aktiv.' );
+assert_not_contains( 'Bitte prüfen Sie', $privacy, 'Redaktionelle Prüfanweisung wird veröffentlicht.' );
+assert_not_contains( '<h3>Drittlandtransfer</h3>', $privacy, 'Generischer Drittlandabschnitt wird ohne konkreten Bezug veröffentlicht.' );
+if ( 1 !== substr_count( $privacy, '<h3>Speicherdauer</h3>' ) ) {
+	fwrite( STDERR, "FAIL: Speicherdauer wird nicht genau einmal ausgegeben.\n" );
+	exit( 1 );
+}
+
+$third_country = $base;
+$third_country['privacy_third_country_transfer'] = 'Daten werden an einen Anbieter in den USA auf Grundlage geeigneter Garantien übermittelt.';
+$privacy = $generator->generate_privacy_policy( $third_country );
+assert_not_contains( '<h3>Drittlandtransfer</h3>', $privacy, 'Drittlandabschnitt erscheint trotz deaktiviertem Schalter.' );
+$third_country['has_third_country_transfer'] = true;
+$privacy = $generator->generate_privacy_policy( $third_country );
+assert_contains( '<h3>Drittlandtransfer</h3>', $privacy, 'Drittlandabschnitt fehlt trotz aktiviertem Schalter.' );
+assert_contains( 'Daten werden an einen Anbieter in den USA', $privacy, 'Konkreter Drittlandtext fehlt.' );
+
+$vimeo = $base;
+$vimeo['services']['vimeo'] = true;
+$vimeo['services']['borlabs_cookie'] = true;
+$vimeo['service_details']['vimeo'] = array(
+	'provider' => 'Vimeo.com, Inc.',
+	'consent'  => 'Vor Einwilligung blockiert',
+);
+$privacy = $generator->generate_privacy_policy( $vimeo );
+assert_contains( 'durch Borlabs Cookie blockiert', $privacy, 'Konkrete Vimeo-Einwilligungssteuerung fehlt.' );
+assert_contains( 'Art. 6 Abs. 1 lit. a DSGVO', $privacy, 'Einwilligungs-Rechtsgrundlage für Vimeo fehlt.' );
+assert_not_contains( 'sofern ein Consent-Tool', $privacy, 'Hypothetische Vimeo-Formulierung wird veröffentlicht.' );
+
+$social_links = $base;
+$social_links['features']['social_media_profiles'] = true;
+$social_links['services']['instagram'] = true;
+$social_links['social_media_integration'] = 'links';
+$privacy = $generator->generate_privacy_policy( $social_links );
+assert_contains( 'Beim bloßen Aufruf dieser Website werden über diese Links keine Daten', $privacy, 'Social-Media-Verlinkung wird nicht von Einbettungen unterschieden.' );
+
+$frg_test_options['frg_block_registry'] = array(
+	'hosting' => array(
+		'status'        => 'editorial_approved',
+		'override_text' => '<h3>Hosting</h3><p>Rechtsgrundlage ist Art. 6 Abs. 1 DSGVO.</p>',
+	),
+);
+$privacy = $generator->generate_privacy_policy( $base );
+assert_contains( 'Art. 6 Abs. 1 lit. f DSGVO', $privacy, 'Konkrete Hosting-Rechtsgrundlage wird bei einem Live-Override nicht erzwungen.' );
+$frg_test_options['frg_block_registry'] = array();
 
 $other_form = $base;
 $other_form['legal_form'] = 'sonstige';

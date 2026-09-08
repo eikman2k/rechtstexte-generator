@@ -51,7 +51,7 @@ class FRG_Generator {
 	public function generate_impressum( array $data ): string {
 		$impressum_data = $this->get_impressum_template_data( $data );
 		$parts   = array();
-		$parts[] = $this->apply_document_notice_setting( $this->modules->render_block( 'impressum_base', $impressum_data ), 'impressum' );
+		$parts[] = $this->modules->render_block( 'impressum_base', $impressum_data );
 
 		if ( ! empty( $data['has_trade_register'] ) || $this->requires_register_information( $this->get_effective_legal_form( $data ) ) ) {
 			$parts[] = $this->modules->render_block( 'register', $impressum_data );
@@ -73,13 +73,13 @@ class FRG_Generator {
 			$parts[] = $this->modules->render_block( 'liability_insurance', $impressum_data );
 		}
 
-		return '<div class="frg-document frg-document--impressum">' . implode( '', $parts ) . '</div>';
+		return '<div class="frg-document frg-document--impressum">' . $this->strip_editorial_guidance( implode( '', $parts ) ) . '</div>';
 	}
 
 	public function generate_privacy_policy( array $data ): string {
 		$privacy_data = $this->get_privacy_template_data( $data );
 		$parts   = array();
-		$parts[] = $this->apply_document_notice_setting( $this->modules->render_block( 'privacy_intro', $privacy_data ), 'privacy' );
+		$parts[] = $this->modules->render_block( 'privacy_intro', $privacy_data );
 		$parts[] = $this->modules->render_block( 'controller', $privacy_data );
 		if (
 			! empty( $data['has_data_protection_officer'] ) &&
@@ -165,6 +165,9 @@ class FRG_Generator {
 		);
 
 		foreach ( $service_map as $key => $method ) {
+			if ( 'google_fonts_external' === $key && ! empty( $data['services']['google_fonts_local'] ) ) {
+				continue;
+			}
 			if ( ! empty( $data['services'][ $key ] ) ) {
 				$parts[] = $this->modules->render_block( $key, $privacy_data );
 			}
@@ -174,7 +177,7 @@ class FRG_Generator {
 			! empty( $data['services']['google_maps'] ) ||
 			! empty( $data['services']['youtube'] ) ||
 			! empty( $data['services']['vimeo'] ) ||
-			! empty( $data['services']['google_fonts_external'] )
+			( ! empty( $data['services']['google_fonts_external'] ) && empty( $data['services']['google_fonts_local'] ) )
 		) {
 			$parts[] = $this->modules->render_block( 'embeds', $privacy_data );
 		}
@@ -193,11 +196,15 @@ class FRG_Generator {
 		}
 
 		$parts[] = $this->modules->render_block( 'storage_duration', $privacy_data );
-		$parts[] = $this->modules->render_block( 'third_country_transfer', $privacy_data );
+		if ( $this->should_render_third_country_section( $data ) ) {
+			$parts[] = $this->modules->render_block( 'third_country_transfer', $privacy_data );
+		}
 		$parts[] = $this->modules->render_block( 'data_subject_rights' );
-		$parts[] = $this->modules->render_block( 'complaint_authority' );
+		$parts[] = $this->modules->render_block( 'complaint_authority', $privacy_data );
 
-		return '<div class="frg-document frg-document--privacy">' . $this->normalize_document_section_headings( implode( '', $parts ) ) . '</div>';
+		$content = $this->strip_editorial_guidance( implode( '', $parts ) );
+
+		return '<div class="frg-document frg-document--privacy">' . $this->normalize_document_section_headings( $content ) . '</div>';
 	}
 
 	public function get_impressum_template_data( array $data ): array {
@@ -298,6 +305,15 @@ class FRG_Generator {
 				'wpvivid'     => 'WPvivid',
 			)
 		);
+		$form_tools = $this->collect_labels(
+			$services,
+			array(
+				'elementor'      => 'Elementor',
+				'contact_form_7' => 'Contact Form 7',
+				'gravity_forms'  => 'Gravity Forms',
+				'wpforms'        => 'WPForms',
+			)
+		);
 		$feature_labels = $this->collect_labels(
 			$features,
 			array(
@@ -363,7 +379,7 @@ class FRG_Generator {
 		);
 
 		return array(
-			'document_notice'             => $this->get_document_notice( 'privacy' ),
+			'document_notice'             => '',
 			'company'                    => esc_html( $controller_name ),
 			'representative'             => esc_html( $controller_representative ),
 			'representative_label'       => esc_html( $controller_same ? $this->get_representative_label( $legal_form ) : __( 'Vertreten durch', 'frontend-rechtstexte-generator' ) ),
@@ -406,9 +422,18 @@ class FRG_Generator {
 			'newsletter_providers'       => esc_html( implode( ', ', $newsletter_providers ) ),
 			'profiles'                   => esc_html( implode( ', ', $social_profiles ) ),
 			'social_profiles'            => esc_html( implode( ', ', $social_profiles ) ),
+			'social_media_integration'   => sanitize_key( (string) ( $data['social_media_integration'] ?? 'links' ) ),
 			'consent_tools'              => esc_html( implode( ', ', $consent_tools ) ),
 			'security_tools'             => esc_html( implode( ', ', $security_tools ) ),
 			'backup_tools'               => esc_html( implode( ', ', $backup_tools ) ),
+			'form_tools'                 => esc_html( implode( ', ', $form_tools ) ),
+			'backup_destination'         => esc_html( $data['backup_destination'] ?? '' ),
+			'backup_storage_provider'    => esc_html( $data['backup_storage_provider'] ?? '' ),
+			'backup_storage_address'     => $this->format_multiline_address( (string) ( $data['backup_storage_address'] ?? '' ) ),
+			'backup_retention'           => esc_html( $data['backup_retention'] ?? '' ),
+			'privacy_supervisory_authority_name'    => esc_html( $data['privacy_supervisory_authority_name'] ?? '' ),
+			'privacy_supervisory_authority_address' => $this->format_multiline_address( (string) ( $data['privacy_supervisory_authority_address'] ?? '' ) ),
+			'privacy_supervisory_authority_url'     => esc_url( $data['privacy_supervisory_authority_url'] ?? '' ),
 			'features'                   => $features,
 			'training_modules'           => esc_html( implode( ', ', $this->collect_labels(
 				$features,
@@ -669,6 +694,23 @@ class FRG_Generator {
 			},
 			$html
 		);
+	}
+
+	private function strip_editorial_guidance( string $html ): string {
+		$patterns = array(
+			'/<p\b[^>]*class=(?:"[^"]*frg-document-notice[^"]*"|\'[^\']*frg-document-notice[^\']*\')[^>]*>.*?<\/p>/isu',
+			'/<p\b[^>]*>(?:(?!<\/p>).)*Bitte\s+prüfen\s+Sie(?:(?!<\/p>).)*<\/p>/isu',
+			'/<p\b[^>]*>(?:(?!<\/p>).)*Dieser\s+Punkt\s+sollte(?:(?!<\/p>).)*geprüft(?:(?!<\/p>).)*<\/p>/isu',
+			'/<p\b[^>]*>(?:(?!<\/p>).)*Ob\s+mit\s+dem\s+Hosting-Anbieter(?:(?!<\/p>).)*sollte\s+geprüft\s+werden(?:(?!<\/p>).)*<\/p>/isu',
+			'/<p\b[^>]*>(?:(?!<\/p>).)*\bzu\s+prüfen\b(?:(?!<\/p>).)*<\/p>/isu',
+			'/<p\b[^>]*>(?:(?!<\/p>).)*(?:keine\s+Rechtsberatung|keine\s+rechtliche\s+Einzelfallprüfung|ersetzt\s+keine\s+(?:anwaltliche|rechtliche)\s+Prüfung)(?:(?!<\/p>).)*<\/p>/isu',
+		);
+
+		return (string) preg_replace( $patterns, '', $html );
+	}
+
+	private function should_render_third_country_section( array $data ): bool {
+		return ! empty( $data['has_third_country_transfer'] ) && '' !== trim( (string) ( $data['privacy_third_country_transfer'] ?? '' ) );
 	}
 
 	private function ensure_hosting_av_notice( string $html, array $privacy_data ): string {
