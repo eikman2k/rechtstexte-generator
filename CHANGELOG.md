@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1 - 2026-09-08
+
+- deaktivierter Drittland-Schalter entfernt nun auch allgemeine Drittlandpassagen aus älteren Hosting-, KI- und zentral synchronisierten Live-Overrides
+
 ## 1.5.0 - 2026-09-08
 
 - eindeutigen Schalter „Drittlandtransfer vorhanden“ ergänzt; der allgemeine Drittlandabschnitt erscheint nur noch bei aktiver Bestätigung und konkretem Text

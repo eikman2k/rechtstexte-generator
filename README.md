@@ -138,9 +138,13 @@ Das Plugin enthält einen eigenen Datenschutzbereich für Schulungsportale mit O
 
 ## Version
 
-Aktueller Release: `1.5.0`
+Aktueller Release: `1.5.1`
 
 ## Changelog
+
+### 1.5.1
+
+- deaktivierter Drittland-Schalter bereinigt auch entsprechende Passagen aus älteren Live-Overrides
 
 ### 1.5.0
 

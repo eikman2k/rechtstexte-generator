@@ -9,7 +9,7 @@ class FRG_Text_Modules {
 
 	public function get_module_meta(): array {
 		return array(
-			'module_version' => '2026.09.08.3',
+			'module_version' => '2026.09.08.4',
 			'content_updated_at' => '2026-09-08',
 			'last_reviewed_at' => '',
 			'legal_basis' => array(

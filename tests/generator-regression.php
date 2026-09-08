@@ -202,11 +202,12 @@ assert_contains( 'Beim bloßen Aufruf dieser Website werden über diese Links ke
 $frg_test_options['frg_block_registry'] = array(
 	'hosting' => array(
 		'status'        => 'editorial_approved',
-		'override_text' => '<h3>Hosting</h3><p>Rechtsgrundlage ist Art. 6 Abs. 1 DSGVO.</p>',
+		'override_text' => '<h3>Hosting</h3><p>Rechtsgrundlage ist Art. 6 Abs. 1 DSGVO.</p><p>Es kann nicht ausgeschlossen werden, dass im Rahmen des Hostings Daten auch in Drittländern verarbeitet werden. In diesem Fall gelten die Anforderungen der Art. 44 ff. DSGVO.</p>',
 	),
 );
 $privacy = $generator->generate_privacy_policy( $base );
 assert_contains( 'Art. 6 Abs. 1 lit. f DSGVO', $privacy, 'Konkrete Hosting-Rechtsgrundlage wird bei einem Live-Override nicht erzwungen.' );
+assert_not_contains( 'Es kann nicht ausgeschlossen werden', $privacy, 'Drittlandpassus aus Hosting-Live-Override bleibt trotz deaktiviertem Schalter sichtbar.' );
 $frg_test_options['frg_block_registry'] = array();
 
 $other_form = $base;

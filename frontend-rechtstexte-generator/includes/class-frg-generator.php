@@ -202,7 +202,11 @@ class FRG_Generator {
 		$parts[] = $this->modules->render_block( 'data_subject_rights' );
 		$parts[] = $this->modules->render_block( 'complaint_authority', $privacy_data );
 
-		$content = $this->strip_editorial_guidance( implode( '', $parts ) );
+		$content = implode( '', $parts );
+		if ( empty( $data['has_third_country_transfer'] ) ) {
+			$content = $this->strip_disabled_third_country_content( $content );
+		}
+		$content = $this->strip_editorial_guidance( $content );
 
 		return '<div class="frg-document frg-document--privacy">' . $this->normalize_document_section_headings( $content ) . '</div>';
 	}
@@ -711,6 +715,16 @@ class FRG_Generator {
 
 	private function should_render_third_country_section( array $data ): bool {
 		return ! empty( $data['has_third_country_transfer'] ) && '' !== trim( (string) ( $data['privacy_third_country_transfer'] ?? '' ) );
+	}
+
+	private function strip_disabled_third_country_content( string $html ): string {
+		$patterns = array(
+			'/<h([2-4])\b[^>]*>\s*(?:Drittlandtransfer|Hinweise\s+zu\s+Drittlandtransfers?)\s*<\/h\1>(?:(?!<h[2-4]\b).)*/isu',
+			'/<p\b[^>]*>(?:(?!<\/p>).)*(?:Es\s+kann\s+nicht\s+ausgeschlossen\s+werden(?:(?!<\/p>).)*Drittländern|Übermittlung(?:(?!<\/p>).)*(?:Staaten\s+außerhalb\s+der\s+EU|Drittländer)(?:(?!<\/p>).)*(?:Art\.\s*44|Standardvertragsklauseln)|Daten(?:(?!<\/p>).)*auch\s+in\s+Drittländern\s+verarbeitet)(?:(?!<\/p>).)*<\/p>/isu',
+			'/<p\b[^>]*>\s*<strong>\s*(?:Drittlandbezug|Garantie\s+für\s+Drittlandtransfer)\s*:\s*<\/strong>.*?<\/p>/isu',
+		);
+
+		return (string) preg_replace( $patterns, '', $html );
 	}
 
 	private function ensure_hosting_av_notice( string $html, array $privacy_data ): string {
