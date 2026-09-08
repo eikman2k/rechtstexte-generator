@@ -9,7 +9,7 @@ class FRG_Text_Modules {
 
 	public function get_module_meta(): array {
 		return array(
-			'module_version' => '2026.09.08.4',
+			'module_version' => '2026.09.08.5',
 			'content_updated_at' => '2026-09-08',
 			'last_reviewed_at' => '',
 			'legal_basis' => array(
@@ -559,7 +559,15 @@ class FRG_Text_Modules {
 		return strtr(
 			$content,
 			array(
-				'Datenschutzerklaerung' => 'Datenschutzerklärung',
+					'Datenschutzerklaerung' => 'Datenschutzerklärung',
+					'Vertragsdurchfuehrung' => 'Vertragsdurchführung',
+					'Vertragserfuellung' => 'Vertragserfüllung',
+					'Fehlerpraevention' => 'Fehlerprävention',
+					'Massnahmen' => 'Maßnahmen',
+					'massnahmen' => 'maßnahmen',
+					'Anschliessend' => 'Anschließend',
+					'eingeschraenkt' => 'eingeschränkt',
+					'Gruende' => 'Gründe',
 				'Naechste Pruefung' => 'Nächste Prüfung',
 				'Pruefung' => 'Prüfung',
 				'pruefen' => 'prüfen',
@@ -775,6 +783,7 @@ class FRG_Text_Modules {
 
 	private function ensure_hosting_required_details( string $content, array $data ): string {
 		$content = $this->ensure_hosting_av_notice( $content, $data );
+		$content = (string) preg_replace( '/Art\.\s*6\s+Abs\.\s*1\s+DSGVO(?!\s*lit\.)/iu', 'Art. 6 Abs. 1 lit. f DSGVO', $content );
 		$facts   = array();
 		if ( false === stripos( wp_strip_all_tags( $content ), 'Art. 6 Abs. 1 lit. f DSGVO' ) ) {
 			$facts[] = '<p><strong>' . esc_html__( 'Rechtsgrundlage', 'frontend-rechtstexte-generator' ) . ':</strong> Art. 6 Abs. 1 lit. f DSGVO (' . esc_html__( 'berechtigtes Interesse an einer sicheren, zuverlässigen und effizienten Bereitstellung der Website', 'frontend-rechtstexte-generator' ) . ').</p>';
@@ -1181,7 +1190,7 @@ class FRG_Text_Modules {
 			: '';
 
 		return $this->replace(
-			'<h3>' . esc_html__( 'Website-KI-Bot / KI-Assistent', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Auf dieser Website kann ein KI-gestützter Chatbot oder Assistent eingesetzt werden, um Nutzeranfragen automatisiert zu beantworten, Informationen bereitzustellen oder bei der Navigation und Nutzung der Website zu unterstützen. Wenn Sie den KI-Bot verwenden, können insbesondere die von Ihnen eingegebenen Nachrichten, technische Nutzungsdaten, Zeitpunkte der Interaktion, Browser- und Geräteinformationen sowie gegebenenfalls weitere freiwillig übermittelte Angaben verarbeitet werden.', 'frontend-rechtstexte-generator' ) . ' {{ai_transparency_sentence}}</p><p>' . esc_html__( 'Für die Verarbeitung und Beantwortung von Eingaben werden folgende KI-Anbieter eingesetzt: {{ai_providers}}. Je nach konkreter Konfiguration können Eingaben an diese Anbieter übermittelt und dort verarbeitet werden. Bitte geben Sie in den Chat keine sensiblen personenbezogenen Daten, Gesundheitsdaten, Zugangsdaten oder sonstige vertrauliche Informationen ein, sofern dies nicht ausdrücklich erforderlich und hierfür eine geeignete Rechtsgrundlage vorhanden ist.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung erfolgt je nach Einsatzzweck zur Bearbeitung Ihrer Anfrage, zur Bereitstellung der gewünschten Bot-Funktion, zur Verbesserung der Nutzerführung, zur technischen Sicherheit oder auf Grundlage einer Einwilligung, sofern eine solche vor der Nutzung abgefragt wird.', 'frontend-rechtstexte-generator' ) . '</p>' . $privacy_link,
+			'<h3>' . esc_html__( 'Website-KI-Bot / KI-Assistent', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Auf dieser Website wird ein KI-gestützter Chatbot eingesetzt, um Nutzeranfragen automatisiert zu beantworten, Informationen bereitzustellen und bei der Nutzung der Website zu unterstützen. Bei der Nutzung werden die eingegebenen Nachrichten, technische Nutzungsdaten, Zeitpunkte der Interaktion sowie Browser- und Geräteinformationen verarbeitet.', 'frontend-rechtstexte-generator' ) . ' {{ai_transparency_sentence}}</p><p>' . esc_html__( 'Für die Verarbeitung und Beantwortung der Eingaben werden folgende KI-Anbieter eingesetzt: {{ai_providers}}. Die eingegebenen Inhalte werden zur Erstellung der Antwort an diese Anbieter übermittelt und dort verarbeitet. Bitte geben Sie keine sensiblen personenbezogenen Daten, Gesundheitsdaten, Zugangsdaten oder sonstigen vertraulichen Informationen ein.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung erfolgt zur Bereitstellung der angeforderten Bot-Funktion sowie nach Maßgabe der im Generator konkret hinterlegten Rechtsgrundlage.', 'frontend-rechtstexte-generator' ) . '</p>' . $privacy_link,
 			$data
 		);
 	}
@@ -1192,7 +1201,7 @@ class FRG_Text_Modules {
 	}
 
 	public function get_google_fonts_local_module(): string {
-		return '<h3>Google Fonts</h3><p>' . esc_html__( 'Auf dieser Website werden Google Fonts zur einheitlichen Darstellung von Schriftarten verwendet. Die Schriftarten sind lokal auf unserem Server gespeichert und werden von dort ausgeliefert. Beim Aufruf der Website wird daher keine Verbindung zu Servern von Google hergestellt und es werden im Zusammenhang mit der Bereitstellung der Schriftarten keine personenbezogenen Daten an Google übermittelt.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>Google Fonts</h3><p>' . esc_html__( 'Auf dieser Website werden Google Fonts lokal eingebunden. Die Schriftdateien befinden sich auf unserem eigenen Server und werden von dort ausgeliefert. Beim Aufruf unserer Website wird daher keine Verbindung zu Servern von Google hergestellt und es werden im Zusammenhang mit der Bereitstellung der Schriftarten keine personenbezogenen Daten an Google übertragen.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_google_maps_module( array $data = array() ): string {
@@ -1210,10 +1219,10 @@ class FRG_Text_Modules {
 		$consent_sentence = '';
 		if ( 'Vor Einwilligung blockiert' === ( $data['service_consent'] ?? '' ) ) {
 			$consent_sentence = ! empty( $data['consent_tools'] )
-				? ' ' . sprintf( esc_html__( 'Die Vimeo-Inhalte werden durch %s blockiert und erst nach Ihrer Einwilligung geladen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. a DSGVO.', 'frontend-rechtstexte-generator' ), esc_html( (string) $data['consent_tools'] ) )
-				: ' ' . esc_html__( 'Die Vimeo-Inhalte werden vor der Einwilligung blockiert und erst nach Ihrer Einwilligung geladen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. a DSGVO.', 'frontend-rechtstexte-generator' );
+				? ' ' . sprintf( esc_html__( 'Die Vimeo-Inhalte werden durch %s blockiert und erst nach Ihrer Einwilligung geladen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. a DSGVO. Die Einwilligung kann jederzeit mit Wirkung für die Zukunft widerrufen werden.', 'frontend-rechtstexte-generator' ), esc_html( (string) $data['consent_tools'] ) )
+				: ' ' . esc_html__( 'Die Vimeo-Inhalte werden vor der Einwilligung blockiert und erst nach Ihrer Einwilligung geladen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. a DSGVO. Die Einwilligung kann jederzeit mit Wirkung für die Zukunft widerrufen werden.', 'frontend-rechtstexte-generator' );
 		}
-		return $this->replace( '<h3>Vimeo</h3><p>' . esc_html__( 'Auf dieser Website sind Videos des Anbieters Vimeo eingebunden. Beim Laden oder Abspielen dieser Inhalte werden Verbindungsdaten, IP-Adresse, Browserinformationen und Nutzungsdaten an Vimeo übermittelt.', 'frontend-rechtstexte-generator' ) . $consent_sentence . '</p>', $data );
+		return $this->replace( '<h3>Vimeo</h3><p>' . esc_html__( 'Auf dieser Website sind Videos des Anbieters {{service_provider}} eingebunden. Beim Laden oder Abspielen dieser Inhalte werden Verbindungsdaten, IP-Adresse, Browserinformationen und Nutzungsdaten an den Anbieter übermittelt.', 'frontend-rechtstexte-generator' ) . $consent_sentence . '</p>', $data );
 	}
 
 	public function get_google_analytics_module( array $data = array() ): string {
@@ -1262,7 +1271,8 @@ class FRG_Text_Modules {
 	}
 
 	public function get_cookie_consent_module( array $data = array() ): string {
-		return $this->replace( '<h3>' . esc_html__( 'Cookie-Einwilligungsmanagement', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Auf dieser Website wird folgendes Consent-Tool eingesetzt, um Einwilligungen für technisch nicht erforderliche Cookies, vergleichbare Technologien und externe Dienste einzuholen, zu verwalten und zu dokumentieren: {{consent_tools}}. Dabei können insbesondere Einwilligungsstatus, Zeitpunkte, technische Kennungen und Browserinformationen verarbeitet werden.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung dient dem Nachweis erteilter oder verweigerter Einwilligungen sowie der datenschutzkonformen Steuerung nachgeladener Dienste.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
+		// Juristische Prüfung empfohlen.
+		return $this->replace( '<h3>' . esc_html__( 'Cookie-Einwilligungsmanagement', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Auf dieser Website wird {{consent_tools}} eingesetzt, um Einwilligungen für technisch nicht erforderliche Cookies, vergleichbare Technologien und externe Dienste einzuholen, zu verwalten und zu dokumentieren. Dabei werden insbesondere Einwilligungsstatus, Zeitpunkt der Entscheidung, technische Kennungen und Browserinformationen verarbeitet.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung der Einwilligungsentscheidung dient der Erfüllung rechtlicher Nachweis- und Rechenschaftspflichten und erfolgt auf Grundlage von Art. 6 Abs. 1 lit. c DSGVO in Verbindung mit Art. 5 Abs. 2 und Art. 7 Abs. 1 DSGVO. Der Zugriff auf unbedingt erforderliche Informationen im Endgerät erfolgt auf Grundlage von § 25 Abs. 2 TDDDG. Optionale Dienste werden erst nach einer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG aktiviert.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 
 	public function get_social_media_profiles_module( array $data ): string {
@@ -1353,9 +1363,7 @@ class FRG_Text_Modules {
 
 	public function get_smtp_service_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		$provider_sentence = ! empty( $data['service_provider'] )
-			? sprintf( esc_html__( 'Für den Versand wird %s eingesetzt.', 'frontend-rechtstexte-generator' ), esc_html( (string) $data['service_provider'] ) )
-			: esc_html__( 'Für den Versand wird ein SMTP-Dienst eingesetzt.', 'frontend-rechtstexte-generator' );
+		$provider_sentence = sprintf( esc_html__( 'Für den Versand wird %s eingesetzt.', 'frontend-rechtstexte-generator' ), esc_html( (string) ( $data['service_provider'] ?? '' ) ) );
 		return $this->replace( '<h3>' . esc_html__( 'E-Mail-Versand / SMTP', 'frontend-rechtstexte-generator' ) . '</h3><p>' . $provider_sentence . ' ' . esc_html__( 'Dabei werden E-Mail-Adressen, Nachrichteninhalte, Versandzeitpunkte und technische Metadaten verarbeitet, soweit dies für Zustellung, Nachweisbarkeit und Sicherheit des E-Mail-Versands erforderlich ist.', 'frontend-rechtstexte-generator' ) . '</p>', $data );
 	}
 }

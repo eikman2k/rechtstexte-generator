@@ -138,9 +138,17 @@ Das Plugin enthält einen eigenen Datenschutzbereich für Schulungsportale mit O
 
 ## Version
 
-Aktueller Release: `1.5.1`
+Aktueller Release: `1.6.0`
 
 ## Changelog
+
+### 1.6.0
+
+- unvollständige KI-, Vimeo- und SMTP-Blöcke werden nicht mehr veröffentlicht
+- offene Platzhalter und interne Hinweisreste werden aus der Ausgabe entfernt
+- konkrete Dienstblöcke ersetzen den bisherigen generischen Embed-Sammelblock
+- Hosting-Rechtsgrundlage und deutsche Umlaute werden auch in Live-Overrides normalisiert
+- Consent-Management, Vimeo und lokale Google Fonts textlich präzisiert
 
 ### 1.5.1
 

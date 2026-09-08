@@ -73,7 +73,7 @@ class FRG_Generator {
 			$parts[] = $this->modules->render_block( 'liability_insurance', $impressum_data );
 		}
 
-		return '<div class="frg-document frg-document--impressum">' . $this->strip_editorial_guidance( implode( '', $parts ) ) . '</div>';
+		return '<div class="frg-document frg-document--impressum">' . $this->finalize_generated_content( implode( '', $parts ) ) . '</div>';
 	}
 
 	public function generate_privacy_policy( array $data ): string {
@@ -139,7 +139,7 @@ class FRG_Generator {
 		if ( ! empty( $data['features']['training_portal'] ) ) {
 			$parts[] = $this->modules->render_block( 'training_portal', $privacy_data );
 		}
-		if ( ! empty( $data['services']['ai_chatbot'] ) || ! empty( $data['services']['openai'] ) || ! empty( $data['services']['anthropic'] ) ) {
+		if ( ! empty( $data['services']['openai'] ) || ! empty( $data['services']['anthropic'] ) ) {
 			$parts[] = $this->modules->render_block( 'ai_chatbot', $privacy_data );
 		}
 
@@ -168,18 +168,21 @@ class FRG_Generator {
 			if ( 'google_fonts_external' === $key && ! empty( $data['services']['google_fonts_local'] ) ) {
 				continue;
 			}
+			if ( 'smtp_service' === $key && empty( $data['service_details']['smtp_service']['provider'] ) ) {
+				continue;
+			}
+			if (
+				'vimeo' === $key &&
+				(
+					empty( $data['service_details']['vimeo']['provider'] ) ||
+					'Vor Einwilligung blockiert' !== ( $data['service_details']['vimeo']['consent'] ?? '' )
+				)
+			) {
+				continue;
+			}
 			if ( ! empty( $data['services'][ $key ] ) ) {
 				$parts[] = $this->modules->render_block( $key, $privacy_data );
 			}
-		}
-
-		if (
-			! empty( $data['services']['google_maps'] ) ||
-			! empty( $data['services']['youtube'] ) ||
-			! empty( $data['services']['vimeo'] ) ||
-			( ! empty( $data['services']['google_fonts_external'] ) && empty( $data['services']['google_fonts_local'] ) )
-		) {
-			$parts[] = $this->modules->render_block( 'embeds', $privacy_data );
 		}
 
 		if ( ! empty( $data['services']['borlabs_cookie'] ) || ! empty( $data['services']['real_cookie_banner'] ) || ! empty( $data['services']['complianz'] ) || ! empty( $data['services']['cookieyes'] ) ) {
@@ -206,7 +209,7 @@ class FRG_Generator {
 		if ( empty( $data['has_third_country_transfer'] ) ) {
 			$content = $this->strip_disabled_third_country_content( $content );
 		}
-		$content = $this->strip_editorial_guidance( $content );
+		$content = $this->finalize_generated_content( $content );
 
 		return '<div class="frg-document frg-document--privacy">' . $this->normalize_document_section_headings( $content ) . '</div>';
 	}
@@ -409,7 +412,7 @@ class FRG_Generator {
 			'dpo_email'                  => esc_html( $data['data_protection_officer_email'] ?? '' ),
 			'dpo_phone'                  => esc_html( $data['data_protection_officer_phone'] ?? '' ),
 			'dpo_address'                => $this->format_multiline_address( (string) ( $data['data_protection_officer_address'] ?? '' ) ),
-			'purposes'                   => esc_html( $data['privacy_processing_purposes'] ?? __( 'Bereitstellung der Website, Kommunikation, Vertragsdurchfuehrung und Sicherheit', 'frontend-rechtstexte-generator' ) ),
+			'purposes'                   => esc_html( $data['privacy_processing_purposes'] ?? __( 'Bereitstellung der Website, Kommunikation, Vertragsdurchführung und Sicherheit', 'frontend-rechtstexte-generator' ) ),
 			'legal_basis'                => esc_html( $data['privacy_legal_basis'] ?? __( 'Art. 6 Abs. 1 DSGVO nach konkreter Verarbeitung', 'frontend-rechtstexte-generator' ) ),
 			'recipients'                 => esc_html( $data['privacy_recipient_categories'] ?? __( 'Hosting, IT-Dienstleister, eingesetzte Fachanbieter', 'frontend-rechtstexte-generator' ) ),
 			'storage'                    => esc_html( $data['privacy_storage_general'] ?? __( 'Speicherung nur so lange, wie dies für den jeweiligen Zweck oder gesetzliche Pflichten erforderlich ist', 'frontend-rechtstexte-generator' ) ),
@@ -455,7 +458,7 @@ class FRG_Generator {
 			) ) ),
 			'active_features'            => esc_html( implode( ', ', $feature_labels ) ),
 			'active_services'            => esc_html( implode( ', ', $service_labels ) ),
-			'ai_providers'               => esc_html( ! empty( $ai_providers ) ? implode( ', ', $ai_providers ) : __( 'der jeweils eingesetzte KI-Anbieter', 'frontend-rechtstexte-generator' ) ),
+			'ai_providers'               => esc_html( implode( ', ', $ai_providers ) ),
 			'ai_chatbot_privacy_url'     => esc_url( $data['ai_chatbot_privacy_url'] ?? '' ),
 			'ai_chatbot_privacy_link'    => ! empty( $data['ai_chatbot_privacy_url'] ) ? '<a href="' . esc_url( $data['ai_chatbot_privacy_url'] ) . '" rel="nofollow noopener">' . esc_html__( 'Datenschutzhinweise des KI-Bot-Plugins', 'frontend-rechtstexte-generator' ) . '</a>' : '',
 			'ai_transparency_sentence'   => ! empty( $services['ai_transparency_notice'] ) ? esc_html__( 'Der Assistent weist Nutzer vor oder bei Beginn der Interaktion klar darauf hin, dass sie mit einem KI-System kommunizieren.', 'frontend-rechtstexte-generator' ) : '',
@@ -711,6 +714,16 @@ class FRG_Generator {
 		);
 
 		return (string) preg_replace( $patterns, '', $html );
+	}
+
+	private function finalize_generated_content( string $html ): string {
+		$html = $this->strip_editorial_guidance( $html );
+		$html = (string) preg_replace( '/<(p|div|section|li)\b[^>]*>(?:(?!<\/\1>).)*\{\{[^}]+\}\}(?:(?!<\/\1>).)*<\/\1>/isu', '', $html );
+		$html = (string) preg_replace( '/\{\{[^}]+\}\}/u', '', $html );
+		$html = (string) preg_replace( '/<(p|div|section)\b[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s)*<\/\1>/iu', '', $html );
+		$html = (string) preg_replace( '/<h([2-4])\b[^>]*>\s*(?:Hinweis|Wichtiger Hinweis)\s*<\/h\1>\s*(?=<h[2-4]\b|$)/iu', '', $html );
+
+		return $html;
 	}
 
 	private function should_render_third_country_section( array $data ): bool {

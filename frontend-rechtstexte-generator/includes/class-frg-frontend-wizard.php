@@ -499,6 +499,13 @@ class FRG_Frontend_Wizard {
 		) {
 			$warnings[] = __( 'Für den KI-Bot ist noch nicht bestätigt, dass Besucher klar auf die Interaktion mit einem KI-System hingewiesen werden.', 'frontend-rechtstexte-generator' );
 		}
+		if (
+			! empty( $data['services']['ai_chatbot'] ) &&
+			empty( $data['services']['openai'] ) &&
+			empty( $data['services']['anthropic'] )
+		) {
+			$warnings[] = __( 'Der KI-Bot ist aktiviert, aber es wurde weder OpenAI noch Anthropic als tatsächlich eingesetzter KI-Anbieter ausgewählt. Der Abschnitt wird bis dahin nicht veröffentlicht.', 'frontend-rechtstexte-generator' );
+		}
 
 		if ( empty( $data['privacy_supervisory_authority_name'] ) ) {
 			$warnings[] = __( 'Die konkret zuständige Datenschutzaufsichtsbehörde ist noch nicht eingetragen.', 'frontend-rechtstexte-generator' );
@@ -545,6 +552,12 @@ class FRG_Frontend_Wizard {
 
 		if ( ! empty( $data['services']['vimeo'] ) && 'Vor Einwilligung blockiert' !== ( $details['vimeo']['consent'] ?? '' ) ) {
 			$warnings[] = __( 'Vimeo ist ausgewählt, aber die Blockierung vor Einwilligung wurde noch nicht bestätigt.', 'frontend-rechtstexte-generator' );
+		}
+		if (
+			! empty( $data['services']['vimeo'] ) &&
+			( empty( $details['vimeo']['third_country'] ) || empty( $details['vimeo']['transfer_basis'] ) )
+		) {
+			$warnings[] = __( 'Für Vimeo fehlen konkrete Angaben zum Drittlandbezug oder zur verwendeten Transfergarantie.', 'frontend-rechtstexte-generator' );
 		}
 
 		if ( ! empty( $data['services']['smtp_service'] ) && empty( $details['smtp_service']['provider'] ) ) {

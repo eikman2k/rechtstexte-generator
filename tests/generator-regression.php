@@ -162,7 +162,7 @@ $clean_output['privacy_supervisory_authority_url'] = 'https://www.lfd.niedersach
 $privacy = $generator->generate_privacy_policy( $clean_output );
 assert_contains( 'Eigener Backup-Server in Deutschland', $privacy, 'Backup-Speicherort fehlt.' );
 assert_contains( 'Der Landesbeauftragte für den Datenschutz Niedersachsen', $privacy, 'Konkrete Aufsichtsbehörde fehlt.' );
-assert_contains( 'Die Schriftarten sind lokal auf unserem Server gespeichert', $privacy, 'Lokale Google-Fonts-Ausgabe fehlt.' );
+assert_contains( 'Die Schriftdateien befinden sich auf unserem eigenen Server', $privacy, 'Lokale Google-Fonts-Ausgabe fehlt.' );
 assert_not_contains( 'Schriftarten nicht lokal', $privacy, 'Externe Google-Fonts-Ausgabe bleibt trotz lokaler Auswahl aktiv.' );
 assert_not_contains( 'Bitte prüfen Sie', $privacy, 'Redaktionelle Prüfanweisung wird veröffentlicht.' );
 assert_not_contains( '<h3>Drittlandtransfer</h3>', $privacy, 'Generischer Drittlandabschnitt wird ohne konkreten Bezug veröffentlicht.' );
@@ -191,6 +191,34 @@ $privacy = $generator->generate_privacy_policy( $vimeo );
 assert_contains( 'durch Borlabs Cookie blockiert', $privacy, 'Konkrete Vimeo-Einwilligungssteuerung fehlt.' );
 assert_contains( 'Art. 6 Abs. 1 lit. a DSGVO', $privacy, 'Einwilligungs-Rechtsgrundlage für Vimeo fehlt.' );
 assert_not_contains( 'sofern ein Consent-Tool', $privacy, 'Hypothetische Vimeo-Formulierung wird veröffentlicht.' );
+assert_not_contains( 'Eingebettete Inhalte und externe Ressourcen', $privacy, 'Generischer Embed-Sammelblock erzeugt eine Doppelung.' );
+
+$incomplete_vimeo = $base;
+$incomplete_vimeo['services']['vimeo'] = true;
+$privacy = $generator->generate_privacy_policy( $incomplete_vimeo );
+assert_not_contains( '<h3>Vimeo</h3>', $privacy, 'Unvollständiger Vimeo-Abschnitt wird veröffentlicht.' );
+
+$incomplete_ai = $base;
+$incomplete_ai['services']['ai_chatbot'] = true;
+$privacy = $generator->generate_privacy_policy( $incomplete_ai );
+assert_not_contains( 'Website-KI-Bot / KI-Assistent', $privacy, 'KI-Abschnitt ohne konkreten Anbieter wird veröffentlicht.' );
+assert_not_contains( 'der jeweils eingesetzte KI-Anbieter', $privacy, 'Unbestimmter KI-Anbieter wird veröffentlicht.' );
+
+$openai = $base;
+$openai['services']['ai_chatbot'] = true;
+$openai['services']['openai'] = true;
+$privacy = $generator->generate_privacy_policy( $openai );
+assert_contains( 'folgende KI-Anbieter eingesetzt: OpenAI', $privacy, 'Konkreter KI-Anbieter fehlt.' );
+
+$incomplete_smtp = $base;
+$incomplete_smtp['services']['smtp_service'] = true;
+$privacy = $generator->generate_privacy_policy( $incomplete_smtp );
+assert_not_contains( '<h3>E-Mail-Versand / SMTP</h3>', $privacy, 'SMTP-Abschnitt ohne konkreten Anbieter wird veröffentlicht.' );
+
+$smtp = $incomplete_smtp;
+$smtp['service_details']['smtp_service']['provider'] = 'Eigener Mailserver auf der Hosting-Infrastruktur';
+$privacy = $generator->generate_privacy_policy( $smtp );
+assert_contains( 'Eigener Mailserver auf der Hosting-Infrastruktur', $privacy, 'Konkreter SMTP-Anbieter fehlt.' );
 
 $social_links = $base;
 $social_links['features']['social_media_profiles'] = true;
@@ -207,7 +235,19 @@ $frg_test_options['frg_block_registry'] = array(
 );
 $privacy = $generator->generate_privacy_policy( $base );
 assert_contains( 'Art. 6 Abs. 1 lit. f DSGVO', $privacy, 'Konkrete Hosting-Rechtsgrundlage wird bei einem Live-Override nicht erzwungen.' );
+assert_not_contains( 'Art. 6 Abs. 1 DSGVO.</p>', $privacy, 'Unvollständige Hosting-Rechtsgrundlage bleibt im Live-Override erhalten.' );
 assert_not_contains( 'Es kann nicht ausgeschlossen werden', $privacy, 'Drittlandpassus aus Hosting-Live-Override bleibt trotz deaktiviertem Schalter sichtbar.' );
+$frg_test_options['frg_block_registry'] = array();
+
+$frg_test_options['frg_block_registry'] = array(
+	'server_logs' => array(
+		'status'        => 'editorial_approved',
+		'override_text' => '<h3>Server-Logfiles</h3><p>Vertragsdurchfuehrung, Fehlerpraevention, Massnahmen, Vertragserfuellung, Anschliessend eingeschraenkt aus wichtigen Gruenden.</p><h3>Hinweis</h3><p>Bitte prüfen Sie diesen Abschnitt.</p>',
+	),
+);
+$privacy = $generator->generate_privacy_policy( $base );
+assert_contains( 'Vertragsdurchführung, Fehlerprävention, Maßnahmen, Vertragserfüllung, Anschließend eingeschränkt aus wichtigen Gründen.', $privacy, 'Deutsche Umlaute werden in einem Live-Override nicht normalisiert.' );
+assert_not_contains( '<h3>Hinweis</h3>', $privacy, 'Verwaiste Hinweisüberschrift bleibt nach dem Entfernen einer Prüfanweisung sichtbar.' );
 $frg_test_options['frg_block_registry'] = array();
 
 $other_form = $base;

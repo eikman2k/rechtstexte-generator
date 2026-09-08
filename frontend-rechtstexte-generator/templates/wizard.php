@@ -206,7 +206,7 @@ $privacy_defaults        = array(
 				),
 				array(
 					'title'       => __( 'Benutzerkonten und geschützte Bereiche', 'frontend-rechtstexte-generator' ),
-					'description' => __( 'Wählen Sie hier Funktionen aus, bei denen Nutzerkonten, Logins oder interne Bereiche verarbeitet werden.', 'frontend-rechtstexte-generator' ),
+					'description' => __( 'Nur öffentlich oder für Kunden angebotene Konten und geschützte Bereiche auswählen. Der normale WordPress-Admin-Login allein gehört nicht dazu.', 'frontend-rechtstexte-generator' ),
 					'items'       => array(
 						'user_registration' => 'Benutzerregistrierung',
 						'login_area'        => 'Login-Bereich',
@@ -457,6 +457,7 @@ $privacy_defaults        = array(
 				<div class="frg-feature-group__header">
 					<h4><?php esc_html_e( 'Konkrete Angaben zu ausgewählten Diensten', 'frontend-rechtstexte-generator' ); ?></h4>
 					<p><?php esc_html_e( 'Diese Angaben machen die Textblöcke konkreter und werden auch bei einem KI-Live-Override systemseitig ergänzt. Bitte übernehmen Sie die Informationen aus Vertrag, AV-Vertrag und Datenschutzhinweisen des jeweiligen Anbieters.', 'frontend-rechtstexte-generator' ); ?></p>
+					<p><?php esc_html_e( 'Unvollständige KI-, SMTP- und Vimeo-Abschnitte werden nicht veröffentlicht. Beim eigenen Mailserver tragen Sie diesen ausdrücklich als Anbieter ein, zum Beispiel „Eigener Mailserver auf der Hosting-Infrastruktur“.', 'frontend-rechtstexte-generator' ); ?></p>
 				</div>
 				<?php foreach ( $service_detail_labels as $service_key => $service_label ) : ?>
 					<?php $service_detail = $data['service_details'][ $service_key ] ?? array(); ?>

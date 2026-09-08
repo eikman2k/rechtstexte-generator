@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.0 - 2026-09-08
+
+- unfertige KI-, SMTP- und Vimeo-Abschnitte werden bis zur Eingabe konkreter Anbieter- und Konfigurationsdaten nicht veröffentlicht
+- allgemeinen Sammelblock für eingebettete externe Ressourcen aus der Ausgabe entfernt, um Doppelungen mit konkreten Dienstblöcken zu vermeiden
+- Hosting-Rechtsgrundlage aus älteren Live-Overrides direkt auf Art. 6 Abs. 1 lit. f DSGVO normalisiert
+- offene Platzhalter, leere Elemente und verwaiste Hinweisüberschriften werden aus der finalen Ausgabe entfernt
+- häufige deutsche ASCII-Ersatzschreibweisen in zentralen und KI-basierten Live-Overrides korrigiert
+- lokale Google-Fonts-Ausgabe gekürzt sowie Vimeo- und Consent-Management-Ausgabe präzisiert
+- Login-Hinweis im Wizard vom reinen WordPress-Admin-Zugang abgegrenzt
+
 ## 1.5.1 - 2026-09-08
 
 - deaktivierter Drittland-Schalter entfernt nun auch allgemeine Drittlandpassagen aus älteren Hosting-, KI- und zentral synchronisierten Live-Overrides
