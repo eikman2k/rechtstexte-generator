@@ -48,6 +48,31 @@ class FRG_Generator {
 		return $this->modules->get_block_placeholder_details( $key );
 	}
 
+	public function inspect_text_quality( string $content ): array {
+		$visible = html_entity_decode( wp_strip_all_tags( str_replace( '><', '> <', $content ) ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		$flags = array();
+		$patterns = array(
+			'/\bbitte\s+prüfen\b/iu' => __( 'Enthält eine interne Prüfanweisung („bitte prüfen“).', 'frontend-rechtstexte-generator' ),
+			'/\bder\s+jeweils?\s+(?:eingesetzte\s+)?Anbieter\b/iu' => __( 'Enthält einen unbestimmten Anbieter.', 'frontend-rechtstexte-generator' ),
+			'/\bkann\s+eingesetzt\s+werden\b/iu' => __( 'Beschreibt einen Dienst nur als mögliche statt als tatsächliche Verarbeitung.', 'frontend-rechtstexte-generator' ),
+			'/\b(?:Durchfuehrung|Erfuellung|Vertragsdurchfuehrung|Vertragserfuellung|Fehlerpraevention|Massnahmen|Anschliessend|eingeschraenkt|Gruende|Resource)\b/u' => __( 'Enthält eine bekannte fehlerhafte Ersatzschreibweise oder einen nicht übersetzten Begriff.', 'frontend-rechtstexte-generator' ),
+			'/\bsofern\b/iu' => __( 'Enthält „sofern“; bitte prüfen, ob stattdessen eine konkrete Tatsachenaussage möglich ist.', 'frontend-rechtstexte-generator' ),
+			'/\bgegebenenfalls\b/iu' => __( 'Enthält „gegebenenfalls“; bitte prüfen, ob die konkrete Konfiguration bekannt ist.', 'frontend-rechtstexte-generator' ),
+		);
+
+		foreach ( $patterns as $pattern => $message ) {
+			if ( preg_match( $pattern, $visible ) ) {
+				$flags[] = $message;
+			}
+		}
+
+		if ( preg_match( '/<h([2-4])\b[^>]*>\s*(?:Hinweis|Wichtiger Hinweis)\s*<\/h\1>\s*(?=<h[2-4]\b|$)/iu', $content ) ) {
+			$flags[] = __( 'Enthält eine leere Hinweisüberschrift.', 'frontend-rechtstexte-generator' );
+		}
+
+		return array_values( array_unique( $flags ) );
+	}
+
 	public function generate_impressum( array $data ): string {
 		$impressum_data = $this->get_impressum_template_data( $data );
 		$parts   = array();
@@ -711,6 +736,7 @@ class FRG_Generator {
 			'/<p\b[^>]*>(?:(?!<\/p>).)*Ob\s+mit\s+dem\s+Hosting-Anbieter(?:(?!<\/p>).)*sollte\s+geprüft\s+werden(?:(?!<\/p>).)*<\/p>/isu',
 			'/<p\b[^>]*>(?:(?!<\/p>).)*\bzu\s+prüfen\b(?:(?!<\/p>).)*<\/p>/isu',
 			'/<p\b[^>]*>(?:(?!<\/p>).)*(?:keine\s+Rechtsberatung|keine\s+rechtliche\s+Einzelfallprüfung|ersetzt\s+keine\s+(?:anwaltliche|rechtliche)\s+Prüfung)(?:(?!<\/p>).)*<\/p>/isu',
+			'/<p\b[^>]*>(?:(?!<\/p>).)*Übermittlung\s+Ihrer\s+Daten(?:(?!<\/p>).)*grundsätzlich\s+nicht\s+statt(?:(?!<\/p>).)*<\/p>/isu',
 		);
 
 		return (string) preg_replace( $patterns, '', $html );
@@ -721,7 +747,7 @@ class FRG_Generator {
 		$html = (string) preg_replace( '/<(p|div|section|li)\b[^>]*>(?:(?!<\/\1>).)*\{\{[^}]+\}\}(?:(?!<\/\1>).)*<\/\1>/isu', '', $html );
 		$html = (string) preg_replace( '/\{\{[^}]+\}\}/u', '', $html );
 		$html = (string) preg_replace( '/<(p|div|section)\b[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s)*<\/\1>/iu', '', $html );
-		$html = (string) preg_replace( '/<h([2-4])\b[^>]*>\s*(?:Hinweis|Wichtiger Hinweis)\s*<\/h\1>\s*(?=<h[2-4]\b|$)/iu', '', $html );
+		$html = (string) preg_replace( '/<h([2-4])\b[^>]*>\s*(?:Hinweis|Wichtiger Hinweis)\s*<\/h\1>/iu', '', $html );
 
 		return $html;
 	}

@@ -138,9 +138,16 @@ Das Plugin enthält einen eigenen Datenschutzbereich für Schulungsportale mit O
 
 ## Version
 
-Aktueller Release: `1.6.0`
+Aktueller Release: `1.6.1`
 
 ## Changelog
+
+### 1.6.1
+
+- automatische Textqualitätsprüfung im Backend ergänzt
+- Pflichtdaten ohne technische Generatorüberschrift ausgegeben
+- Backup-Rechtsgrundlage und DSGVO-Artikel der Betroffenenrechte ergänzt
+- weitere Umlaut-, Hinweis- und Kontaktformular-Reste aus Live-Overrides bereinigt
 
 ### 1.6.0
 

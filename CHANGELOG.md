@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.1 - 2026-09-08
+
+- weitere Umlautersatzschreibweisen und den Begriff `Resource` in Live-Overrides normalisiert
+- technische Überschrift „Verbindliche Angaben zu diesem Bereich“ aus ergänzten Pflichtdaten entfernt
+- leere Hinweisüberschriften unabhängig von ihrer Position aus veröffentlichten Texten entfernt
+- Backup-Rechtsgrundlage und Artikelangaben bei Betroffenenrechten ergänzt
+- unsichere pauschale Drittlandaussage im Kontaktformular-Override wird nicht veröffentlicht
+- automatische Qualitätsindikatoren für aktive Texte und Arbeitsentwürfe im Backend ergänzt
+
 ## 1.6.0 - 2026-09-08
 
 - unfertige KI-, SMTP- und Vimeo-Abschnitte werden bis zur Eingabe konkreter Anbieter- und Konfigurationsdaten nicht veröffentlicht

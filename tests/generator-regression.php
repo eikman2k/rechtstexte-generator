@@ -83,6 +83,11 @@ function assert_not_contains( string $needle, string $haystack, string $message 
 }
 
 $generator = new FRG_Generator( new FRG_Text_Modules() );
+$quality_flags = $generator->inspect_text_quality( '<h3>Hinweis</h3><p>Der jeweils eingesetzte Anbieter kann eingesetzt werden. Bitte prüfen. Vertragsdurchfuehrung erfolgt gegebenenfalls.</p>' );
+if ( count( $quality_flags ) < 5 ) {
+	fwrite( STDERR, 'FAIL: Automatische Textprüfung erkennt problematische Muster nicht zuverlässig: ' . wp_json_encode( $quality_flags ) . "\n" );
+	exit( 1 );
+}
 $base = array(
 	'company_name'       => 'Betreiber GmbH',
 	'legal_form'         => 'GmbH',
@@ -161,10 +166,13 @@ $clean_output['privacy_supervisory_authority_address'] = "Prinzenstraße 5\n3015
 $clean_output['privacy_supervisory_authority_url'] = 'https://www.lfd.niedersachsen.de/';
 $privacy = $generator->generate_privacy_policy( $clean_output );
 assert_contains( 'Eigener Backup-Server in Deutschland', $privacy, 'Backup-Speicherort fehlt.' );
+assert_contains( 'Art. 6 Abs. 1 lit. f DSGVO', $privacy, 'Rechtsgrundlage des Backup-Abschnitts fehlt.' );
 assert_contains( 'Der Landesbeauftragte für den Datenschutz Niedersachsen', $privacy, 'Konkrete Aufsichtsbehörde fehlt.' );
 assert_contains( 'Die Schriftdateien befinden sich auf unserem eigenen Server', $privacy, 'Lokale Google-Fonts-Ausgabe fehlt.' );
 assert_not_contains( 'Schriftarten nicht lokal', $privacy, 'Externe Google-Fonts-Ausgabe bleibt trotz lokaler Auswahl aktiv.' );
 assert_not_contains( 'Bitte prüfen Sie', $privacy, 'Redaktionelle Prüfanweisung wird veröffentlicht.' );
+assert_contains( 'Auskunft (Art. 15 DSGVO)', $privacy, 'Artikelangaben bei den Betroffenenrechten fehlen.' );
+assert_contains( 'Widerspruch gegen diese Verarbeitung', $privacy, 'Widerspruchsrecht fehlt.' );
 assert_not_contains( '<h3>Drittlandtransfer</h3>', $privacy, 'Generischer Drittlandabschnitt wird ohne konkreten Bezug veröffentlicht.' );
 if ( 1 !== substr_count( $privacy, '<h3>Speicherdauer</h3>' ) ) {
 	fwrite( STDERR, "FAIL: Speicherdauer wird nicht genau einmal ausgegeben.\n" );
@@ -237,17 +245,32 @@ $privacy = $generator->generate_privacy_policy( $base );
 assert_contains( 'Art. 6 Abs. 1 lit. f DSGVO', $privacy, 'Konkrete Hosting-Rechtsgrundlage wird bei einem Live-Override nicht erzwungen.' );
 assert_not_contains( 'Art. 6 Abs. 1 DSGVO.</p>', $privacy, 'Unvollständige Hosting-Rechtsgrundlage bleibt im Live-Override erhalten.' );
 assert_not_contains( 'Es kann nicht ausgeschlossen werden', $privacy, 'Drittlandpassus aus Hosting-Live-Override bleibt trotz deaktiviertem Schalter sichtbar.' );
+assert_not_contains( 'Verbindliche Angaben zu diesem Bereich', $privacy, 'Technische Überschrift für ergänzte Pflichtangaben wird veröffentlicht.' );
 $frg_test_options['frg_block_registry'] = array();
 
 $frg_test_options['frg_block_registry'] = array(
 	'server_logs' => array(
 		'status'        => 'editorial_approved',
-		'override_text' => '<h3>Server-Logfiles</h3><p>Vertragsdurchfuehrung, Fehlerpraevention, Massnahmen, Vertragserfuellung, Anschliessend eingeschraenkt aus wichtigen Gruenden.</p><h3>Hinweis</h3><p>Bitte prüfen Sie diesen Abschnitt.</p>',
+		'override_text' => '<h3>Server-Logfiles</h3><p>Durchfuehrung, Erfuellung, Vertragsdurchfuehrung, Fehlerpraevention, Massnahmen, Vertragserfuellung, Anschliessend eingeschraenkt aus wichtigen Gruenden. Aufgerufene Seite/Resource.</p><p><strong>Pflicht zur Bereitstellung / Consent:</strong> erforderlich.</p><h3>Hinweis</h3><p>Bitte prüfen Sie diesen Abschnitt.</p>',
 	),
 );
 $privacy = $generator->generate_privacy_policy( $base );
-assert_contains( 'Vertragsdurchführung, Fehlerprävention, Maßnahmen, Vertragserfüllung, Anschließend eingeschränkt aus wichtigen Gründen.', $privacy, 'Deutsche Umlaute werden in einem Live-Override nicht normalisiert.' );
+assert_contains( 'Durchführung, Erfüllung, Vertragsdurchführung, Fehlerprävention, Maßnahmen, Vertragserfüllung, Anschließend eingeschränkt aus wichtigen Gründen. Aufgerufene Seite/Ressource.', $privacy, 'Deutsche Umlaute werden in einem Live-Override nicht normalisiert.' );
+assert_contains( 'Erforderlichkeit der Verarbeitung', $privacy, 'Technische Consent-Bezeichnung wird nicht verständlich übersetzt.' );
 assert_not_contains( '<h3>Hinweis</h3>', $privacy, 'Verwaiste Hinweisüberschrift bleibt nach dem Entfernen einer Prüfanweisung sichtbar.' );
+$frg_test_options['frg_block_registry'] = array();
+
+$frg_test_options['frg_block_registry'] = array(
+	'contact_form' => array(
+		'status'        => 'editorial_approved',
+		'override_text' => '<h3>Kontaktformular</h3><p>Eine Übermittlung Ihrer Daten in Staaten außerhalb der EU/des EWR findet im Zusammenhang mit der Nutzung des Kontaktformulars grundsätzlich nicht statt.</p>',
+	),
+);
+$contact_form = $base;
+$contact_form['features']['contact_form'] = true;
+$privacy = $generator->generate_privacy_policy( $contact_form );
+assert_not_contains( 'grundsätzlich nicht statt', $privacy, 'Ungeprüfte Drittlandaussage des Kontaktformulars wird veröffentlicht.' );
+assert_not_contains( '<h3>Hinweis</h3>', $privacy, 'Leere Hinweisüberschrift wird veröffentlicht.' );
 $frg_test_options['frg_block_registry'] = array();
 
 $other_form = $base;

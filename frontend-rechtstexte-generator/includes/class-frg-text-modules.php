@@ -9,7 +9,7 @@ class FRG_Text_Modules {
 
 	public function get_module_meta(): array {
 		return array(
-			'module_version' => '2026.09.08.5',
+			'module_version' => '2026.09.08.6',
 			'content_updated_at' => '2026-09-08',
 			'last_reviewed_at' => '',
 			'legal_basis' => array(
@@ -561,13 +561,17 @@ class FRG_Text_Modules {
 			array(
 					'Datenschutzerklaerung' => 'Datenschutzerklärung',
 					'Vertragsdurchfuehrung' => 'Vertragsdurchführung',
+					'Durchfuehrung' => 'Durchführung',
 					'Vertragserfuellung' => 'Vertragserfüllung',
+					'Erfuellung' => 'Erfüllung',
 					'Fehlerpraevention' => 'Fehlerprävention',
 					'Massnahmen' => 'Maßnahmen',
 					'massnahmen' => 'maßnahmen',
 					'Anschliessend' => 'Anschließend',
 					'eingeschraenkt' => 'eingeschränkt',
 					'Gruende' => 'Gründe',
+					'Resource' => 'Ressource',
+					'Pflicht zur Bereitstellung / Consent' => 'Erforderlichkeit der Verarbeitung',
 				'Naechste Pruefung' => 'Nächste Prüfung',
 				'Pruefung' => 'Prüfung',
 				'pruefen' => 'prüfen',
@@ -886,9 +890,8 @@ class FRG_Text_Modules {
 		if ( empty( $facts ) ) {
 			return $content;
 		}
-		$title = '' !== $title ? $title : __( 'Verbindliche Angaben zu diesem Bereich', 'frontend-rechtstexte-generator' );
 
-		return $content . '<div class="frg-required-facts"><p class="frg-required-facts__title"><strong>' . esc_html( $title ) . ':</strong></p>' . implode( '', $facts ) . '</div>';
+		return $content . implode( '', $facts );
 	}
 
 	private function contains_required_value( string $content, string $value ): bool {
@@ -1308,12 +1311,12 @@ class FRG_Text_Modules {
 			$details .= '<p><strong>' . esc_html__( 'Aufbewahrungsdauer', 'frontend-rechtstexte-generator' ) . ':</strong> {{backup_retention}}</p>';
 		}
 
-		return $this->replace( '<h3>' . esc_html__( 'Backups und Wiederherstellung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Zur Sicherung und Wiederherstellung dieser Website erstellen wir regelmäßige Backups der Website-Dateien und Datenbanken. Die Verarbeitung dient der Ausfallsicherheit, der Wiederherstellbarkeit und dem Schutz vor Datenverlust.', 'frontend-rechtstexte-generator' ) . '</p>' . $details, $data );
+		return $this->replace( '<h3>' . esc_html__( 'Backups und Wiederherstellung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Zur Sicherung und Wiederherstellung dieser Website erstellen wir regelmäßige Backups der Website-Dateien und Datenbanken. Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse liegt in der Sicherstellung der Verfügbarkeit, Integrität und Wiederherstellbarkeit unserer Website und der darauf verarbeiteten Daten.', 'frontend-rechtstexte-generator' ) . '</p>' . $details, $data );
 	}
 
 	public function get_data_subject_rights_module(): string {
 		// Juristische Pruefung empfohlen.
-		return '<h3>' . esc_html__( 'Betroffenenrechte', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Sie haben im Rahmen der geltenden gesetzlichen Bestimmungen insbesondere das Recht auf Auskunft über Ihre bei uns gespeicherten personenbezogenen Daten, auf Berichtigung unrichtiger Daten, auf Löschung, auf Einschränkung der Verarbeitung sowie auf Herausgabe bestimmter Daten in einem strukturierten, gängigen und maschinenlesbaren Format.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Soweit eine Verarbeitung auf Ihrer Einwilligung beruht, können Sie diese Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen. Soweit wir Daten auf Grundlage berechtigter Interessen verarbeiten, haben Sie zudem das Recht, aus Gründen, die sich aus Ihrer besonderen Situation ergeben, Widerspruch gegen diese Verarbeitung einzulegen, soweit die gesetzlichen Voraussetzungen vorliegen.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>' . esc_html__( 'Betroffenenrechte', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Sie haben im Rahmen der geltenden gesetzlichen Bestimmungen insbesondere das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16 DSGVO), Löschung (Art. 17 DSGVO), Einschränkung der Verarbeitung (Art. 18 DSGVO) sowie Datenübertragbarkeit (Art. 20 DSGVO).', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Soweit eine Verarbeitung auf Ihrer Einwilligung beruht, können Sie diese Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen. Soweit wir Daten auf Grundlage berechtigter Interessen verarbeiten, haben Sie nach Art. 21 DSGVO zudem das Recht, aus Gründen, die sich aus Ihrer besonderen Situation ergeben, Widerspruch gegen diese Verarbeitung einzulegen, soweit die gesetzlichen Voraussetzungen vorliegen.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_storage_duration_module( array $data ): string {

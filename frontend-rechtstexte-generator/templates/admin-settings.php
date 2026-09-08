@@ -182,9 +182,11 @@ foreach ( $block_registry as $review_block ) {
 			<?php foreach ( $block_registry as $block ) : ?>
 				<?php
 				$placeholders = $this->generator->get_block_placeholder_details( $block['key'] );
-				$block_status = $block['status'] ?? 'review_needed';
-				$area_label   = 'impressum' === $block['area'] ? __( 'Impressum', 'frontend-rechtstexte-generator' ) : __( 'Datenschutz', 'frontend-rechtstexte-generator' );
-				$is_overdue   = ! empty( $block['review_due_at'] ) && $block['review_due_at'] < $today;
+					$block_status = $block['status'] ?? 'review_needed';
+					$area_label   = 'impressum' === $block['area'] ? __( 'Impressum', 'frontend-rechtstexte-generator' ) : __( 'Datenschutz', 'frontend-rechtstexte-generator' );
+					$is_overdue   = ! empty( $block['review_due_at'] ) && $block['review_due_at'] < $today;
+					$active_quality_flags = $this->generator->inspect_text_quality( $this->generator->get_distributable_block_text( $block['key'] ) );
+					$draft_quality_flags = ! empty( $block['draft_text'] ) ? $this->generator->inspect_text_quality( (string) $block['draft_text'] ) : array();
 				?>
 				<details class="frg-block-card" data-frg-block="<?php echo esc_attr( $block['key'] ); ?>" data-frg-title="<?php echo esc_attr( $block['title'] . ' ' . $block['key'] ); ?>" data-frg-area="<?php echo esc_attr( $block['area'] ); ?>" data-frg-status="<?php echo esc_attr( $block_status ); ?>" data-frg-overdue="<?php echo $is_overdue ? '1' : '0'; ?>">
 					<summary class="frg-block-card__summary">
@@ -196,6 +198,13 @@ foreach ( $block_registry as $review_block ) {
 						</div>
 					</summary>
 					<div class="frg-block-card__body">
+						<?php if ( ! empty( $active_quality_flags ) || ! empty( $draft_quality_flags ) ) : ?>
+							<div class="frg-guidance-warning frg-quality-warning">
+								<strong><?php esc_html_e( 'Automatische Textprüfung:', 'frontend-rechtstexte-generator' ); ?></strong>
+								<?php if ( ! empty( $active_quality_flags ) ) : ?><p><?php esc_html_e( 'Aktuell veröffentlichter Text:', 'frontend-rechtstexte-generator' ); ?></p><ul><?php foreach ( $active_quality_flags as $quality_flag ) : ?><li><?php echo esc_html( $quality_flag ); ?></li><?php endforeach; ?></ul><?php endif; ?>
+								<?php if ( ! empty( $draft_quality_flags ) ) : ?><p><?php esc_html_e( 'Arbeitsentwurf:', 'frontend-rechtstexte-generator' ); ?></p><ul><?php foreach ( $draft_quality_flags as $quality_flag ) : ?><li><?php echo esc_html( $quality_flag ); ?></li><?php endforeach; ?></ul><?php endif; ?>
+							</div>
+						<?php endif; ?>
 						<section class="frg-editor-step">
 							<div class="frg-step-title"><span>1</span><div><h3><?php esc_html_e( 'Was hat sich geändert?', 'frontend-rechtstexte-generator' ); ?></h3><p><?php esc_html_e( 'Beschreiben Sie die neue Regel oder fügen Sie die Quelle ein. Diese Angabe wird beim KI-Entwurf berücksichtigt.', 'frontend-rechtstexte-generator' ); ?></p></div></div>
 							<textarea name="blocks[<?php echo esc_attr( $block['key'] ); ?>][admin_notes]" rows="3" data-frg-change-request placeholder="<?php echo esc_attr__( 'Beispiel: Anbieteradresse geändert; neue Rechtsgrundlage aus Quelle … berücksichtigen.', 'frontend-rechtstexte-generator' ); ?>"><?php echo esc_textarea( $block['admin_notes'] ?? '' ); ?></textarea>

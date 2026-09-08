@@ -433,6 +433,20 @@
 	line-height: 1.55;
 }
 
+.frg-quality-warning {
+	margin-bottom: 20px;
+}
+
+.frg-quality-warning p {
+	margin: 10px 0 4px;
+	font-weight: 600;
+}
+
+.frg-quality-warning ul {
+	margin: 0 0 0 18px;
+	list-style: disc;
+}
+
 .frg-feed-settings {
 	margin-top: 28px;
 	padding: 24px;
