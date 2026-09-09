@@ -13,6 +13,7 @@
 	const saveStatus = wizard.querySelector('[data-frg-save-status]');
 	const impressumOutput = wizard.querySelector('[data-frg-html-output="impressum"]');
 	const privacyOutput = wizard.querySelector('[data-frg-html-output="privacy"]');
+	const authorityState = form.querySelector('[data-frg-authority-state]');
 	let currentStep = 0;
 
 	const syncConditionalFields = () => {
@@ -48,6 +49,26 @@
 			container.querySelectorAll('input, select, textarea').forEach((field) => {
 				field.setAttribute('aria-hidden', isActive ? 'false' : 'true');
 			});
+		});
+	};
+
+	const applyAuthorityPreset = () => {
+		if (!authorityState || !authorityState.value) {
+			return;
+		}
+
+		const option = authorityState.options[authorityState.selectedIndex];
+		const fields = {
+			name: form.querySelector('[data-frg-authority-name]'),
+			address: form.querySelector('[data-frg-authority-address]'),
+			url: form.querySelector('[data-frg-authority-url]'),
+		};
+
+		Object.entries(fields).forEach(([key, field]) => {
+			if (field) {
+				field.value = option.dataset[`authority${key.charAt(0).toUpperCase()}${key.slice(1)}`] || '';
+				field.dispatchEvent(new Event('input', { bubbles: true }));
+			}
 		});
 	};
 
@@ -214,6 +235,10 @@
 			syncConditionalFields();
 		});
 	});
+
+	if (authorityState) {
+		authorityState.addEventListener('change', applyAuthorityPreset);
+	}
 
 	syncConditionalFields();
 	showStep(0);

@@ -273,11 +273,11 @@ class FRG_Frontend_Wizard {
 				'controller_name', 'controller_representative', 'controller_street', 'controller_zip', 'controller_city', 'controller_country', 'controller_email', 'controller_phone',
 				'data_protection_officer_name', 'data_protection_officer_email', 'data_protection_officer_phone', 'data_protection_officer_address', 'privacy_processing_purposes',
 			'privacy_legal_basis', 'privacy_storage_general', 'privacy_recipient_categories', 'privacy_third_country_transfer',
-			'privacy_supervisory_authority_name', 'privacy_supervisory_authority_address', 'privacy_supervisory_authority_url',
+			'privacy_supervisory_authority_state', 'privacy_supervisory_authority_name', 'privacy_supervisory_authority_address', 'privacy_supervisory_authority_url',
 			'backup_destination', 'backup_storage_provider', 'backup_storage_address', 'backup_retention', 'ai_chatbot_privacy_url', 'social_media_integration',
 		);
 		$bool_fields = array(
-			'has_trade_register', 'has_vat_id', 'has_responsible_content', 'has_professional_info',
+			'has_trade_register', 'has_vat_id', 'has_responsible_content', 'has_editorial_content', 'has_professional_info', 'has_professional_award_location',
 			'has_liability_insurance', 'controller_same_as_operator', 'has_data_protection_officer', 'has_third_country_transfer',
 		);
 		$data = array();
@@ -297,6 +297,10 @@ class FRG_Frontend_Wizard {
 
 		foreach ( $bool_fields as $field ) {
 			$data[ $field ] = ! empty( $raw[ $field ] );
+		}
+
+		if ( ! FRG_Authorities::is_valid_state( $data['privacy_supervisory_authority_state'] ?? '' ) ) {
+			$data['privacy_supervisory_authority_state'] = '';
 		}
 
 		$data['features'] = $this->sanitize_checkbox_group(
@@ -418,6 +422,10 @@ class FRG_Frontend_Wizard {
 
 		if ( ! empty( $data['has_vat_id'] ) && empty( $data['vat_id'] ) ) {
 			$errors[] = __( 'Bitte Umsatzsteuer-ID angeben.', 'frontend-rechtstexte-generator' );
+		}
+
+		if ( ! empty( $data['has_editorial_content'] ) && ( empty( $data['responsible_name'] ) || empty( $data['responsible_address'] ) ) ) {
+			$errors[] = __( 'Bitte für journalistisch-redaktionelle Inhalte Name und Anschrift der verantwortlichen Person angeben.', 'frontend-rechtstexte-generator' );
 		}
 
 		if ( ! empty( $data['has_liability_insurance'] ) && ( empty( $data['liability_insurer'] ) || empty( $data['liability_scope'] ) ) ) {

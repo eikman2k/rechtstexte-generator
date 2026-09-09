@@ -502,8 +502,31 @@
 	margin-bottom: 0;
 }
 
+.frg-preview__content .frg-document--impressum > .frg-impressum-section,
+.frg-preview__content .frg-document--impressum > .frg-required-facts--professional,
+.frg-document--impressum > .frg-impressum-section,
+.frg-document--impressum > .frg-required-facts--professional {
+	margin-top: 34px;
+}
+
+.frg-preview__content .frg-impressum-section--group > :last-child,
+.frg-document .frg-impressum-section--group > :last-child {
+	margin-bottom: 0;
+}
+
 .frg-html-export {
 	margin-top: 24px;
+}
+
+.frg-field-note {
+	margin: 0;
+	padding: 12px 14px;
+	border-left: 4px solid #0d8178;
+	border-radius: 8px;
+	background: #eef8f6;
+	color: #36546d;
+	font-size: 14px;
+	line-height: 1.55;
 }
 
 .frg-html-export__card {

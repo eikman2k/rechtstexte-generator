@@ -9,7 +9,7 @@ class FRG_Text_Modules {
 
 	public function get_module_meta(): array {
 		return array(
-			'module_version' => '2026.09.08.12',
+			'module_version' => '2026.09.08.16',
 			'content_updated_at' => '2026-09-08',
 			'last_reviewed_at' => '',
 			'legal_basis' => array(
@@ -275,13 +275,12 @@ class FRG_Text_Modules {
 				'{{hosting_av_contract}}' => __( 'Angabe zum AV-Vertrag', 'frontend-rechtstexte-generator' ),
 				'{{av_sentence}}' => __( 'ausformulierte Einordnung zum Auftragsverarbeitungsvertrag', 'frontend-rechtstexte-generator' ),
 				'{{server_infrastructure_provider}}' => __( 'Anbieter der Server-Infrastruktur, z. B. netcup', 'frontend-rechtstexte-generator' ),
-				'{{server_infrastructure_type}}' => __( 'Art der Server-Infrastruktur, z. B. virtueller Server (vServer)', 'frontend-rechtstexte-generator' ),
+				'{{server_infrastructure_type}}' => __( 'Art der Server-Infrastruktur, z. B. virtuelle Server (VServer)', 'frontend-rechtstexte-generator' ),
 				'{{server_infrastructure_address}}' => __( 'Anschrift des Server-Infrastruktur-Anbieters', 'frontend-rechtstexte-generator' ),
 			),
 			'contact_form' => array(
 				'{{company}}' => __( 'Unternehmensname', 'frontend-rechtstexte-generator' ),
 				'{{email}}' => __( 'Kontakt-E-Mail', 'frontend-rechtstexte-generator' ),
-				'{{form_tools}}' => __( 'eingesetztes Formularsystem', 'frontend-rechtstexte-generator' ),
 			),
 			'email_contact' => array(
 				'{{company}}' => __( 'Unternehmensname', 'frontend-rechtstexte-generator' ),
@@ -755,6 +754,8 @@ class FRG_Text_Modules {
 	}
 
 	private function enforce_required_block_details( string $key, string $content, array $data ): string {
+		$content = $this->enforce_global_block_consistency( $key, $content, $data );
+
 		switch ( $key ) {
 			case 'impressum_base':
 				return $this->ensure_impressum_base_required_details( $content, $data );
@@ -771,6 +772,44 @@ class FRG_Text_Modules {
 			default:
 				return $this->ensure_service_required_details( $key, $content, $data );
 		}
+	}
+
+	private function enforce_global_block_consistency( string $key, string $content, array $data ): string {
+		$visible = wp_strip_all_tags( $content );
+
+		if ( 'contact_form' === $key ) {
+			$content = (string) preg_replace(
+				array(
+					'/<p\b[^>]*>(?:(?!<\/p>).)*(?:Eingesetztes\s+Formularsystem|Formularsystem\s*:)(?:(?!<\/p>).)*<\/p>/isu',
+					'/<p\b[^>]*>(?:(?!<\/p>).)*(?:Elementor|Contact\s+Form\s+7|Gravity\s+Forms|WPForms)(?:(?!<\/p>).)*<\/p>/isu',
+				),
+				'',
+				$content
+			);
+			if (
+				false !== mb_stripos( $visible, 'sofern eine solche abgefragt wurde' ) ||
+				false === mb_stripos( $visible, 'Art. 6 Abs. 1 lit. b DSGVO' ) ||
+				false === mb_stripos( $visible, 'Art. 6 Abs. 1 lit. f DSGVO' )
+			) {
+				$content = $this->get_contact_form_module_compact( $data );
+			}
+		}
+
+		if ( 'server_logs' === $key && false === mb_stripos( $visible, 'Art. 6 Abs. 1 lit. f DSGVO' ) ) {
+			if ( 'compact' === ( $data['readability_mode'] ?? 'detailed' ) ) {
+				return $this->get_server_logs_module_compact( $data );
+			}
+			$content .= '<p>' . esc_html__( 'Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Die Daten werden nur so lange gespeichert, wie dies für die genannten Zwecke erforderlich ist.', 'frontend-rechtstexte-generator' ) . '</p>';
+		}
+
+		if ( 'google_fonts_local' === $key && false === mb_stripos( $visible, 'Art. 6 Abs. 1 lit. f DSGVO' ) ) {
+			if ( 'compact' === ( $data['readability_mode'] ?? 'detailed' ) ) {
+				return $this->get_google_fonts_local_module_compact( $data );
+			}
+			$content .= '<p>' . esc_html__( 'Die Verarbeitung im Rahmen der lokalen Bereitstellung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO.', 'frontend-rechtstexte-generator' ) . '</p>';
+		}
+
+		return $content;
 	}
 
 	private function ensure_service_required_details( string $key, string $content, array $data ): string {
@@ -959,24 +998,24 @@ class FRG_Text_Modules {
 
 	public function get_impressum_base_module( array $data ): string {
 		return $this->replace(
-			'<h2>' . esc_html__( 'Impressum', 'frontend-rechtstexte-generator' ) . '</h2>{{document_notice}}<p><strong>' . esc_html__( 'Angaben gemäß § 5 DDG', 'frontend-rechtstexte-generator' ) . '</strong></p><p><strong>{{company}}</strong><br><strong>' . esc_html__( 'Rechtsform', 'frontend-rechtstexte-generator' ) . ':</strong> {{legal_form}}<br>{{representative_line}}</p><div class="frg-address-block"><strong>' . esc_html__( 'Anschrift', 'frontend-rechtstexte-generator' ) . ':</strong><br>{{postal_address}}</div><p><strong>' . esc_html__( 'Kontakt', 'frontend-rechtstexte-generator' ) . ':</strong><br>' . esc_html__( 'E-Mail', 'frontend-rechtstexte-generator' ) . ': {{email}}<br>{{phone_line}}{{website_line}}</p>',
+			'<h2>' . esc_html__( 'Impressum', 'frontend-rechtstexte-generator' ) . '</h2>{{document_notice}}<p><strong>' . esc_html__( 'Angaben gemäß § 5 DDG', 'frontend-rechtstexte-generator' ) . '</strong></p><p><strong>{{company}}</strong><br><strong>' . esc_html__( 'Rechtsform', 'frontend-rechtstexte-generator' ) . ':</strong> {{legal_form}}<br>{{representative_line}}</p><div class="frg-address-block"><strong>' . esc_html__( 'Anschrift', 'frontend-rechtstexte-generator' ) . ':</strong><br>{{postal_address}}</div><p class="frg-impressum-section"><strong>' . esc_html__( 'Kontakt', 'frontend-rechtstexte-generator' ) . ':</strong><br>' . esc_html__( 'E-Mail', 'frontend-rechtstexte-generator' ) . ': {{email}}<br>{{phone_line}}{{website_line}}</p>',
 			$data
 		);
 	}
 
 	public function get_register_module( array $data ): string {
 		// Juristische Prüfung empfohlen.
-		return $this->replace( '<p><strong>' . esc_html__( 'Registereintrag', 'frontend-rechtstexte-generator' ) . ':</strong><br>' . esc_html__( 'Eintragung im Handelsregister.', 'frontend-rechtstexte-generator' ) . '<br><strong>' . esc_html__( 'Registergericht', 'frontend-rechtstexte-generator' ) . ':</strong> {{court}}<br><strong>' . esc_html__( 'Registernummer', 'frontend-rechtstexte-generator' ) . ':</strong> {{number}}</p>', $data );
+		return $this->replace( '<p class="frg-impressum-section"><strong>' . esc_html__( 'Registereintrag', 'frontend-rechtstexte-generator' ) . ':</strong><br>' . esc_html__( 'Eintragung im Handelsregister.', 'frontend-rechtstexte-generator' ) . '<br><strong>' . esc_html__( 'Registergericht', 'frontend-rechtstexte-generator' ) . ':</strong> {{court}}<br><strong>' . esc_html__( 'Registernummer', 'frontend-rechtstexte-generator' ) . ':</strong> {{number}}</p>', $data );
 	}
 
 	public function get_vat_module( array $data ): string {
 		// Juristische Prüfung empfohlen.
-		return $this->replace( '<p><strong>' . esc_html__( 'Umsatzsteuer', 'frontend-rechtstexte-generator' ) . ':</strong><br>' . esc_html__( 'Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz', 'frontend-rechtstexte-generator' ) . ': {{vat_id}}{{business_id_line}}</p>', $data );
+		return $this->replace( '<p class="frg-impressum-section"><strong>' . esc_html__( 'Umsatzsteuer', 'frontend-rechtstexte-generator' ) . ':</strong><br>' . esc_html__( 'Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz', 'frontend-rechtstexte-generator' ) . ': {{vat_id}}{{business_id_line}}</p>', $data );
 	}
 
 	public function get_responsible_content_module( array $data ): string {
 		// Juristische Prüfung empfohlen.
-		return $this->replace( '<p><strong>' . esc_html__( 'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV', 'frontend-rechtstexte-generator' ) . ':</strong><br>{{name}}</p><div class="frg-address-block"><strong>' . esc_html__( 'Anschrift', 'frontend-rechtstexte-generator' ) . ':</strong><br>{{address}}</div>', $data );
+		return $this->replace( '<p class="frg-impressum-section"><strong>' . esc_html__( 'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV', 'frontend-rechtstexte-generator' ) . ':</strong><br>{{name}}</p><div class="frg-address-block"><strong>' . esc_html__( 'Anschrift', 'frontend-rechtstexte-generator' ) . ':</strong><br>{{address}}</div>', $data );
 	}
 
 	public function get_professional_information_module( array $data ): string {
@@ -1007,7 +1046,7 @@ class FRG_Text_Modules {
 
 	public function get_liability_insurance_module( array $data ): string {
 		// Juristische Prüfung empfohlen.
-		return $this->replace( '<p><strong>' . esc_html__( 'Angaben zur Berufshaftpflichtversicherung', 'frontend-rechtstexte-generator' ) . ':</strong></p><p><strong>' . esc_html__( 'Versicherer', 'frontend-rechtstexte-generator' ) . ':</strong> {{insurer}}</p><div class="frg-address-block"><strong>' . esc_html__( 'Anschrift', 'frontend-rechtstexte-generator' ) . ':</strong><br>{{insurer_address}}</div><p><strong>' . esc_html__( 'Räumlicher Geltungsbereich', 'frontend-rechtstexte-generator' ) . ':</strong> {{scope}}</p>', $data );
+		return $this->replace( '<div class="frg-impressum-section frg-impressum-section--group"><p><strong>' . esc_html__( 'Angaben zur Berufshaftpflichtversicherung', 'frontend-rechtstexte-generator' ) . ':</strong></p><p><strong>' . esc_html__( 'Versicherer', 'frontend-rechtstexte-generator' ) . ':</strong> {{insurer}}</p><div class="frg-address-block"><strong>' . esc_html__( 'Anschrift', 'frontend-rechtstexte-generator' ) . ':</strong><br>{{insurer_address}}</div><p><strong>' . esc_html__( 'Räumlicher Geltungsbereich', 'frontend-rechtstexte-generator' ) . ':</strong> {{scope}}</p></div>', $data );
 	}
 
 	public function get_privacy_intro_module( array $data = array() ): string {
@@ -1041,18 +1080,29 @@ class FRG_Text_Modules {
 
 	public function get_hosting_module( array $data ): string {
 		// Juristische Pruefung empfohlen.
+		$infrastructure_sentence = '';
+		if ( ! empty( $data['server_infrastructure_provider'] ) && ! empty( $data['server_infrastructure_type'] ) ) {
+			$infrastructure_sentence = 'netcup GmbH' === wp_strip_all_tags( (string) $data['server_infrastructure_provider'] )
+				? sprintf(
+					/* translators: 1: infrastructure type, 2: provider */
+					esc_html__( 'Der Hosting-Dienstleister nutzt für die technische Server-Infrastruktur %1$s der %2$s. Der Infrastruktur-Anbieter wird dabei als Unterauftragnehmer eingebunden.', 'frontend-rechtstexte-generator' ),
+					esc_html( (string) $data['server_infrastructure_type'] ),
+					esc_html( (string) $data['server_infrastructure_provider'] )
+				)
+				: sprintf(
+					/* translators: 1: infrastructure type, 2: provider */
+					esc_html__( 'Der Hosting-Dienstleister nutzt für die technische Server-Infrastruktur %1$s von %2$s. Der Infrastruktur-Anbieter wird dabei als Unterauftragnehmer eingebunden.', 'frontend-rechtstexte-generator' ),
+					esc_html( (string) $data['server_infrastructure_type'] ),
+					esc_html( (string) $data['server_infrastructure_provider'] )
+				);
+		}
 		return $this->replace(
 			'<h3>' . esc_html__( 'Hosting und technische Bereitstellung', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Diese Website wird durch {{host}} als Hosting- und IT-Dienstleister technisch bereitgestellt. Dabei werden die für den sicheren und zuverlässigen Betrieb erforderlichen Verbindungs- und Nutzungsdaten verarbeitet. Einzelheiten zu den technisch erfassten Daten finden Sie im Abschnitt „Server-Logfiles“.', 'frontend-rechtstexte-generator' ) . '</p>{{host_address_line}}{{server_infrastructure_line}}<p><strong>' . esc_html__( 'Serverstandort', 'frontend-rechtstexte-generator' ) . ':</strong> {{location}}</p><p>' . esc_html__( 'Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse liegt in der sicheren, zuverlässigen und effizienten Bereitstellung der Website.', 'frontend-rechtstexte-generator' ) . '</p><p><strong>' . esc_html__( 'Auftragsverarbeitung', 'frontend-rechtstexte-generator' ) . ':</strong> ' . '{{av_sentence}} ' . esc_html__( 'Soweit im Rahmen der Leistungserbringung weitere Auftragsverarbeiter oder Unterauftragnehmer eingesetzt werden, erfolgt deren Einbindung unter Beachtung der Anforderungen des Art. 28 DSGVO.', 'frontend-rechtstexte-generator' ) . '</p>',
 			array_merge(
 				$data,
 				array(
 					'host_address_line' => ! empty( $data['host_address'] ) ? '<div class="frg-address-block"><strong>' . esc_html__( 'Anschrift des Hosting-Anbieters', 'frontend-rechtstexte-generator' ) . ':</strong><br>' . $data['host_address'] . '</div>' : '',
-					'server_infrastructure_line' => ! empty( $data['server_infrastructure_provider'] ) ? '<p><strong>' . esc_html__( 'Server-Infrastruktur', 'frontend-rechtstexte-generator' ) . ':</strong><br>' . ( ! empty( $data['server_infrastructure_type'] ) ? sprintf(
-						/* translators: 1: infrastructure type, 2: provider */
-							esc_html__( 'Der Hosting-Dienstleister nutzt für die technische Server-Infrastruktur %1$s von %2$s. Der Infrastruktur-Anbieter wird dabei als Unterauftragnehmer eingebunden.', 'frontend-rechtstexte-generator' ),
-						esc_html( (string) $data['server_infrastructure_type'] ),
-						esc_html( (string) $data['server_infrastructure_provider'] )
-					) : sprintf(
+					'server_infrastructure_line' => ! empty( $data['server_infrastructure_provider'] ) ? '<p><strong>' . esc_html__( 'Server-Infrastruktur', 'frontend-rechtstexte-generator' ) . ':</strong><br>' . ( '' !== $infrastructure_sentence ? $infrastructure_sentence : sprintf(
 						/* translators: %s: server infrastructure provider */
 						esc_html__( 'Für die Bereitstellung der technischen Server-Infrastruktur wird %s eingesetzt.', 'frontend-rechtstexte-generator' ),
 						esc_html( (string) $data['server_infrastructure_provider'] )
@@ -1082,7 +1132,7 @@ class FRG_Text_Modules {
 
 	public function get_server_logs_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		return '<h3>' . esc_html__( 'Server-Logfiles', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Beim Besuch dieser Website werden durch den Webserver regelmäßig Informationen in sogenannten Server-Logfiles erhoben und gespeichert. Erfasst werden können insbesondere Browsertyp und Browserversion, verwendetes Betriebssystem, Referrer-URL, Hostname des zugreifenden Rechners, Uhrzeit der Serveranfrage sowie die IP-Adresse.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung dieser Daten erfolgt zur Gewährleistung der technischen Funktionsfähigkeit, zur IT-Sicherheit, zur Fehleranalyse und zur Abwehr missbräuchlicher Zugriffe. Eine Zusammenführung dieser Daten mit anderen Datenquellen erfolgt nur, soweit dies zur Klärung konkreter Sicherheits- oder Missbrauchsvorfälle erforderlich ist.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>' . esc_html__( 'Server-Logfiles', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Beim Besuch dieser Website werden durch den Webserver regelmäßig Informationen in sogenannten Server-Logfiles erhoben und gespeichert. Erfasst werden können insbesondere Browsertyp und Browserversion, verwendetes Betriebssystem, Referrer-URL, Hostname des zugreifenden Rechners, Uhrzeit der Serveranfrage sowie die IP-Adresse.', 'frontend-rechtstexte-generator' ) . '</p><p>' . esc_html__( 'Die Verarbeitung dieser Daten erfolgt zur Gewährleistung der technischen Funktionsfähigkeit, zur IT-Sicherheit, zur Fehleranalyse und zur Abwehr missbräuchlicher Zugriffe auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Die Daten werden nur so lange gespeichert, wie dies für diese Zwecke erforderlich ist.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_server_logs_module_compact( array $data = array() ): string {
@@ -1092,11 +1142,7 @@ class FRG_Text_Modules {
 
 	public function get_contact_form_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
-		$form_tool = ! empty( $data['form_tools'] ) ? '<p><strong>' . esc_html__( 'Eingesetztes Formularsystem', 'frontend-rechtstexte-generator' ) . ':</strong> {{form_tools}}</p>' : '';
-		return $this->replace(
-			'<h3>' . esc_html__( 'Kontaktformular', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Wenn Sie uns über das Kontaktformular auf {{website_url}} Anfragen zukommen lassen, werden Ihre Angaben aus dem Formular einschließlich der von Ihnen dort angegebenen Kontaktdaten zum Zweck der Bearbeitung Ihrer Anfrage und für den Fall von Anschlussfragen bei {{company}} gespeichert und verarbeitet.', 'frontend-rechtstexte-generator' ) . '</p>' . $form_tool . '<p>' . esc_html__( 'Die Verarbeitung erfolgt je nach Inhalt Ihrer Anfrage zur Durchführung vorvertraglicher Maßnahmen, zur Vertragserfüllung, auf Grundlage berechtigter Interessen an einer effizienten Kommunikation oder aufgrund Ihrer Einwilligung, sofern eine solche abgefragt wurde.', 'frontend-rechtstexte-generator' ) . '</p>',
-			$data
-		);
+		return $this->get_contact_form_module_compact( $data );
 	}
 
 	public function get_contact_form_module_compact( array $data = array() ): string {
@@ -1282,7 +1328,7 @@ class FRG_Text_Modules {
 	}
 
 	public function get_google_fonts_local_module( array $data = array() ): string {
-		return '<h3>Google Fonts</h3><p>' . esc_html__( 'Google Fonts werden lokal auf unserem Server bereitgestellt. Beim Aufruf der Website wird keine Verbindung zu Servern von Google hergestellt und es werden im Zusammenhang mit der Bereitstellung der Schriftarten keine personenbezogenen Daten an Google übermittelt.', 'frontend-rechtstexte-generator' ) . '</p>';
+		return '<h3>Google Fonts</h3><p>' . esc_html__( 'Google Fonts werden lokal auf unserem Server bereitgestellt. Beim Aufruf der Website wird keine Verbindung zu Servern von Google hergestellt und es werden im Zusammenhang mit der Bereitstellung der Schriftarten keine personenbezogenen Daten an Google übermittelt. Die Verarbeitung im Rahmen der lokalen Bereitstellung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO.', 'frontend-rechtstexte-generator' ) . '</p>';
 	}
 
 	public function get_google_fonts_local_module_compact( array $data = array() ): string {
@@ -1420,14 +1466,16 @@ class FRG_Text_Modules {
 	public function get_complaint_authority_module( array $data = array() ): string {
 		// Juristische Pruefung empfohlen.
 		$authority = '';
-		if ( ! empty( $data['privacy_supervisory_authority_name'] ) ) {
+		if ( ! empty( $data['privacy_supervisory_authority_name'] ) && ! empty( $data['privacy_supervisory_authority_url'] ) ) {
+			$authority .= '<p><strong><a href="{{privacy_supervisory_authority_url}}" rel="nofollow noopener" target="_blank">{{privacy_supervisory_authority_name}}</a></strong></p>';
+		} elseif ( ! empty( $data['privacy_supervisory_authority_name'] ) ) {
 			$authority .= '<p><strong>{{privacy_supervisory_authority_name}}</strong></p>';
 		}
 		if ( ! empty( $data['privacy_supervisory_authority_address'] ) ) {
 			$authority .= '<div class="frg-address-block">{{privacy_supervisory_authority_address}}</div>';
 		}
-		if ( ! empty( $data['privacy_supervisory_authority_url'] ) ) {
-			$authority .= '<p><a href="{{privacy_supervisory_authority_url}}" rel="nofollow noopener" target="_blank">' . esc_html__( 'Website der Aufsichtsbehörde', 'frontend-rechtstexte-generator' ) . '</a></p>';
+		if ( empty( $data['privacy_supervisory_authority_name'] ) && ! empty( $data['privacy_supervisory_authority_url'] ) ) {
+			$authority .= '<p><a href="{{privacy_supervisory_authority_url}}" rel="nofollow noopener" target="_blank">{{privacy_supervisory_authority_url}}</a></p>';
 		}
 
 		return $this->replace( '<h3>' . esc_html__( 'Beschwerderecht bei einer Aufsichtsbehörde', 'frontend-rechtstexte-generator' ) . '</h3><p>' . esc_html__( 'Sie haben unbeschadet anderweitiger verwaltungsrechtlicher oder gerichtlicher Rechtsbehelfe das Recht, sich bei einer Datenschutzaufsichtsbehörde über die Verarbeitung Ihrer personenbezogenen Daten zu beschweren, wenn Sie der Ansicht sind, dass die Verarbeitung gegen datenschutzrechtliche Vorgaben verstößt.', 'frontend-rechtstexte-generator' ) . '</p>' . $authority, $data );

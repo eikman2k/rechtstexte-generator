@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.9.0 - 2026-09-09
+
+- Bundesland-Auswahl für die zuständige Datenschutzaufsichtsbehörde ergänzt.
+- Namen, Anschriften und Websites der allgemeinen Landesaufsichtsbehörden für alle 16 Bundesländer hinterlegt.
+- Behördenangaben werden bei Auswahl automatisch übernommen, bleiben aber manuell bearbeitbar.
+- Zuständigkeitshinweis für öffentliche Stellen, Kirchen, Presse und Rundfunk ergänzt.
+- Hosting-Ausgabe für Völkel EDV Systeme und netcup GmbH vereinheitlicht und bekannte Anschriften vervollständigt.
+- Kontaktformular, Server-Logfiles und lokale Google Fonts in ausführlicher und kompakter Ausgabe konsistent gemacht.
+- Technische Formularsysteme werden unabhängig vom Lesbarkeitsmodus nicht mehr veröffentlicht.
+- Name der Aufsichtsbehörde wird bei vorhandener URL direkt klickbar ausgegeben.
+- ältere VServer-Bezeichnungen werden für netcup sprachlich zu „virtuelle Server (VServer) der netcup GmbH“ vereinheitlicht.
+- § 18 Abs. 2 MStV erfordert jetzt eine neue ausdrückliche Bestätigung journalistisch-redaktioneller Inhalte; alte pauschale Auswahlen werden nicht übernommen.
+- Individuelle Berufsbezeichnungen werden unverändert aus den Stammdaten übernommen.
+- pauschale Kammer-Homepage-Links werden nicht mehr als berufsrechtliche Regelung veröffentlicht.
+- Staat oder Land der Verleihung wird nur noch nach ausdrücklicher Aktivierung für eine konkret betroffene Berufsbezeichnung veröffentlicht.
+- Abschnittsabstände im Impressum für Kontakt, Register, Umsatzsteuer, berufsspezifische Angaben und Berufshaftpflicht vereinheitlicht.
+
 ## 1.8.2 - 2026-09-08
 
 - technische Angabe zum verwendeten Formularsystem aus dem Kompakttext entfernt

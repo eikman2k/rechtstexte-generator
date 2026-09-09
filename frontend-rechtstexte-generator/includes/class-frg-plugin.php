@@ -31,6 +31,7 @@ class FRG_Plugin {
 
 	private function load_dependencies(): void {
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-storage.php';
+		require_once FRG_PLUGIN_DIR . 'includes/class-frg-authorities.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-text-modules.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-generator.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-page-sync.php';

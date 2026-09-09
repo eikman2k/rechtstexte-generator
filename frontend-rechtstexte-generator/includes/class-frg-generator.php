@@ -19,7 +19,7 @@ class FRG_Generator {
 	}
 
 	public function build_exportable_document_html( string $content ): string {
-		$style = '<style>.frg-document{max-width:960px;color:#243447;font-size:18px}.frg-document--readability-compact{max-width:820px;text-wrap:pretty}.frg-document>*:first-child{margin-top:0}.frg-document h2,.frg-document h3,.frg-document h4{margin-top:0}.frg-document h2{margin-bottom:20px;font-size:clamp(2rem,3vw,2.45rem);line-height:1.18}.frg-document h3{margin-top:52px;margin-bottom:14px;font-size:clamp(1.65rem,2.2vw,2rem);line-height:1.24;letter-spacing:-.02em}.frg-document h4{margin-top:52px;margin-bottom:14px;font-size:clamp(1.3rem,1.8vw,1.55rem);line-height:1.3}.frg-document p,.frg-document ul,.frg-document ol,.frg-document .frg-required-facts{margin-top:0;margin-bottom:20px;line-height:1.8}.frg-document--readability-compact p,.frg-document--readability-compact ul,.frg-document--readability-compact ol{line-height:1.7}.frg-document ul,.frg-document ol{padding-left:22px}.frg-document li+li{margin-top:8px}.frg-document h3+p,.frg-document h4+p{margin-top:4px}.frg-document p strong{font-weight:700}.frg-document .frg-address-block{margin-top:0;margin-bottom:18px;line-height:1.35}.frg-document .frg-address-block strong{display:block;margin-bottom:4px}.frg-document .frg-address{display:inline-block}.frg-document .frg-address__line{display:block;line-height:1.35}.frg-document .frg-required-facts{padding:16px 18px;border:1px solid #dde5ee;border-radius:16px;background:#f8fbff}.frg-document .frg-required-facts__title{margin-bottom:10px}.frg-document .frg-required-facts p{margin-bottom:12px;line-height:1.55}.frg-document .frg-required-facts p:last-child{margin-bottom:0}</style>';
+		$style = '<style>.frg-document{max-width:960px;color:#243447;font-size:18px}.frg-document--readability-compact{max-width:820px;text-wrap:pretty}.frg-document>*:first-child{margin-top:0}.frg-document h2,.frg-document h3,.frg-document h4{margin-top:0}.frg-document h2{margin-bottom:20px;font-size:clamp(2rem,3vw,2.45rem);line-height:1.18}.frg-document h3{margin-top:52px;margin-bottom:14px;font-size:clamp(1.65rem,2.2vw,2rem);line-height:1.24;letter-spacing:-.02em}.frg-document h4{margin-top:52px;margin-bottom:14px;font-size:clamp(1.3rem,1.8vw,1.55rem);line-height:1.3}.frg-document p,.frg-document ul,.frg-document ol,.frg-document .frg-required-facts{margin-top:0;margin-bottom:20px;line-height:1.8}.frg-document--readability-compact p,.frg-document--readability-compact ul,.frg-document--readability-compact ol{line-height:1.7}.frg-document ul,.frg-document ol{padding-left:22px}.frg-document li+li{margin-top:8px}.frg-document h3+p,.frg-document h4+p{margin-top:4px}.frg-document p strong{font-weight:700}.frg-document .frg-address-block{margin-top:0;margin-bottom:18px;line-height:1.35}.frg-document .frg-address-block strong{display:block;margin-bottom:4px}.frg-document .frg-address{display:inline-block}.frg-document .frg-address__line{display:block;line-height:1.35}.frg-document .frg-required-facts{padding:16px 18px;border:1px solid #dde5ee;border-radius:16px;background:#f8fbff}.frg-document .frg-required-facts__title{margin-bottom:10px}.frg-document .frg-required-facts p{margin-bottom:12px;line-height:1.55}.frg-document .frg-required-facts p:last-child{margin-bottom:0}.frg-document--impressum>.frg-impressum-section,.frg-document--impressum>.frg-required-facts--professional{margin-top:34px}.frg-document .frg-impressum-section--group>:last-child{margin-bottom:0}</style>';
 
 		return $style . $content;
 	}
@@ -90,7 +90,7 @@ class FRG_Generator {
 			$parts[] = $this->modules->render_block( 'vat', $impressum_data );
 		}
 
-		if ( ! empty( $data['has_responsible_content'] ) ) {
+		if ( ! empty( $data['has_editorial_content'] ) ) {
 			$parts[] = $this->modules->render_block( 'responsible_content', $impressum_data );
 		}
 
@@ -277,8 +277,8 @@ class FRG_Generator {
 			'address'            => $this->format_multiline_address( (string) ( $data['responsible_address'] ?? '' ) ),
 			'chamber'            => esc_html( $data['professional_chamber'] ?? '' ),
 			'title'              => esc_html( $data['professional_title'] ?? '' ),
-			'awarded_in'         => esc_html( $data['professional_awarded_in'] ?? '' ),
-			'rules'              => esc_html( $data['professional_rules'] ?? '' ),
+			'awarded_in'         => ! empty( $data['has_professional_award_location'] ) ? esc_html( $data['professional_awarded_in'] ?? '' ) : '',
+			'rules'              => esc_html( $this->normalize_professional_rules( (string) ( $data['professional_rules'] ?? '' ) ) ),
 			'authority'          => esc_html( $data['supervisory_authority'] ?? '' ),
 			'insurer'            => esc_html( $data['liability_insurer'] ?? '' ),
 			'insurer_address'    => $this->format_multiline_address( (string) ( $data['liability_insurer_address'] ?? '' ) ),
@@ -344,15 +344,11 @@ class FRG_Generator {
 				'wpvivid'     => 'WPvivid',
 			)
 		);
-		$form_tools = $this->collect_labels(
-			$services,
-			array(
-				'elementor'      => 'Elementor',
-				'contact_form_7' => 'Contact Form 7',
-				'gravity_forms'  => 'Gravity Forms',
-				'wpforms'        => 'WPForms',
-			)
-		);
+		$hosting_provider              = $this->normalize_known_provider_name( (string) ( $data['hosting_provider'] ?? '' ) );
+		$hosting_provider_address      = $this->complete_known_provider_address( $hosting_provider, (string) ( $data['hosting_provider_address'] ?? '' ) );
+		$infrastructure_provider       = $this->normalize_known_provider_name( (string) ( $data['server_infrastructure_provider'] ?? '' ) );
+		$infrastructure_provider_address = $this->complete_known_provider_address( $infrastructure_provider, (string) ( $data['server_infrastructure_address'] ?? '' ) );
+		$infrastructure_type           = $this->normalize_server_infrastructure_type( $infrastructure_provider, (string) ( $data['server_infrastructure_type'] ?? '' ) );
 		$feature_labels = $this->collect_labels(
 			$features,
 			array(
@@ -451,14 +447,14 @@ class FRG_Generator {
 			'recipients'                 => esc_html( $data['privacy_recipient_categories'] ?? __( 'Hosting, IT-Dienstleister, eingesetzte Fachanbieter', 'frontend-rechtstexte-generator' ) ),
 			'storage'                    => esc_html( $data['privacy_storage_general'] ?? __( 'Speicherung nur so lange, wie dies für den jeweiligen Zweck oder gesetzliche Pflichten erforderlich ist', 'frontend-rechtstexte-generator' ) ),
 			'third_country'              => esc_html( $data['privacy_third_country_transfer'] ?? __( 'Ein Drittlandtransfer erfolgt nur, wenn dies bei einzelnen Diensten angegeben ist oder technisch erforderlich wird', 'frontend-rechtstexte-generator' ) ),
-			'host'                       => esc_html( $data['hosting_provider'] ?? '' ),
-			'host_address'               => $this->format_multiline_address( (string) ( $data['hosting_provider_address'] ?? '' ) ),
+			'host'                       => esc_html( $hosting_provider ),
+			'host_address'               => $this->format_multiline_address( $hosting_provider_address ),
 			'location'                   => esc_html( $data['server_location'] ?? '' ),
 			'av'                         => esc_html( $data['hosting_av_contract'] ?? '' ),
 			'av_sentence'                => $this->get_hosting_av_sentence( (string) ( $data['hosting_av_contract'] ?? '' ), __( 'Hosting-Anbieter', 'frontend-rechtstexte-generator' ) ),
-			'server_infrastructure_provider' => esc_html( $data['server_infrastructure_provider'] ?? '' ),
-			'server_infrastructure_type'     => esc_html( $data['server_infrastructure_type'] ?? '' ),
-			'server_infrastructure_address'  => $this->format_multiline_address( (string) ( $data['server_infrastructure_address'] ?? '' ) ),
+			'server_infrastructure_provider' => esc_html( $infrastructure_provider ),
+			'server_infrastructure_type'     => esc_html( $infrastructure_type ),
+			'server_infrastructure_address'  => $this->format_multiline_address( $infrastructure_provider_address ),
 			'providers'                  => esc_html( implode( ', ', $newsletter_providers ) ),
 			'newsletter_providers'       => esc_html( implode( ', ', $newsletter_providers ) ),
 			'profiles'                   => esc_html( implode( ', ', $social_profiles ) ),
@@ -467,7 +463,6 @@ class FRG_Generator {
 			'consent_tools'              => esc_html( implode( ', ', $consent_tools ) ),
 			'security_tools'             => esc_html( implode( ', ', $security_tools ) ),
 			'backup_tools'               => esc_html( implode( ', ', $backup_tools ) ),
-			'form_tools'                 => esc_html( implode( ', ', $form_tools ) ),
 			'backup_destination'         => esc_html( $data['backup_destination'] ?? '' ),
 			'backup_storage_provider'    => esc_html( $data['backup_storage_provider'] ?? '' ),
 			'backup_storage_address'     => $this->format_multiline_address( (string) ( $data['backup_storage_address'] ?? '' ) ),
@@ -654,6 +649,20 @@ class FRG_Generator {
 		return $legal_form;
 	}
 
+	private function normalize_professional_rules( string $rules ): string {
+		$rules   = trim( $rules );
+		$visible = trim( wp_strip_all_tags( $rules ) );
+
+		if ( preg_match( '/^Regelungen\s+einsehbar\s+unter\s*:\s*(https?:\/\/\S+)$/iu', $visible, $matches ) ) {
+			$path = (string) wp_parse_url( $matches[1], PHP_URL_PATH );
+			if ( '' === $path || '/' === $path ) {
+				return '';
+			}
+		}
+
+		return $rules;
+	}
+
 	private function collect_labels( array $source, array $map ): array {
 		$labels = array();
 
@@ -664,6 +673,52 @@ class FRG_Generator {
 		}
 
 		return $labels;
+	}
+
+	private function normalize_known_provider_name( string $provider ): string {
+		$provider = trim( $provider );
+		if ( 0 === strcasecmp( $provider, 'Netcup GmbH' ) ) {
+			return 'netcup GmbH';
+		}
+
+		return $provider;
+	}
+
+	private function complete_known_provider_address( string $provider, string $address ): string {
+		if ( 'netcup GmbH' === $provider ) {
+			return "netcup GmbH\nEmmy-Noether-Straße 10\n76131 Karlsruhe\nDeutschland";
+		}
+
+		if ( 'Völkel EDV Systeme' !== $provider ) {
+			return $address;
+		}
+
+		$lines = preg_split( '/\r\n|\r|\n/', trim( $address ) );
+		$lines = is_array( $lines ) ? array_values( array_filter( array_map( 'trim', $lines ) ) ) : array();
+		$lines = array_map(
+			static function ( string $line ): string {
+				return 'Eike Völkel' === $line ? 'Inhaber: Eike Völkel' : $line;
+			},
+			$lines
+		);
+
+		if ( ! in_array( $provider, $lines, true ) ) {
+			array_unshift( $lines, $provider );
+		}
+		if ( ! in_array( 'Deutschland', $lines, true ) ) {
+			$lines[] = 'Deutschland';
+		}
+
+		return implode( "\n", $lines );
+	}
+
+	private function normalize_server_infrastructure_type( string $provider, string $type ): string {
+		$type = trim( $type );
+		if ( 'netcup GmbH' === $provider && preg_match( '/^(?:vserver|virtueller?\s+server(?:\s*\(vserver\))?)$/iu', $type ) ) {
+			return 'virtuelle Server (VServer)';
+		}
+
+		return $type;
 	}
 
 	private function format_multiline_address( string $value ): string {

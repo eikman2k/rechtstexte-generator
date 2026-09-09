@@ -362,7 +362,7 @@ class FRG_Admin {
 			'server_location'                 => 'EU',
 			'hosting_av_contract'             => 'Ja',
 			'server_infrastructure_provider'  => 'netcup GmbH',
-			'server_infrastructure_type'      => 'virtueller Server (vServer)',
+				'server_infrastructure_type'      => 'virtuelle Server (VServer)',
 			'server_infrastructure_address'   => "netcup GmbH\nEmmy-Noether-Straße 10\n76131 Karlsruhe\nDeutschland",
 			'privacy_processing_purposes'     => 'Bereitstellung der Website, Kommunikation, Vertragserfüllung und IT-Sicherheit.',
 			'privacy_legal_basis'             => 'Art. 6 Abs. 1 lit. a, b, c und f DSGVO.',

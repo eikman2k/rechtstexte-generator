@@ -21,6 +21,10 @@ function esc_url( $url ): string {
 	return filter_var( (string) $url, FILTER_SANITIZE_URL ) ?: '';
 }
 
+function wp_parse_url( string $url, int $component = -1 ) {
+	return parse_url( $url, $component );
+}
+
 function sanitize_key( $key ): string {
 	return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $key ) ) ?: '';
 }
@@ -67,6 +71,7 @@ function update_option( string $key, $value ): bool {
 require dirname( __DIR__ ) . '/frontend-rechtstexte-generator/includes/class-frg-text-modules.php';
 require dirname( __DIR__ ) . '/frontend-rechtstexte-generator/includes/class-frg-generator.php';
 require dirname( __DIR__ ) . '/frontend-rechtstexte-generator/includes/class-frg-block-feed.php';
+require dirname( __DIR__ ) . '/frontend-rechtstexte-generator/includes/class-frg-authorities.php';
 
 function assert_contains( string $needle, string $haystack, string $message ): void {
 	if ( false === strpos( $haystack, $needle ) ) {
@@ -81,6 +86,19 @@ function assert_not_contains( string $needle, string $haystack, string $message 
 		exit( 1 );
 	}
 }
+
+$authorities = FRG_Authorities::get_by_state();
+if ( 16 !== count( $authorities ) ) {
+	fwrite( STDERR, "FAIL: Die Behörden-Registry enthält nicht alle 16 Bundesländer.\n" );
+	exit( 1 );
+}
+foreach ( $authorities as $state => $authority ) {
+	if ( empty( $authority['name'] ) || empty( $authority['address'] ) || empty( $authority['url'] ) ) {
+		fwrite( STDERR, "FAIL: Unvollständige Behördenangaben für {$state}.\n" );
+		exit( 1 );
+	}
+}
+assert_contains( 'Bayerisches Landesamt für Datenschutzaufsicht', $authorities['bayern']['name'], 'Für bayerische Unternehmen ist nicht das BayLDA hinterlegt.' );
 
 $generator = new FRG_Generator( new FRG_Text_Modules() );
 $quality_flags = $generator->inspect_text_quality( '<h3>Hinweis</h3><p>Der jeweils eingesetzte Anbieter kann eingesetzt werden. Bitte prüfen. Vertragsdurchfuehrung erfolgt gegebenenfalls.</p>' );
@@ -193,9 +211,32 @@ $contact_form = $base;
 $contact_form['features']['contact_form'] = true;
 $contact_form['services']['elementor'] = true;
 $privacy = $generator->generate_privacy_policy( $contact_form );
-assert_contains( 'Eingesetztes Formularsystem', $privacy, 'Bezeichnung des Formularsystems fehlt.' );
-assert_contains( 'Elementor', $privacy, 'Ausgewähltes Formularsystem fehlt im Kontaktformular-Abschnitt.' );
+assert_not_contains( 'Eingesetztes Formularsystem', $privacy, 'Technisches Formularsystem wird in der Datenschutzerklärung veröffentlicht.' );
+assert_not_contains( '>Elementor<', $privacy, 'Elementor wird als Datenschutzdienstleister dargestellt.' );
+assert_contains( 'Art. 6 Abs. 1 lit. b DSGVO beziehungsweise Art. 6 Abs. 1 lit. f DSGVO', $privacy, 'Einheitliche Rechtsgrundlagen des Kontaktformulars fehlen.' );
 assert_not_contains( '{{', $privacy, 'Nicht ersetzter Platzhalter im Kontaktformular-Abschnitt.' );
+
+$frg_test_options['frg_block_registry'] = array(
+	'contact_form' => array(
+		'override_text' => '<h3>Kontaktformular</h3><p>Eingesetztes Formularsystem: Elementor</p><p>Die Verarbeitung erfolgt aufgrund Ihrer Einwilligung, sofern eine solche abgefragt wurde.</p>',
+	),
+	'server_logs' => array(
+		'override_text' => '<h3>Server-Logfiles</h3><p>Technische Zugriffsdaten werden zur Absicherung der Website verarbeitet.</p>',
+	),
+	'google_fonts_local' => array(
+		'override_text' => '<h3>Google Fonts</h3><p>Die Schriftarten werden lokal bereitgestellt.</p>',
+	),
+);
+$legacy_override = $contact_form;
+$legacy_override['services']['google_fonts_local'] = true;
+$privacy = $generator->generate_privacy_policy( $legacy_override );
+assert_not_contains( 'Eingesetztes Formularsystem', $privacy, 'Alter Formularsystem-Hinweis bleibt aus einem Live-Override erhalten.' );
+assert_not_contains( 'sofern eine solche abgefragt wurde', $privacy, 'Alte unbestimmte Kontaktformularformulierung bleibt erhalten.' );
+if ( substr_count( $privacy, 'Art. 6 Abs. 1 lit. f DSGVO' ) < 3 ) {
+	fwrite( STDERR, "FAIL: Pflicht-Rechtsgrundlagen von Kontaktformular, Server-Logs oder lokalen Google Fonts fehlen bei alten Overrides.\n" );
+	exit( 1 );
+}
+$frg_test_options['frg_block_registry'] = array();
 
 $turnstile = $contact_form;
 $turnstile['services']['cloudflare_turnstile'] = true;
@@ -220,6 +261,8 @@ $privacy = $generator->generate_privacy_policy( $clean_output );
 assert_contains( 'Eigener Backup-Server in Deutschland', $privacy, 'Backup-Speicherort fehlt.' );
 assert_contains( 'Art. 6 Abs. 1 lit. f DSGVO', $privacy, 'Rechtsgrundlage des Backup-Abschnitts fehlt.' );
 assert_contains( 'Der Landesbeauftragte für den Datenschutz Niedersachsen', $privacy, 'Konkrete Aufsichtsbehörde fehlt.' );
+assert_contains( '<a href="https://www.lfd.niedersachsen.de/"', $privacy, 'Aufsichtsbehörde wird nicht direkt verlinkt.' );
+assert_not_contains( '>Website der Aufsichtsbehörde<', $privacy, 'Generischer Linktext der Aufsichtsbehörde bleibt erhalten.' );
 assert_contains( 'Google Fonts werden lokal auf unserem Server bereitgestellt', $privacy, 'Lokale Google-Fonts-Ausgabe fehlt.' );
 assert_contains( 'Einzelheiten zu den technisch erfassten Daten finden Sie im Abschnitt „Server-Logfiles“', $privacy, 'Hosting- und Logfile-Abschnitte werden nicht sauber voneinander abgegrenzt.' );
 assert_not_contains( 'Schriftarten nicht lokal', $privacy, 'Externe Google-Fonts-Ausgabe bleibt trotz lokaler Auswahl aktiv.' );
@@ -231,6 +274,19 @@ if ( 1 !== substr_count( $privacy, '<h3>Speicherdauer</h3>' ) ) {
 	fwrite( STDERR, "FAIL: Speicherdauer wird nicht genau einmal ausgegeben.\n" );
 	exit( 1 );
 }
+
+$known_hosting = $base;
+$known_hosting['hosting_provider'] = 'Völkel EDV Systeme';
+$known_hosting['hosting_provider_address'] = "Eike Völkel\nGöttinger Str. 22\n31061 Alfeld";
+$known_hosting['server_infrastructure_provider'] = 'Netcup GmbH';
+$known_hosting['server_infrastructure_type'] = 'virtueller Server (vServer)';
+$privacy = $generator->generate_privacy_policy( $known_hosting );
+assert_contains( 'Völkel EDV Systeme', $privacy, 'Name des Hosting-Dienstleisters fehlt.' );
+assert_contains( 'Inhaber: Eike Völkel', $privacy, 'Inhaberzeile des Hosting-Dienstleisters wird nicht vereinheitlicht.' );
+assert_contains( 'netcup GmbH', $privacy, 'Schreibweise von netcup wird nicht vereinheitlicht.' );
+assert_contains( 'Emmy-Noether-Straße 10', $privacy, 'Aktuelle netcup-Anschrift fehlt.' );
+assert_contains( '76131 Karlsruhe', $privacy, 'Ort der netcup GmbH fehlt.' );
+assert_contains( 'virtuelle Server (VServer) der netcup GmbH', $privacy, 'Professionelle Beschreibung der netcup-Server-Infrastruktur fehlt.' );
 
 $third_country = $base;
 $third_country['privacy_third_country_transfer'] = 'Daten werden an einen Anbieter in den USA auf Grundlage geeigneter Garantien übermittelt.';
@@ -343,6 +399,40 @@ $other_form['legal_form_other'] = 'Gemeinnützige Stiftung';
 $impressum = $generator->generate_impressum( $other_form );
 assert_contains( 'Rechtsform:</strong> Gemeinnützige Stiftung', $impressum, 'Eigene Rechtsform wird nicht ausgegeben.' );
 assert_not_contains( 'Rechtsform:</strong> sonstige', $impressum, 'Interner Auswahlwert „sonstige“ wird veröffentlicht.' );
+
+$legacy_editorial = $base;
+$legacy_editorial['has_responsible_content'] = true;
+$legacy_editorial['responsible_name'] = 'Max Betreiber';
+$legacy_editorial['responsible_address'] = 'Betreiberweg 1, 10000 Berlin';
+$impressum = $generator->generate_impressum( $legacy_editorial );
+assert_not_contains( 'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV', $impressum, 'Eine alte allgemeine Verantwortlichen-Auswahl aktiviert den MStV-Abschnitt weiterhin pauschal.' );
+
+$editorial = $legacy_editorial;
+$editorial['has_editorial_content'] = true;
+$impressum = $generator->generate_impressum( $editorial );
+assert_contains( 'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV', $impressum, 'Der MStV-Abschnitt fehlt trotz ausdrücklicher Auswahl journalistisch-redaktioneller Angebote.' );
+
+$professional = $base;
+$professional['has_professional_info'] = true;
+$professional['professional_chamber'] = 'Handwerkskammer Hildesheim-Südniedersachsen';
+$professional['professional_title'] = 'Individuelle Berufsbezeichnung';
+$professional['professional_awarded_in'] = 'Niedersachsen';
+$professional['professional_rules'] = 'Regelungen einsehbar unter: https://www.hwk-hildesheim.de';
+$impressum = $generator->generate_impressum( $professional );
+assert_contains( 'Individuelle Berufsbezeichnung', $impressum, 'Die individuell eingegebene Berufsbezeichnung wird verändert oder nicht ausgegeben.' );
+assert_not_contains( 'Verliehen in', $impressum, 'Der Verleihungsort wird ohne ausdrückliche Aktivierung veröffentlicht.' );
+assert_not_contains( 'Niedersachsen', $impressum, 'Ein alter Verleihungsort bleibt ohne ausdrückliche Aktivierung sichtbar.' );
+assert_not_contains( 'Regelungen einsehbar unter:', $impressum, 'Ein pauschaler Link auf die Kammer-Startseite wird als berufsrechtliche Regelung veröffentlicht.' );
+assert_not_contains( '<strong>Berufsrechtliche Regelungen:</strong>', $impressum, 'Die Überschrift bleibt trotz fehlender konkreter Regelung sichtbar.' );
+
+$professional['has_professional_award_location'] = true;
+$impressum = $generator->generate_impressum( $professional );
+assert_contains( '<strong>Verliehen in:</strong>', $impressum, 'Der Verleihungsort fehlt trotz ausdrücklicher Aktivierung.' );
+assert_contains( 'Niedersachsen', $impressum, 'Der aktivierte Verleihungsort wird nicht ausgegeben.' );
+
+$professional['professional_rules'] = 'Handwerksordnung (HwO): https://www.gesetze-im-internet.de/hwo/';
+$impressum = $generator->generate_impressum( $professional );
+assert_contains( 'Handwerksordnung (HwO): https://www.gesetze-im-internet.de/hwo/', $impressum, 'Eine konkret benannte berufsrechtliche Regelung wird fälschlich entfernt.' );
 
 $frg_test_options['frg_block_registry'] = array(
 	'hosting' => array( 'status' => 'approved' ),

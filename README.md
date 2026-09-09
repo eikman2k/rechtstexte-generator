@@ -2,7 +2,7 @@
 
 WordPress-Plugin zur Generierung von Impressum und Datenschutzerklärung über einen Frontend-Wizard mit festen, modularen Textbausteinen.
 
-Aktuelle Version: `1.8.2`
+Aktuelle Version: `1.9.0`
 
 ## Hinweis
 
@@ -25,6 +25,7 @@ Die erzeugten Texte ersetzen keine anwaltliche Prüfung. Das Plugin arbeitet mit
 - getrennte Status für redaktionelle Freigabe und dokumentierte juristische Prüfung
 - strukturierte Detailangaben zu eingebundenen externen Diensten
 - konkrete Angaben zu Backup-Speicherort und zuständiger Datenschutzaufsichtsbehörde
+- Bundesland-Auswahl mit vorbelegten Kontaktdaten der allgemeinen Landesaufsichtsbehörden
 - Export und Import von Profilen und Block-Registry
 - Schulungsportal-/Lernplattform-Erweiterungen inklusive SCORM-, Zertifikats- und Rollenlogik
 - optionale Multisite-Zentralausgabe für Impressum und Datenschutzerklärung
@@ -142,7 +143,7 @@ Das Plugin enthält einen eigenen Datenschutzbereich für Schulungsportale mit O
 
 ## Version
 
-Aktueller Release: `1.6.1`
+Aktueller Release: `1.9.0`
 
 ## Changelog
 
