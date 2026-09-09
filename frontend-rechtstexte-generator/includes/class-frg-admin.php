@@ -17,17 +17,29 @@ class FRG_Admin {
 	}
 
 	public function register_menu(): void {
-		add_options_page(
+		add_menu_page(
 			__( 'Rechtstexte Generator', 'frontend-rechtstexte-generator' ),
+			__( 'Rechtstexte', 'frontend-rechtstexte-generator' ),
+			'manage_options',
+			'frg-settings',
+			array( $this, 'render_page' ),
+			'dashicons-privacy',
+			58
+		);
+
+		add_submenu_page(
+			'frg-settings',
 			__( 'Rechtstexte Generator', 'frontend-rechtstexte-generator' ),
+			__( 'Übersicht & Textbausteine', 'frontend-rechtstexte-generator' ),
 			'manage_options',
 			'frg-settings',
 			array( $this, 'render_page' )
 		);
 
-		add_options_page(
+		add_submenu_page(
+			'frg-settings',
 			__( 'Rechtstexte erfassen', 'frontend-rechtstexte-generator' ),
-			__( 'Rechtstexte erfassen', 'frontend-rechtstexte-generator' ),
+			__( 'Kundendaten erfassen', 'frontend-rechtstexte-generator' ),
 			'manage_options',
 			'frg-wizard',
 			array( $this, 'render_wizard_page' )
@@ -35,7 +47,7 @@ class FRG_Admin {
 	}
 
 	public function enqueue_assets( string $hook ): void {
-		if ( 'settings_page_frg-settings' !== $hook && 'settings_page_frg-network-settings' !== $hook && 'settings_page_frg-wizard' !== $hook ) {
+		if ( 'toplevel_page_frg-settings' !== $hook && 'toplevel_page_frg-network-settings' !== $hook && false === strpos( $hook, '_page_frg-' ) ) {
 			return;
 		}
 
@@ -82,7 +94,7 @@ class FRG_Admin {
 					<h1><?php esc_html_e( 'Rechtstexte erfassen', 'frontend-rechtstexte-generator' ); ?></h1>
 					<p><?php esc_html_e( 'Pflegen Sie hier dieselben Angaben wie im Frontend-Wizard. Eine separate öffentliche Wizard-Seite ist dafür nicht erforderlich.', 'frontend-rechtstexte-generator' ); ?></p>
 				</div>
-				<a class="button" href="<?php echo esc_url( admin_url( 'options-general.php?page=frg-settings' ) ); ?>"><?php esc_html_e( 'Zu Einstellungen und Textbausteinen', 'frontend-rechtstexte-generator' ); ?></a>
+				<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=frg-settings' ) ); ?>"><?php esc_html_e( 'Zu Übersicht und Textbausteinen', 'frontend-rechtstexte-generator' ); ?></a>
 			</div>
 			<?php echo $this->wizard->render(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- The escaped plugin template is rendered internally. ?>
 		</div>
@@ -119,8 +131,15 @@ class FRG_Admin {
 		if ( isset( $_POST['frg_save_settings'], $_POST['frg_save_settings_nonce'] ) ) {
 			check_admin_referer( 'frg_save_settings_action', 'frg_save_settings_nonce' );
 			$current_settings = get_option( 'frg_settings', array() );
+			$feed_modes = apply_filters(
+				'frg_block_feed_modes',
+				array(
+					'off'    => __( 'Keine Textverteilung', 'frontend-rechtstexte-generator' ),
+					'client' => __( 'Kundenseite – Texte von einer Zentrale empfangen', 'frontend-rechtstexte-generator' ),
+				)
+			);
 			$feed_mode = sanitize_key( wp_unslash( $_POST['block_feed_mode'] ?? 'off' ) );
-			if ( ! in_array( $feed_mode, array( 'off', 'hub', 'client' ), true ) ) {
+			if ( ! isset( $feed_modes[ $feed_mode ] ) ) {
 				$feed_mode = 'off';
 			}
 			$readability_mode = sanitize_key( wp_unslash( $_POST['privacy_readability_mode'] ?? 'detailed' ) );
@@ -145,7 +164,11 @@ class FRG_Admin {
 				'block_feed_mode'   => $feed_mode,
 				'block_feed_url'    => esc_url_raw( wp_unslash( $_POST['block_feed_url'] ?? '' ) ),
 				'block_feed_key'    => $feed_key,
+				'block_feed_legacy_access' => ! empty( $_POST['block_feed_legacy_access'] ),
 				'block_feed_auto_sync' => ! empty( $_POST['block_feed_auto_sync'] ),
+				'agency_master_sync_enabled' => array_key_exists( 'agency_master_sync_enabled', $current_settings )
+					? ! empty( $current_settings['agency_master_sync_enabled'] )
+					: true,
 				'impressum_page_id' => absint( $current_settings['impressum_page_id'] ?? 0 ),
 				'privacy_page_id'   => absint( $current_settings['privacy_page_id'] ?? 0 ),
 			);

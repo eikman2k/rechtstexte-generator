@@ -73,6 +73,14 @@
 		root.querySelectorAll('[data-frg-feed-shared]').forEach((panel) => {
 			panel.hidden = mode === 'off';
 		});
+		const keyLabel = root.querySelector('[data-frg-feed-key-label]');
+		const keyHelp = root.querySelector('[data-frg-feed-key-help]');
+		if (keyLabel) {
+			keyLabel.textContent = mode === 'hub' ? keyLabel.dataset.hubLabel : keyLabel.dataset.clientLabel;
+		}
+		if (keyHelp) {
+			keyHelp.textContent = mode === 'hub' ? keyHelp.dataset.hubHelp : keyHelp.dataset.clientHelp;
+		}
 		const syncButton = root.querySelector('[data-frg-client-sync]');
 		if (syncButton) {
 			syncButton.hidden = mode !== 'client';

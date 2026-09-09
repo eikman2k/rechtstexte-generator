@@ -1,8 +1,19 @@
 # Rechtstexte Generator
 
-WordPress-Plugin zur Generierung von Impressum und Datenschutzerklärung über einen Frontend-Wizard mit festen, modularen Textbausteinen.
+WordPress-Plugin zur Generierung von Impressum und Datenschutzerklärung über einen Frontend-Wizard mit festen, modularen Textbausteinen. Die kommerzielle Textverteilung ist in ein Kundenplugin und ein separates privates Agency-Hub-Add-on getrennt.
 
-Aktuelle Version: `1.9.0`
+Aktuelle Version: `2.1.4`
+
+## Gemeinsame Plugin-Suite
+
+Dieses Repository enthält zwei zusammengehörige WordPress-Plugins mit derselben Versionslinie:
+
+| Komponente | Plugin-Ordner | Einsatzort |
+| --- | --- | --- |
+| Frontend Rechtstexte Generator | `frontend-rechtstexte-generator` | Basisplugin für Master-, Agentur- und Kunden-Websites |
+| Rechtstexte Generator Agency Hub | `frontend-rechtstexte-generator-agency-hub` | Privates Zusatzplugin ausschließlich für die Master-Zentrale |
+
+Das Agency Hub benötigt den Frontend Rechtstexte Generator und wird zusätzlich auf der Master-Website installiert. Kundenseiten erhalten ausschließlich das Basisplugin. Beide Komponenten sollten immer mit derselben Versionsnummer betrieben werden.
 
 ## Hinweis
 
@@ -29,7 +40,9 @@ Die erzeugten Texte ersetzen keine anwaltliche Prüfung. Das Plugin arbeitet mit
 - Export und Import von Profilen und Block-Registry
 - Schulungsportal-/Lernplattform-Erweiterungen inklusive SCORM-, Zertifikats- und Rollenlogik
 - optionale Multisite-Zentralausgabe für Impressum und Datenschutzerklärung
-- optionaler Textbaustein-Feed für voneinander getrennte WordPress-Installationen
+- Empfang eines zentralen Textbaustein-Feeds auf voneinander getrennten Kundeninstallationen
+- separates Agency-Hub-Add-on mit Lizenzzentrale für manuell abgerechnete Jahreslizenzen
+- wählbare Textquelle je Agentur: Master-Synchronisierung oder eigener veröffentlichter Agenturstand
 
 ## Shortcodes
 
@@ -42,15 +55,15 @@ Die erzeugten Texte ersetzen keine anwaltliche Prüfung. Das Plugin arbeitet mit
 
 1. Ordner `frontend-rechtstexte-generator` nach `wp-content/plugins/` kopieren.
 2. Plugin im WordPress-Backend aktivieren.
-3. Unter `Einstellungen > Rechtstexte Generator` die Grundeinstellungen prüfen.
+3. Unter `Rechtstexte > Übersicht & Textbausteine` die Grundeinstellungen prüfen.
 4. Eine Seite mit dem Shortcode `[frg_rechtstexte_wizard]` anlegen.
 
 ## Backend
 
 Zu finden unter:
 
-- `Einstellungen > Rechtstexte Generator`
-- `Einstellungen > Rechtstexte erfassen`
+- `Rechtstexte > Übersicht & Textbausteine`
+- `Rechtstexte > Kundendaten erfassen`
 
 Dort verfügbar:
 
@@ -69,7 +82,7 @@ Dort verfügbar:
 
 In WordPress Multisite kann ein Superadmin die Ausgabe zentral steuern:
 
-- Netzwerkadmin: `Einstellungen > Rechtstexte Generator`
+- Netzwerkadmin: eigener Hauptmenüpunkt `Rechtstexte`
 - Master-Site auswählen
 - optional ein zentrales Profil auswählen
 - auf Unterseiten `[frg_impressum]`, `[frg_datenschutz]` und `[frg_last_updated]` verwenden
@@ -80,21 +93,46 @@ Wenn der zentrale Modus aktiv ist, werden die Ausgabe-Shortcodes auf Unterseiten
 
 Für voneinander getrennte WordPress-Installationen können veröffentlichte Textbausteine zentral verteilt werden. Kundendaten und Profile bleiben dabei auf der jeweiligen Kundenseite.
 
+### Plugin-Aufteilung
+
+- Auf der zentralen Agentur-Website werden `frontend-rechtstexte-generator` und das private Add-on `frontend-rechtstexte-generator-agency-hub` installiert.
+- Kunden erhalten ausschließlich `frontend-rechtstexte-generator`. Diese Ausgabe kann Textbausteine empfangen, aber weder einen Feed veröffentlichen noch Lizenzen verwalten.
+- Das Agency-Hub-Add-on darf nicht in einem öffentlichen Kunden-Download oder öffentlichen Repository-Release enthalten sein.
+
 Auf der Hauptseite:
 
-1. Unter `Einstellungen > Rechtstexte Generator > Textverteilung` die Rolle `Zentrale` auswählen.
-2. Einstellungen speichern, damit ein Verbindungsschlüssel erzeugt wird.
-3. Feed-URL und Verbindungsschlüssel kopieren.
-4. Neue Textbausteine wie gewohnt prüfen und ausdrücklich veröffentlichen.
+1. Basisplugin und Agency-Hub-Add-on aktivieren.
+2. Unter `Rechtstexte > Übersicht & Textbausteine > Textverteilung` die Rolle `Zentrale` auswählen.
+3. Einstellungen speichern und anschließend `Rechtstexte > Rechtstexte Lizenzen` öffnen.
+4. Eine Jahreslizenz mit Kundennamen, Ablaufdatum und Website-Limit anlegen.
+5. Feed-URL und individuellen Lizenzschlüssel direkt aus der Lizenzkarte für die Kundenseite kopieren.
+6. Neue Textbausteine wie gewohnt prüfen und ausdrücklich veröffentlichen.
+
+### Master als eigene Agentur
+
+Die Master-Installation kann gleichzeitig als Agentur für direkt betreute Kunden dienen. Dafür ist keine Selbstlizenz und keine zweite WordPress-Installation erforderlich. Unter `Rechtstexte > Kunden & Agenturen` wird für einen eigenen Kunden die Zugangsart `Eigene Kunden-Website – direkt vom Master betreut` gewählt. Der erzeugte Website-Schlüssel erhält unmittelbar den freigegebenen Master-Textstand. Externe Agenturen werden im selben Bereich separat angelegt und erhalten weiterhin einen Agentur-Hauptschlüssel mit eigenem Kontingent.
 
 Auf einer Kundenseite:
 
 1. Die Rolle `Kundenseite` auswählen.
-2. Feed-URL und Verbindungsschlüssel eintragen.
+2. Feed-URL und individuellen Lizenzschlüssel eintragen.
 3. `Speichern und Verbindung testen` ausführen.
 4. Die tägliche automatische Synchronisierung aktiviert lassen.
 
-Übertragen werden ausschließlich die aktiven Blocktexte und zugehörigen Rechtsgrundlagen. Das ist je Baustein entweder der ausdrücklich veröffentlichte eigene Text oder der aktuelle mitgelieferte Standardtext. Platzhalter bleiben erhalten und werden erst auf der Kundenseite mit deren lokalen Wizard-Daten ausgefüllt. KI-Entwürfe, interne Notizen, Profile und Kundendaten werden nicht übertragen. Bei einem Abruffehler bleibt die zuletzt erfolgreich gespeicherte lokale Version aktiv. Für eine vollständige Kompatibilität sollten Zentrale und Kundenseiten möglichst dieselbe Plugin-Version verwenden.
+### Agenturlizenzen
+
+1. In deiner Master-Zentrale eine Lizenz vom Typ `Agentur mit Kundenschlüsseln` anlegen und das Kundenkontingent festlegen.
+2. Den Agentur-Hauptschlüssel auf der WordPress-Seite der Agentur als Lizenzschlüssel eintragen und die Verbindung testen.
+3. Danach erscheint bei der Agentur unter `Rechtstexte > Agentur-Kunden` eine eingeschränkte Kundenverwaltung.
+4. Die Agentur erstellt dort für jede Kundenwebsite einen eigenen Schlüssel. Feed-URL und Schlüssel stehen im Agenturbereich gemeinsam als kopierbare Verbindungsdaten bereit.
+
+Agenturen können Kundenschlüssel innerhalb ihres zentral festgelegten Kontingents erstellen oder sperren. Unter `Rechtstexte > Agentur-Kunden` wählen sie zusätzlich, ob ihre Kundenseiten den freigegebenen Master-Stand oder einen eigenen Agenturstand erhalten. Für einen eigenen Stand deaktiviert die Agentur die Master-Synchronisierung, bearbeitet ihre Textbausteine lokal und veröffentlicht den aktuellen Stand anschließend über die Agenturverwaltung. Beim späteren Wechsel zurück zum Master bleiben die eigenen Texte gesichert.
+
+Laufzeit, Kontingent und Agenturstatus bleiben ausschließlich unter Kontrolle der Master-Zentrale. Dort ist außerdem sichtbar, welche Textquelle eine Agentur aktuell verwendet. Wird die Agenturlizenz gesperrt oder läuft sie ab, werden auch alle zugehörigen Kundenschlüssel beim nächsten Abruf abgewiesen. Bereits veröffentlichte Rechtstexte bleiben sichtbar.
+
+Die erste erfolgreiche Verbindung registriert die Domain automatisch, sofern das Website-Limit nicht erreicht ist. In der Lizenzzentrale können Lizenzen verlängert oder gesperrt und nicht mehr verwendete Domains freigegeben werden. Rechnungen und Zahlungseingänge werden bewusst außerhalb des Plugins verwaltet. Der bisherige gemeinsame Verbindungsschlüssel kann für eine Übergangszeit aktiviert bleiben, besitzt aber weder Laufzeit noch Website-Limit.
+
+Übertragen werden ausschließlich die aktiven Blocktexte und zugehörigen Rechtsgrundlagen. Das ist je Baustein entweder der ausdrücklich veröffentlichte eigene Text oder der aktuelle mitgelieferte Standardtext. Platzhalter bleiben erhalten und werden erst auf der Kundenseite mit deren lokalen Wizard-Daten ausgefüllt. KI-Entwürfe, interne Notizen, Profile und Kundendaten werden nicht übertragen. Bei einem Abruffehler oder nach Ablauf einer Lizenz bleibt die zuletzt erfolgreich gespeicherte lokale Version aktiv. Für eine vollständige Kompatibilität sollten Zentrale und Kundenseiten möglichst dieselbe Plugin-Version verwenden.
 
 ## Seitensynchronisierung
 
@@ -143,7 +181,7 @@ Das Plugin enthält einen eigenen Datenschutzbereich für Schulungsportale mit O
 
 ## Version
 
-Aktueller Release: `1.9.0`
+Aktueller Release: `2.1.4`
 
 ## Changelog
 

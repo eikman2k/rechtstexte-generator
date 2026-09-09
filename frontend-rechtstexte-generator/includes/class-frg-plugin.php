@@ -14,6 +14,7 @@ class FRG_Plugin {
 	private FRG_Frontend_Wizard $frontend_wizard;
 	private FRG_Shortcodes $shortcodes;
 	private FRG_Admin $admin;
+	private FRG_Agency_Console $agency_console;
 
 	public static function instance(): FRG_Plugin {
 		if ( null === self::$instance ) {
@@ -41,6 +42,7 @@ class FRG_Plugin {
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-frontend-wizard.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-shortcodes.php';
 		require_once FRG_PLUGIN_DIR . 'includes/class-frg-admin.php';
+		require_once FRG_PLUGIN_DIR . 'includes/class-frg-agency-console.php';
 	}
 
 	private function boot_services(): void {
@@ -53,18 +55,20 @@ class FRG_Plugin {
 		$this->frontend_wizard = new FRG_Frontend_Wizard( $this->storage, $this->generator, $this->page_sync, $this->scanner );
 		$this->shortcodes      = new FRG_Shortcodes( $this->storage, $this->generator, $this->frontend_wizard );
 		$this->admin           = new FRG_Admin( $this->storage, $this->generator, $this->block_feed, $this->frontend_wizard );
+		$this->agency_console  = new FRG_Agency_Console( $this->generator, $this->block_feed );
 	}
 
 	private function register_hooks(): void {
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		add_action( 'init', array( $this->shortcodes, 'register' ) );
 		add_action( 'init', array( $this->block_feed, 'maybe_schedule_sync' ) );
-		add_action( 'rest_api_init', array( $this->block_feed, 'register_routes' ) );
 		add_action( 'frg_sync_remote_block_feed', array( $this->block_feed, 'run_scheduled_sync' ) );
 		add_action( 'wp_enqueue_scripts', array( $this->frontend_wizard, 'register_assets' ) );
 		add_action( 'admin_enqueue_scripts', array( $this->admin, 'enqueue_assets' ) );
 		add_action( 'admin_enqueue_scripts', array( $this->frontend_wizard, 'enqueue_admin_assets' ) );
 		add_action( 'admin_menu', array( $this->admin, 'register_menu' ) );
+		add_action( 'admin_menu', array( $this->agency_console, 'register_menu' ) );
+		add_action( 'admin_post_frg_agency_manage_customer', array( $this->agency_console, 'handle_request' ) );
 		add_action( 'network_admin_menu', array( 'FRG_Multisite', 'register_menu' ) );
 		if ( is_multisite() ) {
 			add_action( 'wp_initialize_site', array( 'FRG_Activator', 'activate_new_site' ) );

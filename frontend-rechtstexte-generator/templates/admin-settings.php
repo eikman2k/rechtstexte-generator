@@ -30,6 +30,15 @@ $model_options = array(
 );
 $selected_model = sanitize_text_field( $settings['openai_model'] ?? 'gpt-5.6-terra' );
 $feed_mode      = sanitize_key( $settings['block_feed_mode'] ?? 'off' );
+$agency_master_sync_enabled = ! array_key_exists( 'agency_master_sync_enabled', $settings ) || ! empty( $settings['agency_master_sync_enabled'] );
+$hub_available  = (bool) apply_filters( 'frg_hub_available', false );
+$feed_modes     = apply_filters(
+	'frg_block_feed_modes',
+	array(
+		'off'    => __( 'Keine Textverteilung', 'frontend-rechtstexte-generator' ),
+		'client' => __( 'Kundenseite – Texte von einer Zentrale empfangen', 'frontend-rechtstexte-generator' ),
+	)
+);
 $today = current_time( 'Y-m-d' );
 foreach ( $block_registry as $review_block ) {
 	$review_status = $review_block['status'] ?? 'review_needed';
@@ -58,8 +67,9 @@ foreach ( $block_registry as $review_block ) {
 			<p><?php esc_html_e( 'Daten erfassen, Textbausteine überarbeiten, Änderungen kontrolliert veröffentlichen und Prüfungen nachvollziehbar dokumentieren.', 'frontend-rechtstexte-generator' ); ?></p>
 		</div>
 		<div class="frg-admin-hero__actions">
-			<a class="button button-primary button-hero" href="<?php echo esc_url( admin_url( 'options-general.php?page=frg-wizard' ) ); ?>"><?php esc_html_e( 'Kundendaten erfassen', 'frontend-rechtstexte-generator' ); ?></a>
+			<a class="button button-primary button-hero" href="<?php echo esc_url( admin_url( 'admin.php?page=frg-wizard' ) ); ?>"><?php esc_html_e( 'Kundendaten erfassen', 'frontend-rechtstexte-generator' ); ?></a>
 			<a class="button button-hero" href="#frg-text-blocks"><?php esc_html_e( 'Textbausteine bearbeiten', 'frontend-rechtstexte-generator' ); ?></a>
+			<?php if ( $hub_available ) : ?><a class="button button-hero" href="<?php echo esc_url( admin_url( 'admin.php?page=frg-licenses' ) ); ?>"><?php esc_html_e( 'Kunden & Agenturen', 'frontend-rechtstexte-generator' ); ?></a><?php endif; ?>
 		</div>
 	</div>
 	<?php settings_errors( 'frg_messages' ); ?>
@@ -68,6 +78,7 @@ foreach ( $block_registry as $review_block ) {
 		<a href="#frg-text-blocks"><?php esc_html_e( 'Textbausteine', 'frontend-rechtstexte-generator' ); ?></a>
 		<a href="#frg-settings"><?php esc_html_e( 'Einstellungen', 'frontend-rechtstexte-generator' ); ?></a>
 		<a href="#frg-block-feed"><?php esc_html_e( 'Textverteilung', 'frontend-rechtstexte-generator' ); ?></a>
+		<?php if ( $hub_available ) : ?><a href="<?php echo esc_url( admin_url( 'admin.php?page=frg-licenses' ) ); ?>"><?php esc_html_e( 'Kunden & Agenturen', 'frontend-rechtstexte-generator' ); ?></a><?php endif; ?>
 		<a href="#frg-profiles"><?php esc_html_e( 'Profile & Ausgabe', 'frontend-rechtstexte-generator' ); ?></a>
 		<a href="#frg-transfer"><?php esc_html_e( 'Export & Import', 'frontend-rechtstexte-generator' ); ?></a>
 	</nav>
@@ -261,19 +272,24 @@ foreach ( $block_registry as $review_block ) {
 			<div class="frg-section-heading">
 				<div><span class="frg-admin-eyebrow"><?php esc_html_e( 'Optional', 'frontend-rechtstexte-generator' ); ?></span><h3><?php esc_html_e( 'Textbausteine zwischen Websites verteilen', 'frontend-rechtstexte-generator' ); ?></h3><p><?php esc_html_e( 'Nur veröffentlichte Textbausteine werden übertragen. Profile, Kundendaten, KI-Entwürfe und interne Notizen bleiben lokal.', 'frontend-rechtstexte-generator' ); ?></p></div>
 			</div>
-			<label class="frg-field-label" for="block_feed_mode"><?php esc_html_e( 'Rolle dieser Website', 'frontend-rechtstexte-generator' ); ?><select name="block_feed_mode" id="block_feed_mode" data-frg-feed-mode><option value="off" <?php selected( $feed_mode, 'off' ); ?>><?php esc_html_e( 'Keine Textverteilung', 'frontend-rechtstexte-generator' ); ?></option><option value="hub" <?php selected( $feed_mode, 'hub' ); ?>><?php esc_html_e( 'Zentrale – Texte für Kundenseiten bereitstellen', 'frontend-rechtstexte-generator' ); ?></option><option value="client" <?php selected( $feed_mode, 'client' ); ?>><?php esc_html_e( 'Kundenseite – Texte von einer Zentrale empfangen', 'frontend-rechtstexte-generator' ); ?></option></select></label>
+			<label class="frg-field-label" for="block_feed_mode"><?php esc_html_e( 'Rolle dieser Website', 'frontend-rechtstexte-generator' ); ?><select name="block_feed_mode" id="block_feed_mode" data-frg-feed-mode><?php foreach ( $feed_modes as $mode_key => $mode_label ) : ?><option value="<?php echo esc_attr( $mode_key ); ?>" <?php selected( $feed_mode, $mode_key ); ?>><?php echo esc_html( $mode_label ); ?></option><?php endforeach; ?></select></label>
 
 			<div class="frg-feed-panel" data-frg-feed-shared>
-				<label class="frg-field-label" for="block_feed_key"><?php esc_html_e( 'Verbindungsschlüssel', 'frontend-rechtstexte-generator' ); ?><span class="frg-copy-field"><input type="text" name="block_feed_key" id="block_feed_key" value="<?php echo esc_attr( $settings['block_feed_key'] ?? '' ); ?>" autocomplete="off"><button type="button" class="button" data-frg-copy-value="#block_feed_key"><?php esc_html_e( 'Kopieren', 'frontend-rechtstexte-generator' ); ?></button></span></label>
-				<p class="description"><?php esc_html_e( 'Auf Zentrale und Kundenseite muss derselbe Schlüssel eingetragen sein. Behandeln Sie ihn wie ein Passwort.', 'frontend-rechtstexte-generator' ); ?></p>
+				<label class="frg-field-label" for="block_feed_key"><span data-frg-feed-key-label data-client-label="<?php echo esc_attr__( 'Lizenzschlüssel dieser Kundenseite', 'frontend-rechtstexte-generator' ); ?>" data-hub-label="<?php echo esc_attr__( 'Gemeinsamer Übergangsschlüssel', 'frontend-rechtstexte-generator' ); ?>"><?php esc_html_e( 'Lizenz- oder Verbindungsschlüssel', 'frontend-rechtstexte-generator' ); ?></span><span class="frg-copy-field"><input type="text" name="block_feed_key" id="block_feed_key" value="<?php echo esc_attr( $settings['block_feed_key'] ?? '' ); ?>" autocomplete="off"><button type="button" class="button" data-frg-copy-value="#block_feed_key"><?php esc_html_e( 'Kopieren', 'frontend-rechtstexte-generator' ); ?></button></span></label>
+				<p class="description" data-frg-feed-key-help data-client-help="<?php echo esc_attr__( 'Tragen Sie hier den in Ihrer Zentrale erzeugten individuellen Lizenzschlüssel ein.', 'frontend-rechtstexte-generator' ); ?>" data-hub-help="<?php echo esc_attr__( 'Nur für die Umstellung bestehender Kundenseiten. Neue Kundenseiten erhalten einen individuellen Schlüssel aus der Lizenzzentrale.', 'frontend-rechtstexte-generator' ); ?>"><?php esc_html_e( 'Behandeln Sie den Schlüssel wie ein Passwort.', 'frontend-rechtstexte-generator' ); ?></p>
 			</div>
 
-			<div class="frg-feed-panel" data-frg-feed-panel="hub">
-				<h4><?php esc_html_e( 'Angaben für Kundenseiten', 'frontend-rechtstexte-generator' ); ?></h4>
+			<?php if ( $hub_available ) : ?><div class="frg-feed-panel" data-frg-feed-panel="hub">
+				<h4><?php esc_html_e( 'Zentrale für Kundenseiten', 'frontend-rechtstexte-generator' ); ?></h4>
 				<label class="frg-field-label" for="frg_feed_endpoint"><?php esc_html_e( 'Feed-URL dieser Zentrale', 'frontend-rechtstexte-generator' ); ?><span class="frg-copy-field"><input type="url" id="frg_feed_endpoint" value="<?php echo esc_url( $feed_endpoint ); ?>" readonly><button type="button" class="button" data-frg-copy-value="#frg_feed_endpoint"><?php esc_html_e( 'Kopieren', 'frontend-rechtstexte-generator' ); ?></button></span></label>
-				<label class="frg-danger-option"><input type="checkbox" name="block_feed_regenerate_key" value="1"> <?php esc_html_e( 'Beim Speichern einen neuen Schlüssel erzeugen', 'frontend-rechtstexte-generator' ); ?></label>
-				<p class="description"><?php esc_html_e( 'Achtung: Nach einem Schlüsselwechsel muss der neue Schlüssel auf allen verbundenen Kundenseiten eingetragen werden.', 'frontend-rechtstexte-generator' ); ?></p>
-			</div>
+				<p><a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=frg-licenses' ) ); ?>"><?php esc_html_e( 'Kunden- und Agenturverwaltung öffnen', 'frontend-rechtstexte-generator' ); ?></a></p>
+				<p class="description"><?php esc_html_e( 'Dort verwalten Sie eigene Kunden-Websites direkt vom Master aus und vergeben bei Bedarf Zugänge an externe Agenturen.', 'frontend-rechtstexte-generator' ); ?></p>
+				<details class="frg-legacy-feed"><summary><?php esc_html_e( 'Übergangszugang für bestehende Installationen', 'frontend-rechtstexte-generator' ); ?></summary><div>
+					<label class="frg-danger-option"><input type="checkbox" name="block_feed_legacy_access" value="1" <?php checked( array_key_exists( 'block_feed_legacy_access', $settings ) ? ! empty( $settings['block_feed_legacy_access'] ) : ! empty( $settings['block_feed_key'] ) ); ?>> <?php esc_html_e( 'Bisherigen gemeinsamen Verbindungsschlüssel weiterhin zulassen', 'frontend-rechtstexte-generator' ); ?></label>
+					<label class="frg-danger-option"><input type="checkbox" name="block_feed_regenerate_key" value="1"> <?php esc_html_e( 'Beim Speichern einen neuen gemeinsamen Schlüssel erzeugen', 'frontend-rechtstexte-generator' ); ?></label>
+					<p class="description"><?php esc_html_e( 'Dieser alte Zugang hat kein Website-Limit und kein Ablaufdatum. Deaktivieren Sie ihn, sobald alle Kundenseiten eigene Lizenzschlüssel verwenden.', 'frontend-rechtstexte-generator' ); ?></p>
+				</div></details>
+			</div><?php endif; ?>
 
 			<div class="frg-feed-panel" data-frg-feed-panel="client">
 				<label class="frg-field-label" for="block_feed_url"><?php esc_html_e( 'Feed-URL der Zentrale', 'frontend-rechtstexte-generator' ); ?><input type="url" name="block_feed_url" id="block_feed_url" value="<?php echo esc_attr( $settings['block_feed_url'] ?? '' ); ?>" placeholder="https://ihre-zentrale.de/wp-json/frg/v1/block-feed"></label>
@@ -281,6 +297,8 @@ foreach ( $block_registry as $review_block ) {
 				<div class="frg-feed-state">
 					<strong><?php esc_html_e( 'Letzte erfolgreiche Synchronisierung', 'frontend-rechtstexte-generator' ); ?>:</strong> <?php echo ! empty( $feed_state['last_success_at'] ) ? esc_html( mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $feed_state['last_success_at'] ) ) : esc_html__( 'Noch keine', 'frontend-rechtstexte-generator' ); ?><br>
 					<?php if ( ! empty( $feed_state['module_version'] ) ) : ?><strong><?php esc_html_e( 'Geladene Modulversion', 'frontend-rechtstexte-generator' ); ?>:</strong> <?php echo esc_html( $feed_state['module_version'] ); ?><br><?php endif; ?>
+					<?php if ( ! empty( $feed_state['license_expires_at'] ) ) : ?><strong><?php esc_html_e( 'Lizenz gültig bis', 'frontend-rechtstexte-generator' ); ?>:</strong> <?php echo esc_html( $feed_state['license_expires_at'] ); ?><br><?php endif; ?>
+					<?php if ( 'agency' === ( $feed_state['license_type'] ?? '' ) ) : ?><strong><?php esc_html_e( 'Lizenztyp', 'frontend-rechtstexte-generator' ); ?>:</strong> <?php esc_html_e( 'Agentur', 'frontend-rechtstexte-generator' ); ?> – <a href="<?php echo esc_url( admin_url( 'admin.php?page=frg-agency-customers' ) ); ?>"><?php esc_html_e( 'Kundenschlüssel und Textquelle verwalten', 'frontend-rechtstexte-generator' ); ?></a><br><strong><?php esc_html_e( 'Master-Synchronisierung', 'frontend-rechtstexte-generator' ); ?>:</strong> <?php echo $agency_master_sync_enabled ? esc_html__( 'Aktiv', 'frontend-rechtstexte-generator' ) : esc_html__( 'Deaktiviert – eigener Agenturstand aktiv', 'frontend-rechtstexte-generator' ); ?><br><?php endif; ?>
 					<?php if ( ! empty( $feed_state['last_error'] ) ) : ?><span class="frg-feed-error"><strong><?php esc_html_e( 'Letzter Fehler', 'frontend-rechtstexte-generator' ); ?>:</strong> <?php echo esc_html( $feed_state['last_error'] ); ?></span><?php endif; ?>
 				</div>
 				<p class="description"><?php esc_html_e( 'Bei einem Verbindungsfehler bleibt die zuletzt erfolgreich geladene Textversion aktiv.', 'frontend-rechtstexte-generator' ); ?></p>
@@ -338,7 +356,7 @@ foreach ( $block_registry as $review_block ) {
 							<td><?php echo esc_html( (string) ( $row['user_id'] ?? 0 ) ); ?></td>
 							<td><?php echo esc_html( mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $row['updated_at'] ) ); ?></td>
 							<td>
-								<a class="button button-secondary" href="<?php echo esc_url( admin_url( 'options-general.php?page=frg-settings&profile_id=' . absint( $row['id'] ) ) ); ?>"><?php esc_html_e( 'Profil anzeigen', 'frontend-rechtstexte-generator' ); ?></a>
+								<a class="button button-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=frg-settings&profile_id=' . absint( $row['id'] ) ) ); ?>"><?php esc_html_e( 'Profil anzeigen', 'frontend-rechtstexte-generator' ); ?></a>
 								<form method="post" style="display:inline-block;">
 									<?php wp_nonce_field( 'frg_delete_profile_action', 'frg_delete_profile_nonce' ); ?>
 									<input type="hidden" name="profile_id" value="<?php echo esc_attr( (string) $row['id'] ); ?>">

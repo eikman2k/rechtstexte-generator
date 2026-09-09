@@ -118,9 +118,14 @@
 .frg-admin input[type="text"],
 .frg-admin input[type="password"],
 .frg-admin input[type="search"],
+.frg-admin input[type="email"],
+.frg-admin input[type="number"],
+.frg-admin input[type="url"],
+.frg-admin input[type="tel"],
 .frg-admin input[type="date"],
 .frg-admin select,
 .frg-admin textarea {
+	width: 100%;
 	max-width: 100%;
 	border-color: #cbd8d5;
 	border-radius: 8px;
@@ -489,6 +494,48 @@
 	width: 100%;
 }
 
+.frg-connection-card {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(420px, .9fr);
+	align-items: center;
+	gap: 32px;
+	border-left: 5px solid #0f766e;
+	background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 72%);
+}
+
+.frg-connection-card h2 {
+	margin: 5px 0 7px;
+}
+
+.frg-connection-card p {
+	margin-bottom: 0;
+}
+
+.frg-connection-pair {
+	display: grid;
+	gap: 7px;
+	min-width: 0;
+}
+
+.frg-connection-label {
+	display: block;
+	margin: 10px 0 5px;
+	color: #334155;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.frg-table-connection {
+	min-width: 390px;
+}
+
+.frg-table-connection .frg-copy-field input,
+.frg-connection-card .frg-copy-field input,
+.frg-license-key-row .frg-copy-field input {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	font-size: 12px;
+}
+
 .frg-danger-option {
 	display: block;
 	margin-top: 18px;
@@ -783,6 +830,214 @@
 	margin-bottom: 0;
 }
 
+.frg-license-stats {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 14px;
+	margin: 22px 0;
+}
+
+.frg-license-stats > div {
+	padding: 20px;
+	border-top: 4px solid #0f766e;
+	border-radius: 14px;
+	background: #fff;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+}
+
+.frg-license-stats strong,
+.frg-license-stats span {
+	display: block;
+}
+
+.frg-license-stats strong { font-size: 30px; color: #172033; }
+.frg-license-stats span { margin-top: 7px; color: #64748b; font-weight: 600; }
+.frg-license-stats .is-active { border-color: #15803d; }
+.frg-license-stats .is-expired { border-color: #d97706; }
+.frg-license-stats .is-blocked { border-color: #b91c1c; }
+.frg-agency-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.frg-license-status--agency { background: #dbeafe; color: #1d4ed8; }
+.frg-license-status--direct { background: #ccfbf1; color: #115e59; }
+.frg-master-modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 22px 0; }
+.frg-master-mode { border: 1px solid #dbe3ea; border-radius: 14px; background: #fff; padding: 22px; }
+.frg-master-mode--primary { border-color: #0f766e; background: #f0fdfa; }
+.frg-master-mode > span { color: #0f766e; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.frg-master-mode h2 { margin: 7px 0 8px; font-size: 20px; }
+.frg-master-mode p { margin: 0; color: #64748b; }
+.frg-source-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 20px 0 14px; }
+.frg-source-choice { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; min-height: 118px; border: 2px solid #dbe3ea; border-radius: 14px; background: #f8fafc; padding: 18px; cursor: pointer; }
+.frg-source-choice:has(input:checked) { border-color: #0f766e; background: #ecfdf5; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1); }
+.frg-source-choice input { margin-top: 4px; }
+.frg-source-choice strong,
+.frg-source-choice small { display: block; }
+.frg-source-choice strong { color: #172033; font-size: 15px; }
+.frg-source-choice small { margin-top: 6px; color: #64748b; line-height: 1.55; }
+.frg-agency-source__actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 0; }
+
+.frg-license-form {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 18px;
+	align-items: end;
+}
+
+.frg-license-form--create {
+	grid-template-columns: repeat(12, minmax(0, 1fr));
+	gap: 20px 18px;
+	align-items: start;
+}
+
+.frg-license-type-field {
+	grid-column: 1 / -1;
+	min-width: 0;
+	margin: 0;
+	border: 0;
+	padding: 0;
+}
+
+.frg-license-type-field legend {
+	margin-bottom: 10px;
+	color: #172033;
+	font-weight: 700;
+}
+
+.frg-license-type-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 14px;
+}
+
+.frg-license-type-card {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	gap: 13px;
+	align-items: start;
+	min-height: 112px;
+	border: 2px solid #dbe3ea;
+	border-radius: 14px;
+	background: #f8fafc;
+	padding: 18px;
+	cursor: pointer;
+	transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+
+.frg-license-type-card:hover {
+	border-color: #94a3b8;
+}
+
+.frg-license-type-card:has(input:checked) {
+	border-color: #0f766e;
+	background: #ecfdf5;
+	box-shadow: 0 0 0 3px rgba(15, 118, 110, .1);
+}
+
+.frg-license-type-card input {
+	width: 18px;
+	height: 18px;
+	margin: 3px 0 0;
+}
+
+.frg-license-type-card strong,
+.frg-license-type-card small {
+	display: block;
+}
+
+.frg-license-type-card strong {
+	color: #172033;
+	font-size: 16px;
+}
+
+.frg-license-type-card small {
+	margin-top: 5px;
+	color: #64748b;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.frg-license-create__customer,
+.frg-license-create__email {
+	grid-column: span 6;
+}
+
+.frg-license-create__limit,
+.frg-license-create__expiry {
+	grid-column: span 6;
+}
+
+.frg-license-create__notes,
+.frg-license-create__submit {
+	grid-column: 1 / -1;
+}
+
+.frg-license-create__limit small {
+	display: block;
+	margin-top: 6px;
+	color: #64748b;
+	font-weight: 400;
+}
+
+.frg-license-create__submit {
+	margin: 0;
+}
+
+.frg-admin .frg-primary-action {
+	appearance: none;
+	display: inline-flex;
+	min-height: 44px;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+	border: 1px solid #0f766e !important;
+	border-radius: 8px;
+	background-color: #0f766e !important;
+	background-image: none !important;
+	box-shadow: 0 8px 18px rgba(15, 118, 110, .2);
+	color: #fff !important;
+	cursor: pointer;
+	font: inherit;
+	font-weight: 700;
+	line-height: 1.2;
+	padding: 11px 20px;
+	text-decoration: none;
+}
+
+.frg-admin .frg-primary-action:hover,
+.frg-admin .frg-primary-action:focus-visible {
+	border-color: #115e59 !important;
+	background-color: #115e59 !important;
+	background-image: none !important;
+	color: #fff !important;
+}
+
+.frg-admin .frg-primary-action:focus-visible {
+	box-shadow: 0 0 0 3px rgba(15, 118, 110, .22);
+	outline: 2px solid transparent;
+}
+
+.frg-license-form__wide { grid-column: 1 / -1; }
+.frg-license-list { margin-top: 22px; }
+.frg-license-card { border-left: 5px solid #0f766e; }
+.frg-license-card__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.frg-license-card__header h2 { margin: 8px 0 3px; }
+.frg-license-card__header p { margin: 0; color: #64748b; }
+.frg-license-status { display: inline-flex; padding: 4px 9px; border-radius: 999px; background: #dcfce7; color: #166534; font-weight: 700; }
+.frg-license-status--expired { background: #fef3c7; color: #92400e; }
+.frg-license-status--blocked { background: #fee2e2; color: #991b1b; }
+.frg-license-usage { min-width: 90px; padding: 13px 16px; border-radius: 12px; background: #f1f5f9; text-align: center; }
+.frg-license-usage strong,
+.frg-license-usage span { display: block; }
+.frg-license-usage strong { font-size: 21px; }
+.frg-license-usage span { margin-top: 3px; color: #64748b; }
+.frg-license-key-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin: 22px 0; padding: 16px; border-radius: 12px; background: #f8fafc; }
+.frg-license-key-row .frg-copy-field input { width: min(100%, 650px); font-family: monospace; }
+.frg-license-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; padding-top: 18px; border-top: 1px solid #e2e8f0; }
+.frg-license-actions form { margin: 0; }
+.frg-license-sites { margin-top: 22px; }
+.frg-table-scroll { overflow-x: auto; }
+.frg-legacy-feed { margin-top: 18px; padding: 12px 14px; border: 1px solid #f3d39a; border-radius: 10px; background: #fffbeb; }
+.frg-legacy-feed summary { cursor: pointer; font-weight: 700; }
+.frg-legacy-feed > div { margin-top: 14px; }
+
 @media (max-width: 900px) {
 	.frg-admin-hero,
 	.frg-admin-wizard-header,
@@ -800,6 +1055,9 @@
 	.frg-block-toolbar { align-items: stretch; flex-direction: column; }
 	.frg-copy-field,
 	.frg-settings-actions { align-items: stretch; flex-direction: column; }
+	.frg-connection-card,
+	.frg-license-key-row { grid-template-columns: 1fr; }
+	.frg-table-connection { min-width: 320px; }
 	.frg-block-toolbar input[type="search"] { width: 100%; min-width: 0; }
 	.frg-block-toolbar [data-frg-filter-count] { margin-left: 0; }
 
@@ -818,4 +1076,29 @@
 		flex-direction: column;
 		align-items: flex-start;
 	}
+
+	.frg-license-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.frg-license-form { grid-template-columns: 1fr 1fr; }
+	.frg-license-form--create { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.frg-license-type-field,
+	.frg-license-create__notes,
+	.frg-license-create__submit { grid-column: 1 / -1; }
+	.frg-license-create__customer,
+	.frg-license-create__email,
+	.frg-license-create__limit,
+	.frg-license-create__expiry { grid-column: span 1; }
+	.frg-license-card__header { flex-direction: column; }
+}
+
+@media (max-width: 600px) {
+	.frg-license-stats,
+	.frg-license-form,
+	.frg-source-choices,
+	.frg-master-modes,
+	.frg-license-form--create,
+	.frg-license-type-grid { grid-template-columns: 1fr; }
+	.frg-license-create__customer,
+	.frg-license-create__email,
+	.frg-license-create__limit,
+	.frg-license-create__expiry { grid-column: 1 / -1; }
 }

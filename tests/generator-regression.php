@@ -21,6 +21,10 @@ function esc_url( $url ): string {
 	return filter_var( (string) $url, FILTER_SANITIZE_URL ) ?: '';
 }
 
+function esc_url_raw( $url ): string {
+	return esc_url( $url );
+}
+
 function wp_parse_url( string $url, int $component = -1 ) {
 	return parse_url( $url, $component );
 }
@@ -35,6 +39,10 @@ function sanitize_text_field( $value ): string {
 
 function sanitize_textarea_field( $value ): string {
 	return trim( strip_tags( (string) $value ) );
+}
+
+function sanitize_email( $value ): string {
+	return filter_var( (string) $value, FILTER_SANITIZE_EMAIL ) ?: '';
 }
 
 function wp_kses_post( $content ): string {
@@ -68,10 +76,56 @@ function update_option( string $key, $value ): bool {
 	return true;
 }
 
+if ( ! class_exists( 'WP_Error' ) ) {
+	class WP_Error {
+		private string $code;
+		private string $message;
+
+		public function __construct( string $code, string $message, $data = null ) {
+			$this->code    = $code;
+			$this->message = $message;
+		}
+
+		public function get_error_code(): string {
+			return $this->code;
+		}
+
+		public function get_error_message(): string {
+			return $this->message;
+		}
+	}
+}
+
+function is_wp_error( $value ): bool {
+	return $value instanceof WP_Error;
+}
+
+if ( ! class_exists( 'WP_REST_Request' ) ) {
+	class WP_REST_Request {
+		private array $headers;
+		private array $params;
+
+		public function __construct( array $headers = array(), array $params = array() ) {
+			$this->headers = array_change_key_case( $headers, CASE_LOWER );
+			$this->params  = $params;
+		}
+
+		public function get_header( string $name ): string {
+			return (string) ( $this->headers[ strtolower( $name ) ] ?? '' );
+		}
+
+		public function get_param( string $name ) {
+			return $this->params[ $name ] ?? null;
+		}
+	}
+}
+
 require dirname( __DIR__ ) . '/frontend-rechtstexte-generator/includes/class-frg-text-modules.php';
 require dirname( __DIR__ ) . '/frontend-rechtstexte-generator/includes/class-frg-generator.php';
 require dirname( __DIR__ ) . '/frontend-rechtstexte-generator/includes/class-frg-block-feed.php';
 require dirname( __DIR__ ) . '/frontend-rechtstexte-generator/includes/class-frg-authorities.php';
+require dirname( __DIR__ ) . '/frontend-rechtstexte-generator-agency-hub/includes/class-frg-license-manager.php';
+require dirname( __DIR__ ) . '/frontend-rechtstexte-generator-agency-hub/includes/class-frg-hub-feed.php';
 
 function assert_contains( string $needle, string $haystack, string $message ): void {
 	if ( false === strpos( $haystack, $needle ) ) {
@@ -453,8 +507,9 @@ $frg_test_options['frg_block_registry'] = array(
 	),
 );
 $feed = new FRG_Block_Feed( $generator );
-$public_blocks_method = new ReflectionMethod( FRG_Block_Feed::class, 'build_public_blocks' );
-$public_blocks = $public_blocks_method->invoke( $feed );
+$hub_feed = new FRG_Hub_Feed( $generator, new FRG_License_Manager() );
+$public_blocks_method = new ReflectionMethod( FRG_Hub_Feed::class, 'build_public_blocks' );
+$public_blocks = $public_blocks_method->invoke( $hub_feed );
 $public_hosting_json = wp_json_encode( $public_blocks['hosting'] );
 assert_contains( 'Veröffentlichter Hostingtext', $public_hosting_json, 'Veröffentlichter Feed-Text fehlt.' );
 assert_contains( 'Im Rahmen des Hostings werden technisch erforderliche Verbindungs- und Zugriffsdaten verarbeitet', $public_hosting_json, 'Kompakter Hostingtext fehlt im Feed.' );
@@ -462,9 +517,98 @@ assert_not_contains( 'Interne Notiz', $public_hosting_json, 'Interne Notiz wird 
 assert_not_contains( 'Unveröffentlichter Entwurf', $public_hosting_json, 'Entwurf wird im Feed veröffentlicht.' );
 
 $frg_test_options['frg_block_registry']['hosting']['override_text'] = '';
-$public_blocks = $public_blocks_method->invoke( $feed );
+$public_blocks = $public_blocks_method->invoke( $hub_feed );
 assert_contains( 'Hosting und technische Bereitstellung', $public_blocks['hosting']['published_text'], 'Aktiver Standardtext fehlt im Feed.' );
 assert_contains( '{{host}}', $public_blocks['hosting']['published_text'], 'Kundenspezifischer Hosting-Platzhalter wurde im Feed entfernt.' );
+
+class FRG_Test_License_Manager extends FRG_License_Manager {
+	public array $request = array();
+
+	public function authorize_site( string $license_key, string $site_url, string $plugin_version = '' ) {
+		$this->request = compact( 'license_key', 'site_url', 'plugin_version' );
+		if ( 'FRG-VALID' === $license_key ) {
+			return array( 'expires_at' => '2027-09-09', 'max_sites' => 1, 'license_type' => 'site', 'customer_name' => 'Testkunde' );
+		}
+		if ( 'FRG-EXPIRED' === $license_key ) {
+			return new WP_Error( 'frg_license_expired', 'Lizenz abgelaufen.' );
+		}
+
+		return new WP_Error( 'frg_license_not_found', 'Lizenz unbekannt.' );
+	}
+
+	public function authorize_agency( string $license_key ) {
+		return 'FRG-AGENCY' === $license_key
+			? array( 'id' => 77, 'customer_name' => 'Testagentur', 'max_sites' => 5, 'expires_at' => '2027-09-09' )
+			: new WP_Error( 'frg_agency_license_invalid', 'Agenturlizenz unbekannt.' );
+	}
+
+	public function get_child_licenses( int $agency_id ): array {
+		return array(
+			array(
+				'id' => 91, 'customer_name' => 'Agenturkunde', 'customer_email' => 'kunde@example.test',
+				'license_key' => 'FRG-CHILD', 'effective_status' => 'active', 'expires_at' => '2027-09-09',
+				'sites' => array( array( 'site_url' => 'https://child.example/', 'last_seen_at' => '2026-09-09 12:00:00' ) ),
+			),
+		);
+	}
+}
+
+$license_manager = new FRG_Test_License_Manager();
+$licensed_feed    = new FRG_Hub_Feed( $generator, $license_manager );
+$frg_test_options['frg_settings'] = array( 'block_feed_mode' => 'hub', 'block_feed_legacy_access' => false );
+$authorized = $licensed_feed->authorize_feed_request(
+	new WP_REST_Request(
+		array(
+			'x-frg-license-key'    => 'FRG-VALID',
+			'x-frg-site-url'       => 'https://kunde.example/',
+			'x-frg-plugin-version' => '2.0.0',
+		)
+	)
+);
+if ( true !== $authorized || 'https://kunde.example/' !== $license_manager->request['site_url'] ) {
+	fwrite( STDERR, "FAIL: Gültige Lizenz oder übermittelte Website-Daten werden vom Feed nicht akzeptiert.\n" );
+	exit( 1 );
+}
+
+$expired = $licensed_feed->authorize_feed_request( new WP_REST_Request( array( 'x-frg-license-key' => 'FRG-EXPIRED' ) ) );
+if ( ! is_wp_error( $expired ) || 'frg_license_expired' !== $expired->get_error_code() ) {
+	fwrite( STDERR, "FAIL: Eine abgelaufene Lizenz wird nicht eindeutig abgewiesen.\n" );
+	exit( 1 );
+}
+
+$unauthorized = $licensed_feed->authorize_feed_request( new WP_REST_Request( array( 'x-frg-license-key' => 'UNKNOWN' ) ) );
+if ( ! is_wp_error( $unauthorized ) || 'frg_feed_unauthorized' !== $unauthorized->get_error_code() ) {
+	fwrite( STDERR, "FAIL: Ein unbekannter Schlüssel wird bei deaktiviertem Übergangszugang akzeptiert.\n" );
+	exit( 1 );
+}
+
+$frg_test_options['frg_settings'] = array(
+	'block_feed_mode'          => 'hub',
+	'block_feed_key'           => 'LEGACY-KEY',
+	'block_feed_legacy_access' => true,
+);
+if ( true !== $licensed_feed->authorize_feed_request( new WP_REST_Request( array( 'x-frg-license-key' => 'LEGACY-KEY' ) ) ) ) {
+	fwrite( STDERR, "FAIL: Aktivierter Übergangsschlüssel wird nicht akzeptiert.\n" );
+	exit( 1 );
+}
+
+$frg_test_options['frg_settings'] = array( 'block_feed_mode' => 'hub' );
+$agency_authorized = $licensed_feed->authorize_agency_request( new WP_REST_Request( array( 'x-frg-agency-key' => 'FRG-AGENCY' ) ) );
+if ( true !== $agency_authorized ) {
+	fwrite( STDERR, "FAIL: Eine gültige Agenturlizenz erhält keinen Zugriff auf die Unterlizenzverwaltung.\n" );
+	exit( 1 );
+}
+$agency_payload_method = new ReflectionMethod( FRG_Hub_Feed::class, 'build_agency_payload' );
+$agency_payload = $agency_payload_method->invoke( $licensed_feed );
+if ( 5 !== $agency_payload['agency']['max_sites'] || 'FRG-CHILD' !== $agency_payload['licenses'][0]['license_key'] ) {
+	fwrite( STDERR, "FAIL: Agenturkontingent oder Kundenschlüssel fehlen in der geschützten API-Ausgabe.\n" );
+	exit( 1 );
+}
+$agency_rejected = $licensed_feed->authorize_agency_request( new WP_REST_Request( array( 'x-frg-agency-key' => 'FRG-VALID' ) ) );
+if ( ! is_wp_error( $agency_rejected ) || 'frg_agency_license_invalid' !== $agency_rejected->get_error_code() ) {
+	fwrite( STDERR, "FAIL: Ein normaler Seitenschlüssel erhält Zugriff auf die Agenturverwaltung.\n" );
+	exit( 1 );
+}
 
 $merge_method = new ReflectionMethod( FRG_Block_Feed::class, 'merge_remote_blocks' );
 $merged_registry = $merge_method->invoke(

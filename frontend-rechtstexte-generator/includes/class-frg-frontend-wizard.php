@@ -42,7 +42,7 @@ class FRG_Frontend_Wizard {
 	}
 
 	public function enqueue_admin_assets( string $hook ): void {
-		if ( 'settings_page_frg-wizard' !== $hook ) {
+		if ( false === strpos( $hook, '_page_frg-wizard' ) ) {
 			return;
 		}
 

@@ -1,5 +1,67 @@
 # Changelog
 
+## 2.1.4 - 2026-09-09
+
+- JSON-/Feed-URL in der Master-Zentrale und in der Agenturverwaltung direkt kopierbar gemacht.
+- Lizenzschlüssel und Feed-URL je Kunden-Website als vollständige Verbindungsdaten zusammengeführt.
+- Von externen Agenturen erzeugte Kundenschlüssel auch in der Master-Zentrale sichtbar und kopierbar gemacht.
+- Lizenzschlüssel bleiben aus Sicherheitsgründen getrennt von der Feed-URL.
+- Produktseite grenzt eine mögliche externe juristische Prüfung ausdrücklich vom angebotenen Leistungsumfang ab.
+
+## 2.1.3 - 2026-09-09
+
+- Absende-Button des Zugangsformulars vollständig von kollidierenden WordPress- und Theme-Buttonklassen isoliert.
+- Eigene Button-Komponente mit dauerhaftem Hintergrund, Kontrast und Fokusdarstellung ergänzt.
+
+## 2.1.2 - 2026-09-09
+
+- Primären Button „Zugang anlegen“ im Ruhezustand wieder deutlich sichtbar gemacht.
+- Hover- und Tastaturfokus-Zustände des Buttons kontrastreich vereinheitlicht.
+- Asset-Version erhöht, damit WordPress und Browser die korrigierten Admin-Stile neu laden.
+
+## 2.1.1 - 2026-09-09
+
+- Kunden-/Agenturformular optisch neu aufgebaut und abgeschnittene Zugangsart entfernt.
+- Zugangsarten werden als verständliche, vollständig klickbare Auswahlkarten dargestellt.
+- Kundendaten, Kontingent, Laufzeit und interne Notiz in einem responsiven Raster angeordnet.
+- Darstellung aller verwendeten Eingabetypen vereinheitlicht.
+- Patch-Version zur zuverlässigen Aktualisierung zwischengespeicherter Admin-Assets erhöht.
+
+## 2.1.0 - 2026-09-09
+
+- Agenturen können die Synchronisierung mit dem Master aktivieren oder deaktivieren.
+- Eigene Agenturtexte lassen sich als separater veröffentlichter Blockstand an alle zugehörigen Kundenschlüssel verteilen.
+- Kundenseiten erhalten abhängig vom Agenturmodus automatisch den Master-Stand oder den veröffentlichten Agenturstand.
+- Individuelle Agenturtexte werden beim Wechsel zum Master gesichert und beim späteren Wechsel zurück wiederhergestellt.
+- Automatische Master-Abrufe werden gestoppt, solange eine Agentur ihren eigenen Textstand verwendet.
+- Master-Zentrale zeigt die aktuell verwendete Textquelle jeder Agentur an.
+- Master-Zentrale kann ohne Selbstlizenz gleichzeitig als Agentur für direkt betreute Kunden-Websites verwendet werden.
+- Kunden- und Agenturverwaltung unterscheidet sichtbar zwischen eigenen Direktkunden und externen Agenturen.
+- Formular zum Anlegen von Kunden und Agenturen mit auswählbaren Zugangskarten und einem responsiven Zweispalten-Raster neu gestaltet.
+- E-Mail-, Zahlen-, URL- und Telefonfelder verwenden jetzt dieselbe konsistente Admin-Gestaltung wie die übrigen Eingaben.
+- Produktseite um die wählbare Textquelle und selbst verwaltete Agenturtexte erweitert.
+
+## 2.0.0 - 2026-09-09
+
+- Kundenplugin und privates Agency-Hub-Add-on technisch getrennt.
+- Feed-Veröffentlichung und Lizenzverwaltung vollständig aus dem Kundenplugin entfernt.
+- Zentralmodus ist nur verfügbar, wenn das Agency-Hub-Add-on installiert und aktiviert ist.
+- Agency Hub wird in einer Multisite ausschließlich auf der Netzwerk-Hauptseite bereitgestellt.
+- Lizenzzentrale für manuell abgerechnete Jahreslizenzen im Agency Hub ergänzt.
+- individuelle Lizenzschlüssel mit Ablaufdatum und konfigurierbarem Website-Limit eingeführt.
+- Kundendomains werden bei der ersten erfolgreichen Feed-Synchronisierung automatisch registriert.
+- verbundene Domains, Plugin-Version und letzter Abruf werden in der Zentrale angezeigt.
+- Lizenzen können verlängert, gesperrt und wieder freigegeben werden; Domains lassen sich bei einem Website-Wechsel lösen.
+- Textbaustein-Feed authentifiziert Kundenseiten mit Lizenzschlüssel, Website-URL und Plugin-Version.
+- abgelaufene oder gesperrte Lizenzen liefern verständliche Fehlermeldungen; die letzte lokale Textversion bleibt aktiv.
+- bisherigen gemeinsamen Verbindungsschlüssel als abschaltbaren Übergangszugang beibehalten.
+- Textverteilung im Backend um direkten Zugang zur Lizenzverwaltung und Anzeige der Lizenzlaufzeit ergänzt.
+- Agenturlizenzen mit zentral festgelegtem Kundenkontingent ergänzt.
+- Agenturen können über eine eingeschränkte Remote-Verwaltung individuelle Schlüssel für ihre Kundenwebsites erstellen und sperren.
+- Unterlizenzen übernehmen Laufzeit und Sperrstatus der übergeordneten Agenturlizenz und können das zentrale Kontingent nicht erhöhen.
+- komplette Plugin-Verwaltung aus dem WordPress-Bereich „Einstellungen“ in einen eigenen Hauptmenüpunkt „Rechtstexte“ verschoben.
+- Wizard, Agentur-Kunden und Lizenzzentrale als kontextabhängige Untermenüs eingeordnet.
+
 ## 1.9.0 - 2026-09-09
 
 - Bundesland-Auswahl für die zuständige Datenschutzaufsichtsbehörde ergänzt.

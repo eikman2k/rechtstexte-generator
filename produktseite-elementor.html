@@ -1,0 +1,1151 @@
+<meta charset="utf-8">
+<!--
+Frontend Rechtstexte Generator - Elementor Produktseite
+Einbindung: Den gesamten Inhalt in ein Elementor-HTML-Widget einfuegen.
+Der abschliessende CTA verweist auf https://edvexperten.de/kontakt/.
+-->
+<style>
+  .frgp-page {
+    --frgp-ink: #333333;
+    --frgp-ink-soft: #69727d;
+    --frgp-teal: #87b92e;
+    --frgp-teal-dark: #5f811f;
+    --frgp-mint: #edf5da;
+    --frgp-cream: #f5f5f3;
+    --frgp-orange: #92bf21;
+    --frgp-line: rgba(51, 51, 51, 0.14);
+    --frgp-white: #ffffff;
+    color: var(--frgp-ink);
+    font-family: Poppins, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    overflow: hidden;
+  }
+
+  .frgp-page *,
+  .frgp-page *::before,
+  .frgp-page *::after {
+    box-sizing: border-box;
+  }
+
+  .frgp-page a {
+    color: inherit;
+  }
+
+  .frgp-shell {
+    width: min(1180px, calc(100% - 40px));
+    margin-inline: auto;
+  }
+
+  .frgp-hero {
+    position: relative;
+    isolation: isolate;
+    padding: clamp(72px, 10vw, 132px) 0 80px;
+    background:
+      radial-gradient(circle at 85% 14%, rgba(146, 191, 33, 0.22), transparent 24%),
+      radial-gradient(circle at 10% 80%, rgba(135, 185, 46, 0.16), transparent 30%),
+      linear-gradient(135deg, #ffffff 0%, #f2f5ed 100%);
+  }
+
+  .frgp-hero::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background-image: linear-gradient(rgba(51, 51, 51, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(51, 51, 51, 0.045) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: linear-gradient(to bottom, #000, transparent 85%);
+    content: "";
+  }
+
+  .frgp-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(380px, 0.92fr);
+    gap: clamp(44px, 7vw, 88px);
+    align-items: center;
+  }
+
+  .frgp-eyebrow,
+  .frgp-version {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(135, 185, 46, 0.3);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    color: var(--frgp-teal-dark);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    line-height: 1;
+    padding: 10px 14px;
+    text-transform: uppercase;
+  }
+
+  .frgp-eyebrow::before {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--frgp-orange);
+    box-shadow: 0 0 0 5px rgba(146, 191, 33, 0.16);
+    content: "";
+  }
+
+  .frgp-title,
+  .frgp-section-title,
+  .frgp-cta-title {
+    margin: 0;
+    font-family: Poppins, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+  }
+
+  .frgp-title {
+    max-width: 760px;
+    margin-top: 24px;
+    font-size: clamp(3rem, 6vw, 5.6rem);
+    line-height: 0.98;
+  }
+
+  .frgp-title-mark {
+    color: var(--frgp-teal);
+    font-weight: 700;
+  }
+
+  .frgp-lead {
+    max-width: 670px;
+    margin: 28px 0 0;
+    color: var(--frgp-ink-soft);
+    font-size: clamp(1.08rem, 2vw, 1.3rem);
+    line-height: 1.65;
+  }
+
+  .frgp-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 34px;
+  }
+
+  .frgp-button {
+    display: inline-flex;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--frgp-teal);
+    border-radius: 8px;
+    font-weight: 800;
+    padding: 13px 22px;
+    text-decoration: none !important;
+    transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+  }
+
+  .frgp-button:hover,
+  .frgp-button:focus-visible {
+    transform: translateY(-2px);
+  }
+
+  .frgp-button--primary {
+    background: var(--frgp-teal);
+    box-shadow: 0 14px 30px rgba(135, 185, 46, 0.24);
+    color: #fff !important;
+  }
+
+  .frgp-button--primary:hover,
+  .frgp-button--primary:focus-visible {
+    background: var(--frgp-teal-dark);
+  }
+
+  .frgp-button--secondary {
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--frgp-teal-dark) !important;
+  }
+
+  .frgp-hero-note {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    max-width: 650px;
+    margin: 24px 0 0;
+    color: #5b6d70;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .frgp-hero-note svg {
+    flex: 0 0 auto;
+    margin-top: 2px;
+    color: var(--frgp-orange);
+  }
+
+  .frgp-product-card {
+    position: relative;
+    border: 1px solid rgba(51, 51, 51, 0.13);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 28px 70px rgba(51, 51, 51, 0.14);
+    padding: 18px;
+    transform: rotate(1.5deg);
+  }
+
+  .frgp-product-card::after {
+    position: absolute;
+    z-index: -1;
+    right: -18px;
+    bottom: -18px;
+    width: 72%;
+    height: 72%;
+    border-radius: 22px;
+    background: var(--frgp-teal);
+    opacity: 0.16;
+    content: "";
+  }
+
+  .frgp-window {
+    overflow: hidden;
+    border: 1px solid var(--frgp-line);
+    border-radius: 15px;
+    background: #f8faf9;
+  }
+
+  .frgp-window-bar {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border-bottom: 1px solid var(--frgp-line);
+    background: #fff;
+    padding: 13px 16px;
+  }
+
+  .frgp-window-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #d8dfdd;
+  }
+
+  .frgp-window-title {
+    margin-left: 8px;
+    color: #718489;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .frgp-dashboard {
+    padding: 22px;
+  }
+
+  .frgp-dashboard-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  .frgp-dashboard-head strong {
+    font-size: 16px;
+  }
+
+  .frgp-status {
+    border-radius: 999px;
+    background: var(--frgp-mint);
+    color: var(--frgp-teal-dark);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 9px;
+  }
+
+  .frgp-progress {
+    height: 8px;
+    overflow: hidden;
+    margin-top: 18px;
+    border-radius: 999px;
+    background: #e3eae8;
+  }
+
+  .frgp-progress span {
+    display: block;
+    width: 74%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--frgp-teal-dark), var(--frgp-teal));
+  }
+
+  .frgp-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .frgp-mini-card {
+    min-height: 90px;
+    border: 1px solid var(--frgp-line);
+    border-radius: 11px;
+    background: #fff;
+    padding: 13px;
+  }
+
+  .frgp-mini-card--wide {
+    grid-column: 1 / -1;
+  }
+
+  .frgp-mini-label {
+    color: #6d8186;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .frgp-mini-value {
+    display: block;
+    margin-top: 7px;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .frgp-mini-lines {
+    display: grid;
+    gap: 7px;
+    margin-top: 11px;
+  }
+
+  .frgp-mini-lines span {
+    display: block;
+    height: 6px;
+    border-radius: 99px;
+    background: #e4ebe9;
+  }
+
+  .frgp-mini-lines span:nth-child(2) {
+    width: 78%;
+  }
+
+  .frgp-proof {
+    background: var(--frgp-ink);
+    color: #fff;
+  }
+
+  .frgp-proof-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .frgp-proof-item {
+    min-height: 110px;
+    border-right: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 26px clamp(16px, 3vw, 34px);
+  }
+
+  .frgp-proof-item:last-child {
+    border-right: 0;
+  }
+
+  .frgp-proof-item strong {
+    display: block;
+    color: #fff;
+    font-size: 15px;
+  }
+
+  .frgp-proof-item span {
+    display: block;
+    margin-top: 5px;
+    color: #a9c2c4;
+    font-size: 13px;
+  }
+
+  .frgp-section {
+    padding: clamp(76px, 10vw, 124px) 0;
+  }
+
+  .frgp-section--cream {
+    background: var(--frgp-cream);
+  }
+
+  .frgp-section--mint {
+    background: #f1f6e8;
+  }
+
+  .frgp-section-head {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(320px, 0.55fr);
+    gap: 40px;
+    align-items: end;
+    margin-bottom: 50px;
+  }
+
+  .frgp-kicker {
+    display: block;
+    margin-bottom: 13px;
+    color: var(--frgp-orange);
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .frgp-section-title {
+    max-width: 760px;
+    font-size: clamp(2.4rem, 4.5vw, 4rem);
+    line-height: 1.05;
+  }
+
+  .frgp-section-copy {
+    margin: 0;
+    color: var(--frgp-ink-soft);
+  }
+
+  .frgp-problem-grid,
+  .frgp-feature-grid,
+  .frgp-mode-grid {
+    display: grid;
+    gap: 18px;
+  }
+
+  .frgp-problem-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .frgp-problem-card {
+    border-top: 4px solid var(--frgp-teal);
+    background: #fff;
+    box-shadow: 0 14px 35px rgba(51, 51, 51, 0.07);
+    padding: 30px;
+  }
+
+  .frgp-card-number {
+    color: rgba(135, 185, 46, 0.48);
+    font-family: Poppins, sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .frgp-card-title {
+    margin: 17px 0 8px;
+    font-size: 1.18rem;
+    line-height: 1.3;
+  }
+
+  .frgp-card-copy {
+    margin: 0;
+    color: var(--frgp-ink-soft);
+    font-size: 15px;
+  }
+
+  .frgp-workflow {
+    counter-reset: workflow;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    overflow: hidden;
+    border: 1px solid var(--frgp-line);
+    border-radius: 18px;
+    background: var(--frgp-line);
+  }
+
+  .frgp-workflow-step {
+    position: relative;
+    min-height: 260px;
+    background: #fff;
+    padding: 28px;
+  }
+
+  .frgp-workflow-step::before {
+    counter-increment: workflow;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--frgp-ink);
+    color: #fff;
+    content: counter(workflow);
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  .frgp-workflow-step h3 {
+    margin: 34px 0 10px;
+    font-size: 1.18rem;
+    line-height: 1.3;
+  }
+
+  .frgp-workflow-step p {
+    margin: 0;
+    color: var(--frgp-ink-soft);
+    font-size: 14px;
+  }
+
+  .frgp-mode-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .frgp-mode-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--frgp-line);
+    border-radius: 18px;
+    background: #fff;
+    padding: 32px;
+  }
+
+  .frgp-mode-card--featured {
+    border-color: var(--frgp-teal);
+    box-shadow: 0 20px 45px rgba(135, 185, 46, 0.16);
+  }
+
+  .frgp-mode-card--featured::before {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-radius: 0 0 0 12px;
+    background: var(--frgp-orange);
+    color: #fff;
+    content: "Für Agenturen";
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    padding: 8px 12px;
+    text-transform: uppercase;
+  }
+
+  .frgp-mode-icon,
+  .frgp-feature-icon {
+    display: grid;
+    width: 48px;
+    height: 48px;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--frgp-mint);
+    color: var(--frgp-teal-dark);
+  }
+
+  .frgp-mode-card h3 {
+    margin: 22px 0 8px;
+    font-size: 1.25rem;
+  }
+
+  .frgp-mode-card p {
+    margin: 0;
+    color: var(--frgp-ink-soft);
+    font-size: 15px;
+  }
+
+  .frgp-mode-card ul,
+  .frgp-check-list {
+    display: grid;
+    gap: 10px;
+    margin: 22px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .frgp-mode-card li,
+  .frgp-check-list li {
+    position: relative;
+    padding-left: 25px;
+    font-size: 14px;
+  }
+
+  .frgp-mode-card li::before,
+  .frgp-check-list li::before {
+    position: absolute;
+    top: 0.2em;
+    left: 0;
+    color: var(--frgp-teal);
+    content: "✓";
+    font-weight: 900;
+  }
+
+  .frgp-mode-step {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: var(--frgp-ink);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    padding: 8px 10px;
+    text-transform: uppercase;
+  }
+
+  .frgp-mode-card--featured .frgp-mode-step {
+    background: var(--frgp-teal);
+  }
+
+  .frgp-mode-step + .frgp-mode-icon {
+    margin-top: 20px;
+  }
+
+  .frgp-agency-note {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 18px;
+    align-items: center;
+    margin-top: 20px;
+    border: 1px solid rgba(135, 185, 46, 0.32);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.78);
+    padding: 22px 24px;
+  }
+
+  .frgp-agency-note strong {
+    color: var(--frgp-teal-dark);
+    font-size: 14px;
+  }
+
+  .frgp-agency-note p {
+    margin: 0;
+    color: var(--frgp-ink-soft);
+    font-size: 14px;
+  }
+
+  .frgp-feature-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .frgp-feature-card {
+    border: 1px solid var(--frgp-line);
+    border-radius: 15px;
+    background: #fff;
+    padding: 26px;
+  }
+
+  .frgp-feature-card h3 {
+    margin: 18px 0 7px;
+    font-size: 1.08rem;
+    line-height: 1.35;
+  }
+
+  .frgp-feature-card p {
+    margin: 0;
+    color: var(--frgp-ink-soft);
+    font-size: 14px;
+  }
+
+  .frgp-control-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(380px, 1.15fr);
+    gap: clamp(44px, 8vw, 100px);
+    align-items: center;
+  }
+
+  .frgp-control-panel {
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.07);
+    padding: 28px;
+  }
+
+  .frgp-control-row {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr) auto;
+    gap: 13px;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 17px 0;
+  }
+
+  .frgp-control-row:last-child {
+    border-bottom: 0;
+  }
+
+  .frgp-control-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #92bf21;
+  }
+
+  .frgp-control-row strong {
+    display: block;
+    color: #fff;
+    font-size: 14px;
+  }
+
+  .frgp-control-row span {
+    color: #a9c2c4;
+    font-size: 12px;
+  }
+
+  .frgp-control-tag {
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+    color: #d7e8e8 !important;
+    padding: 5px 9px;
+  }
+
+  .frgp-dark-copy .frgp-kicker {
+    color: #a8d33f;
+  }
+
+  .frgp-dark-copy .frgp-section-title {
+    color: #fff;
+  }
+
+  .frgp-dark-copy p {
+    color: #b9ced0;
+  }
+
+  .frgp-dark-copy .frgp-check-list {
+    color: #eef7f6;
+  }
+
+  .frgp-audience {
+    display: grid;
+    grid-template-columns: 0.72fr 1.28fr;
+    gap: clamp(46px, 8vw, 110px);
+    align-items: start;
+  }
+
+  .frgp-audience-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .frgp-audience-item {
+    border-left: 3px solid var(--frgp-teal);
+    background: #fff;
+    box-shadow: 0 10px 25px rgba(51, 51, 51, 0.06);
+    padding: 20px;
+  }
+
+  .frgp-audience-item strong {
+    display: block;
+    font-size: 15px;
+  }
+
+  .frgp-audience-item span {
+    display: block;
+    margin-top: 4px;
+    color: var(--frgp-ink-soft);
+    font-size: 13px;
+  }
+
+  .frgp-cta {
+    padding: 0 0 clamp(70px, 9vw, 110px);
+    background: var(--frgp-cream);
+  }
+
+  .frgp-cta-box {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 40px;
+    align-items: center;
+    border-radius: 24px;
+    background: var(--frgp-teal);
+    color: #fff;
+    padding: clamp(36px, 7vw, 72px);
+  }
+
+  .frgp-cta-box::after {
+    position: absolute;
+    right: -70px;
+    bottom: -110px;
+    width: 300px;
+    height: 300px;
+    border: 55px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    content: "";
+  }
+
+  .frgp-cta-title {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    color: #fff;
+    font-size: clamp(2.3rem, 4.5vw, 4rem);
+    line-height: 1.06;
+  }
+
+  .frgp-cta-copy {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    margin: 18px 0 0;
+    color: #d4ebe8;
+  }
+
+  .frgp-cta .frgp-button {
+    position: relative;
+    z-index: 1;
+    border-color: #fff;
+    background: #fff;
+    color: var(--frgp-teal-dark) !important;
+  }
+
+  .frgp-disclaimer {
+    margin: 20px auto 0;
+    color: #6f7d7c;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  @media (max-width: 920px) {
+    .frgp-hero-grid,
+    .frgp-section-head,
+    .frgp-control-grid,
+    .frgp-audience,
+    .frgp-cta-box {
+      grid-template-columns: 1fr;
+    }
+
+    .frgp-product-card {
+      max-width: 620px;
+      transform: none;
+    }
+
+    .frgp-proof-grid,
+    .frgp-workflow {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .frgp-proof-item:nth-child(2) {
+      border-right: 0;
+    }
+
+    .frgp-proof-item:nth-child(-n+2) {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .frgp-problem-grid,
+    .frgp-mode-grid,
+    .frgp-feature-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .frgp-cta-box {
+      justify-items: start;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .frgp-page {
+      font-size: 16px;
+    }
+
+    .frgp-shell {
+      width: min(100% - 28px, 1180px);
+    }
+
+    .frgp-hero {
+      padding-top: 58px;
+    }
+
+    .frgp-hero-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .frgp-title {
+      font-size: clamp(2.75rem, 14vw, 4rem);
+    }
+
+    .frgp-actions,
+    .frgp-button {
+      width: 100%;
+    }
+
+    .frgp-proof-grid,
+    .frgp-problem-grid,
+    .frgp-workflow,
+    .frgp-mode-grid,
+    .frgp-feature-grid,
+    .frgp-audience-list {
+      grid-template-columns: 1fr;
+    }
+
+    .frgp-proof-item,
+    .frgp-proof-item:nth-child(2) {
+      border-right: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .frgp-proof-item:last-child {
+      border-bottom: 0;
+    }
+
+    .frgp-workflow-step {
+      min-height: auto;
+    }
+
+    .frgp-agency-note {
+      grid-template-columns: 1fr;
+    }
+
+    .frgp-dashboard {
+      padding: 16px;
+    }
+
+    .frgp-dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .frgp-mini-card--wide {
+      grid-column: auto;
+    }
+
+    .frgp-control-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .frgp-control-panel,
+    .frgp-mode-card,
+    .frgp-problem-card {
+      padding: 24px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .frgp-page *,
+    .frgp-page *::before,
+    .frgp-page *::after {
+      scroll-behavior: auto !important;
+      transition: none !important;
+    }
+  }
+</style>
+
+<main class="frgp-page">
+  <section class="frgp-hero">
+    <div class="frgp-shell frgp-hero-grid">
+      <div>
+        <span class="frgp-eyebrow">Für WordPress-Agenturen &amp; Webdesigner</span>
+        <h1 class="frgp-title">Rechtstexte einmal pflegen. <span class="frgp-title-mark">Kunden-Websites synchron halten.</span></h1>
+        <p class="frgp-lead">Der WordPress Rechtstexte Manager erstellt Impressum und Datenschutzerklärung aus kontrollierbaren Textbausteinen. Agenturen können zentrale Master-Texte übernehmen oder ihre eigenen Textstände an Kunden verteilen und geben jeder Kunden-Website einen individuellen Synchronisationsschlüssel.</p>
+        <div class="frgp-actions">
+          <a class="frgp-button frgp-button--primary" href="#frg-kontakt">Plugin anfragen</a>
+          <a class="frgp-button frgp-button--secondary" href="#frg-funktionen">Funktionen ansehen</a>
+        </div>
+        <p class="frgp-hero-note">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 3.7 6.5v5.2c0 4.8 3.5 8.1 8.3 9.3 4.8-1.2 8.3-4.5 8.3-9.3V6.5L12 3Z" stroke="currentColor" stroke-width="1.8"/><path d="m8.7 12 2.1 2.1 4.7-4.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Das Plugin ersetzt keine anwaltliche Prüfung und verspricht keine Rechtssicherheit. Eine rechtliche Prüfung kann unabhängig durch eine selbst beauftragte Kanzlei erfolgen, ist jedoch nicht Bestandteil unseres Angebots.</span>
+        </p>
+      </div>
+
+      <div class="frgp-product-card" aria-label="Beispielansicht des Plugin-Dashboards">
+        <div class="frgp-window">
+          <div class="frgp-window-bar">
+            <span class="frgp-window-dot"></span><span class="frgp-window-dot"></span><span class="frgp-window-dot"></span>
+            <span class="frgp-window-title">Rechtstexte Generator</span>
+          </div>
+          <div class="frgp-dashboard">
+            <div class="frgp-dashboard-head">
+              <strong>Agentur-Zentrale</strong>
+              <span class="frgp-status">12 von 25 Websites aktiv</span>
+            </div>
+            <div class="frgp-progress"><span></span></div>
+            <div class="frgp-dashboard-grid">
+              <div class="frgp-mini-card">
+                <span class="frgp-mini-label">Textstand</span>
+                <span class="frgp-mini-value">Version freigegeben</span>
+                <div class="frgp-mini-lines"><span></span><span></span></div>
+              </div>
+              <div class="frgp-mini-card">
+                <span class="frgp-mini-label">Kundenschlüssel</span>
+                <span class="frgp-mini-value">12 Domains verbunden</span>
+                <div class="frgp-mini-lines"><span></span><span></span></div>
+              </div>
+              <div class="frgp-mini-card frgp-mini-card--wide">
+                <span class="frgp-mini-label">Letzter Abgleich</span>
+                <span class="frgp-mini-value">Alle Kunden-Websites auf aktuellem Stand</span>
+                <div class="frgp-mini-lines"><span></span><span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="frgp-proof" aria-label="Technische Eckdaten">
+    <div class="frgp-shell frgp-proof-grid">
+      <div class="frgp-proof-item"><strong>100 % WordPress</strong><span>Ohne externe Frameworks</span></div>
+      <div class="frgp-proof-item"><strong>Elementor-kompatibel</strong><span>Shortcodes und HTML-Ausgabe</span></div>
+      <div class="frgp-proof-item"><strong>Daten bleiben lokal</strong><span>Keine Kundenprofile übertragen</span></div>
+      <div class="frgp-proof-item"><strong>Eigene Kundenschlüssel</strong><span>Pro Website einzeln verwalten</span></div>
+    </div>
+  </section>
+
+  <section class="frgp-section frgp-section--cream">
+    <div class="frgp-shell">
+      <div class="frgp-section-head">
+        <div>
+          <span class="frgp-kicker">Das Problem</span>
+          <h2 class="frgp-section-title">Jede Website ist anders. Die wiederkehrende Arbeit bleibt gleich.</h2>
+        </div>
+        <p class="frgp-section-copy">Unternehmensdaten, Hosting, Formulare, Cookies, externe Dienste und branchenspezifische Angaben müssen immer wieder strukturiert erfasst und in passende Abschnitte überführt werden.</p>
+      </div>
+      <div class="frgp-problem-grid">
+        <article class="frgp-problem-card">
+          <span class="frgp-card-number">01</span>
+          <h3 class="frgp-card-title">Angaben sind verstreut</h3>
+          <p class="frgp-card-copy">Unternehmensdaten, technische Dienste und Datenschutzdetails liegen häufig in E-Mails, Notizen und verschiedenen Backends.</p>
+        </article>
+        <article class="frgp-problem-card">
+          <span class="frgp-card-number">02</span>
+          <h3 class="frgp-card-title">Texte werden inkonsistent</h3>
+          <p class="frgp-card-copy">Manuelle Kopien führen schnell zu alten Anbieterangaben, unpassenden Abschnitten oder vergessenen Platzhaltern.</p>
+        </article>
+        <article class="frgp-problem-card">
+          <span class="frgp-card-number">03</span>
+          <h3 class="frgp-card-title">Jede Änderung vervielfacht sich</h3>
+          <p class="frgp-card-copy">Ohne Synchronisierung muss ein aktualisierter Standardbaustein auf jeder betreuten Kunden-Website einzeln ersetzt werden.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="frgp-section" id="frg-demo">
+    <div class="frgp-shell">
+      <div class="frgp-section-head">
+        <div>
+          <span class="frgp-kicker">Der Ablauf</span>
+          <h2 class="frgp-section-title">Vom Website-Profil zur fertigen Ausgabe.</h2>
+        </div>
+        <p class="frgp-section-copy">Der geführte Workflow trennt Kundendaten, technische Erkennung, Textbausteine und Veröffentlichung klar voneinander.</p>
+      </div>
+      <div class="frgp-workflow">
+        <article class="frgp-workflow-step">
+          <h3>Daten erfassen</h3>
+          <p>Unternehmen, Register, Hosting, Website-Funktionen, Dienste und besondere Anforderungen im Wizard eintragen.</p>
+        </article>
+        <article class="frgp-workflow-step">
+          <h3>Website prüfen</h3>
+          <p>Der Scanner erkennt aktive Plugins und typische externe Dienste. Vorschläge werden nie automatisch übernommen.</p>
+        </article>
+        <article class="frgp-workflow-step">
+          <h3>Texte erzeugen</h3>
+          <p>Nur die ausgewählten Module werden mit den konkreten Website-Daten zu Impressum und Datenschutz kombiniert.</p>
+        </article>
+        <article class="frgp-workflow-step">
+          <h3>Veröffentlichen</h3>
+          <p>Ausgabe per Shortcode, synchronisierter WordPress-Seite oder als separat kopierbares HTML.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="frgp-section frgp-section--mint">
+    <div class="frgp-shell">
+      <div class="frgp-section-head">
+        <div>
+          <span class="frgp-kicker">Agentur-Sync</span>
+          <h2 class="frgp-section-title">Zentral steuern. Als Agentur selbstständig verteilen.</h2>
+        </div>
+        <p class="frgp-section-copy">Die private Master-Zentrale stellt freigegebene Textstände bereit und kontrolliert Agenturkontingente. Jede Agentur entscheidet selbst, ob sie den Master synchronisiert oder einen eigenen freigegebenen Textstand an ihre Kunden verteilt.</p>
+      </div>
+      <div class="frgp-mode-grid">
+        <article class="frgp-mode-card">
+          <span class="frgp-mode-step">Ebene 1</span>
+          <span class="frgp-mode-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+          <h3>Private Master-Zentrale</h3>
+          <p>Sie stellen eine zentrale Textbasis bereit, betreuen eigene Kunden direkt und bestimmen, welche externe Agentur wie viele Websites anbinden darf.</p>
+          <ul><li>Eigene Kunden-Websites direkt verwalten</li><li>Master-Textversionen freigeben</li><li>Kontingente und Laufzeiten festlegen</li><li>Agenturzugänge sperren oder freischalten</li></ul>
+        </article>
+        <article class="frgp-mode-card frgp-mode-card--featured">
+          <span class="frgp-mode-step">Ebene 2</span>
+          <span class="frgp-mode-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v5m0 0L8 7m4 2 4-2M6 13v5m0 0-3-2m3 2 3-2m9-3v5m0 0-3-2m3 2 3-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <h3>Agenturverwaltung</h3>
+          <p>Die Agentur verbindet sich einmal mit ihrem Agenturschlüssel, verwaltet ihre Kunden und bestimmt die Textquelle selbst.</p>
+          <ul><li>Master-Synchronisierung ein- oder ausschalten</li><li>Eigene Textbausteine bearbeiten und veröffentlichen</li><li>Individueller Schlüssel pro Kunden-Website</li><li>Kundenzugänge selbst erstellen und sperren</li></ul>
+        </article>
+        <article class="frgp-mode-card">
+          <span class="frgp-mode-step">Ebene 3</span>
+          <span class="frgp-mode-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="8.5" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 11v1.5H12V14m5.5-3v1.5H12" stroke="currentColor" stroke-width="1.8"/></svg></span>
+          <h3>Lokale Kundeninstallation</h3>
+          <p>Das Kundenplugin lädt freigegebene Module und kombiniert sie ausschließlich vor Ort mit den Angaben aus dem lokalen Website-Profil.</p>
+          <ul><li>Automatischer täglicher Abgleich</li><li>Domain wird beim ersten Abruf registriert</li><li>Kundendaten verlassen die Website nicht</li><li>Letzte funktionierende Version bleibt erhalten</li></ul>
+        </article>
+      </div>
+      <div class="frgp-agency-note">
+        <strong>Auch ohne Zentrale nutzbar</strong>
+        <p>Das Kundenplugin bleibt vollständig autonom einsetzbar. Die Verbindung zur Master-Zentrale und die Agenturverwaltung sind zusätzliche Betriebsmodelle für wachsende Website-Bestände.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="frgp-section" id="frg-funktionen">
+    <div class="frgp-shell">
+      <div class="frgp-section-head">
+        <div>
+          <span class="frgp-kicker">Funktionsumfang</span>
+          <h2 class="frgp-section-title">Alles an einem Ort. Verständlich statt kryptisch.</h2>
+        </div>
+        <p class="frgp-section-copy">Die Oberfläche führt durch Erfassung, Vorschau, redaktionelle Prüfung und Veröffentlichung, ohne einen Build-Prozess oder zusätzliche Frameworks.</p>
+      </div>
+      <div class="frgp-feature-grid">
+        <article class="frgp-feature-card"><span class="frgp-feature-icon">01</span><h3>Frontend- und Backend-Wizard</h3><p>Daten auf einer geschützten Frontend-Seite oder direkt im WordPress-Backend erfassen.</p></article>
+        <article class="frgp-feature-card"><span class="frgp-feature-icon">02</span><h3>Modulare Textausgabe</h3><p>Impressum und Datenschutz werden aus den tatsächlich ausgewählten Modulen zusammengesetzt.</p></article>
+        <article class="frgp-feature-card"><span class="frgp-feature-icon">03</span><h3>Website-Scanner</h3><p>Hinweise zu Plugins und externen Diensten erkennen und einzeln in die Auswahl übernehmen.</p></article>
+        <article class="frgp-feature-card"><span class="frgp-feature-icon">04</span><h3>Kontrollierte KI-Entwürfe</h3><p>Optional neue Blockentwürfe vorbereiten. Sie gehen erst nach ausdrücklicher Freigabe live.</p></article>
+        <article class="frgp-feature-card"><span class="frgp-feature-icon">05</span><h3>Kompakt oder ausführlich</h3><p>Datenschutzerklärungen mit eigenen kompakten oder ausführlichen Textmodulen ausgeben.</p></article>
+        <article class="frgp-feature-card"><span class="frgp-feature-icon">06</span><h3>HTML und Shortcodes</h3><p>Inhalte dynamisch einbinden oder als formatiertes HTML in bestehende Seiten übernehmen.</p></article>
+        <article class="frgp-feature-card"><span class="frgp-feature-icon">07</span><h3>Profile exportieren</h3><p>Konfigurationen und Block-Registries sichern und auf andere Installationen übertragen.</p></article>
+        <article class="frgp-feature-card"><span class="frgp-feature-icon">08</span><h3>Branchenspezifische Angaben</h3><p>Register, Kammern, Versicherungen und weitere Angaben nur bei tatsächlicher Relevanz ausgeben.</p></article>
+        <article class="frgp-feature-card"><span class="frgp-feature-icon">09</span><h3>Lernplattformen</h3><p>Zusätzliche Module für Lernfortschritt, Prüfungen, Zertifikate, SCORM und Rollenmodelle.</p></article>
+        <article class="frgp-feature-card"><span class="frgp-feature-icon">10</span><h3>Master und Agentur zugleich</h3><p>Betreiben Sie die Textzentrale und verwalten Sie eigene Kunden-Websites direkt in derselben WordPress-Installation.</p></article>
+        <article class="frgp-feature-card"><span class="frgp-feature-icon">11</span><h3>Individuelle Website-Schlüssel</h3><p>Agenturen erzeugen für jede Kunden-Website einen eigenen Schlüssel. JSON-Link und Schlüssel sind in Master- und Agenturbereich direkt kopierbar; einzelne Verbindungen lassen sich gezielt sperren.</p></article>
+        <article class="frgp-feature-card"><span class="frgp-feature-icon">12</span><h3>Wählbare Textquelle</h3><p>Externe Agenturen können Master-Aktualisierungen deaktivieren und stattdessen eigene freigegebene Texte verteilen.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="frgp-section frgp-proof">
+    <div class="frgp-shell frgp-control-grid">
+      <div class="frgp-dark-copy">
+        <span class="frgp-kicker">Kontrolle statt Blackbox</span>
+        <h2 class="frgp-section-title">KI darf vorschlagen. Sie entscheidet nicht.</h2>
+        <p>Optionale KI-Funktionen erstellen ausschließlich Arbeitsentwürfe für einzelne Textmodule. Der veröffentlichte Inhalt ändert sich erst nach einer bewussten redaktionellen Freigabe.</p>
+        <ul class="frgp-check-list">
+          <li>Kein ungeprüfter KI-Freitext in der Live-Ausgabe</li>
+          <li>Eigener Status zur Dokumentation einer externen juristischen Prüfung</li>
+          <li>Platzhalter bleiben mit lokalen Website-Daten verknüpft</li>
+          <li>Qualitätsprüfung erkennt offene Platzhalter und Entwurfshinweise</li>
+        </ul>
+      </div>
+      <div class="frgp-control-panel">
+        <div class="frgp-control-row"><span class="frgp-control-dot"></span><div><strong>Standardtext</strong><span>Mit dem Plugin ausgelieferter Baustein</span></div><span class="frgp-control-tag">Aktiv</span></div>
+        <div class="frgp-control-row"><span class="frgp-control-dot"></span><div><strong>KI-Entwurf</strong><span>Nur im geschützten Backend sichtbar</span></div><span class="frgp-control-tag">Entwurf</span></div>
+        <div class="frgp-control-row"><span class="frgp-control-dot"></span><div><strong>Redaktionelle Freigabe</strong><span>Bewusste Übernahme in die Ausgabe</span></div><span class="frgp-control-tag">Manuell</span></div>
+        <div class="frgp-control-row"><span class="frgp-control-dot"></span><div><strong>Externe juristische Prüfung</strong><span>Durch eine selbst beauftragte Prüfstelle mit Datum dokumentierbar</span></div><span class="frgp-control-tag">Nicht enthalten</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="frgp-section frgp-section--cream">
+    <div class="frgp-shell frgp-audience">
+      <div>
+        <span class="frgp-kicker">Für wen?</span>
+        <h2 class="frgp-section-title">Gebaut für echte WordPress-Workflows.</h2>
+        <p class="frgp-section-copy" style="margin-top:20px">Besonders sinnvoll, wenn regelmäßig verschiedene Websites mit ähnlichen technischen und organisatorischen Anforderungen betreut werden.</p>
+      </div>
+      <div class="frgp-audience-list">
+        <div class="frgp-audience-item"><strong>Webdesigner</strong><span>Kundendaten strukturiert erfassen und ausgeben.</span></div>
+        <div class="frgp-audience-item"><strong>WordPress-Agenturen</strong><span>Eigene Kundenschlüssel und Website-Kontingente verwalten.</span></div>
+        <div class="frgp-audience-item"><strong>Website-Betreiber</strong><span>Änderungen nachvollziehbar selbst pflegen.</span></div>
+        <div class="frgp-audience-item"><strong>Multisite-Netzwerke</strong><span>Inhalte über eine Master-Site steuern.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="frgp-cta" id="frg-kontakt">
+    <div class="frgp-shell">
+      <div class="frgp-cta-box">
+        <div>
+          <h2 class="frgp-cta-title">Einmal aktualisieren. Verbundene Kunden-Websites automatisch versorgen.</h2>
+          <p class="frgp-cta-copy">Lassen Sie sich Kundenplugin, Agenturverwaltung und private Master-Zentrale im Zusammenspiel zeigen und klären Sie, welches Kontingent zu Ihrem Website-Bestand passt.</p>
+        </div>
+        <a class="frgp-button" href="https://edvexperten.de/kontakt/">Beratung anfragen</a>
+      </div>
+      <p class="frgp-disclaimer">Hinweis: Die erzeugten Inhalte basieren auf den eingegebenen Angaben und modularen Textbausteinen. Sie ersetzen keine anwaltliche Prüfung oder rechtliche Einzelfallberatung und werden nicht als rechtssicher angeboten. Eine unabhängige Prüfung durch eine vom Kunden selbst beauftragte Kanzlei ist möglich, wird von uns jedoch weder durchgeführt noch vermittelt.</p>
+    </div>
+  </section>
+</main>

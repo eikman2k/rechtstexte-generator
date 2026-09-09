@@ -16,56 +16,15 @@ class FRG_Block_Feed {
 		$this->generator = $generator;
 	}
 
-	public function register_routes(): void {
-		register_rest_route(
-			self::REST_NAMESPACE,
-			self::REST_ROUTE,
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'serve_feed' ),
-				'permission_callback' => array( $this, 'authorize_feed_request' ),
-			)
-		);
-	}
-
-	public function authorize_feed_request( WP_REST_Request $request ) {
-		$settings = get_option( 'frg_settings', array() );
-		$expected = (string) ( $settings['block_feed_key'] ?? '' );
-		$provided = (string) $request->get_header( 'x-frg-feed-key' );
-
-		if ( 'hub' !== ( $settings['block_feed_mode'] ?? 'off' ) || '' === $expected || '' === $provided || ! hash_equals( $expected, $provided ) ) {
-			return new WP_Error(
-				'frg_feed_unauthorized',
-				__( 'Der Zugriff auf diesen Textbaustein-Feed ist nicht erlaubt.', 'frontend-rechtstexte-generator' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		return true;
-	}
-
-	public function serve_feed(): WP_REST_Response {
-		$blocks  = $this->build_public_blocks();
-		$meta    = $this->generator->get_module_meta();
-		$payload = array(
-			'schema_version' => 1,
-			'feed_version'   => hash( 'sha256', (string) wp_json_encode( $blocks ) ),
-			'published_at'   => current_time( 'c' ),
-			'source_url'     => home_url( '/' ),
-			'plugin_version' => defined( 'FRG_VERSION' ) ? FRG_VERSION : '',
-			'module_version' => sanitize_text_field( $meta['module_version'] ?? '' ),
-			'blocks'         => $blocks,
-		);
-
-		$response = new WP_REST_Response( $payload, 200 );
-		$response->header( 'Cache-Control', 'no-store, private' );
-
-		return $response;
-	}
-
 	public function maybe_schedule_sync(): void {
 		$settings  = get_option( 'frg_settings', array() );
-		$should_run = 'client' === ( $settings['block_feed_mode'] ?? 'off' ) && ! empty( $settings['block_feed_auto_sync'] );
+		$state      = self::get_state();
+		$agency_uses_own_texts = 'agency' === ( $state['license_type'] ?? '' )
+			&& array_key_exists( 'agency_master_sync_enabled', $settings )
+			&& empty( $settings['agency_master_sync_enabled'] );
+		$should_run = 'client' === ( $settings['block_feed_mode'] ?? 'off' )
+			&& ! empty( $settings['block_feed_auto_sync'] )
+			&& ! $agency_uses_own_texts;
 		$scheduled  = wp_next_scheduled( self::CRON_HOOK );
 
 		if ( $should_run && ! $scheduled ) {
@@ -84,6 +43,14 @@ class FRG_Block_Feed {
 		if ( 'client' !== ( $settings['block_feed_mode'] ?? 'off' ) ) {
 			return new WP_Error( 'frg_feed_not_client', __( 'Diese Website ist nicht als Empfänger eingerichtet.', 'frontend-rechtstexte-generator' ) );
 		}
+		$state = self::get_state();
+		if (
+			'agency' === ( $state['license_type'] ?? '' )
+			&& array_key_exists( 'agency_master_sync_enabled', $settings )
+			&& empty( $settings['agency_master_sync_enabled'] )
+		) {
+			return new WP_Error( 'frg_agency_master_sync_disabled', __( 'Die Master-Synchronisierung ist für diese Agentur deaktiviert. Ihr eigener Textstand bleibt aktiv.', 'frontend-rechtstexte-generator' ) );
+		}
 
 		$endpoint = $this->build_endpoint_url( (string) ( $settings['block_feed_url'] ?? '' ) );
 		$key      = (string) ( $settings['block_feed_key'] ?? '' );
@@ -101,8 +68,10 @@ class FRG_Block_Feed {
 				'redirection' => 0,
 				'limit_response_size' => 2 * MB_IN_BYTES,
 				'headers'     => array(
-					'Accept'         => 'application/json',
-					'X-FRG-Feed-Key' => $key,
+					'Accept'               => 'application/json',
+					'X-FRG-License-Key'    => $key,
+					'X-FRG-Site-URL'       => home_url( '/' ),
+					'X-FRG-Plugin-Version' => defined( 'FRG_VERSION' ) ? FRG_VERSION : '',
 				),
 			)
 		);
@@ -113,12 +82,16 @@ class FRG_Block_Feed {
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
-			return $this->record_error(
-				sprintf(
+			$error_payload = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+			$error_message = is_array( $error_payload ) && ! empty( $error_payload['message'] )
+				? sanitize_text_field( $error_payload['message'] )
+				: sprintf(
 					/* translators: %d: HTTP status code */
 					__( 'Die Zentrale antwortete mit HTTP-Status %d.', 'frontend-rechtstexte-generator' ),
 					$status_code
-				)
+				);
+			return $this->record_error(
+				$error_message
 			);
 		}
 
@@ -139,6 +112,10 @@ class FRG_Block_Feed {
 			'module_version'  => sanitize_text_field( $payload['module_version'] ?? '' ),
 			'source_url'      => esc_url_raw( $payload['source_url'] ?? $endpoint ),
 			'block_count'     => count( $payload['blocks'] ),
+			'license_expires_at' => sanitize_text_field( $payload['license']['expires_at'] ?? '' ),
+			'license_type'    => sanitize_key( $payload['license']['license_type'] ?? 'site' ),
+			'license_name'    => sanitize_text_field( $payload['license']['customer_name'] ?? '' ),
+			'text_source'     => sanitize_key( $payload['text_source'] ?? 'master' ),
 		);
 		update_option( self::STATE_OPTION, $state, false );
 
@@ -152,19 +129,6 @@ class FRG_Block_Feed {
 
 	public static function get_endpoint_url(): string {
 		return rest_url( self::REST_NAMESPACE . self::REST_ROUTE );
-	}
-
-	private function build_public_blocks(): array {
-		$public = array();
-		foreach ( $this->generator->get_block_registry() as $key => $block ) {
-			$public[ $key ] = array(
-				'published_text'         => $this->generator->get_distributable_block_text( $key ),
-				'published_compact_text' => $this->generator->get_distributable_compact_block_text( $key ),
-				'legal_basis'            => array_values( array_map( 'sanitize_text_field', $block['legal_basis'] ?? array() ) ),
-			);
-		}
-
-		return $public;
 	}
 
 	private function merge_remote_blocks( array $local, array $remote ): array {

@@ -11,13 +11,14 @@ class FRG_Multisite {
 			return;
 		}
 
-		add_submenu_page(
-			'settings.php',
+		add_menu_page(
 			__( 'Rechtstexte Generator', 'frontend-rechtstexte-generator' ),
-			__( 'Rechtstexte Generator', 'frontend-rechtstexte-generator' ),
+			__( 'Rechtstexte', 'frontend-rechtstexte-generator' ),
 			'manage_network_options',
 			'frg-network-settings',
-			array( __CLASS__, 'render_network_page' )
+			array( __CLASS__, 'render_network_page' ),
+			'dashicons-privacy',
+			58
 		);
 	}
 
